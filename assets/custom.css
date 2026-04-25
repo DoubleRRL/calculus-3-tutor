@@ -1,43 +1,48 @@
 /* ============================================================
-   CalcTutor — Apple-inspired Design System
-   Font: SF Pro / system sans + SF Mono
+   CalcTutor — Claude-inspired warm light (editorial, reading-first)
+   Body: DM Sans · Display: Playfair (wordmark) · Code: DM Mono
    ============================================================ */
 
 
 /* ── Tokens ─────────────────────────────────────────────── */
 :root {
-  --bg:            #0a0f16;
-  --surface:       #11161f;
-  --surface-2:     #151b27;
-  --border:        rgba(255,255,255,0.12);
-  --border-strong: rgba(255,255,255,0.2);
-  --text-primary:  #F3F5F9;
-  --text-secondary:#B7C0D4;
-  --text-tertiary: #8A93A8;
-  --accent:        #0A84FF;
-  --accent-hover:  #3b96ff;
-  --accent-glow:   rgba(10,132,255,0.26);
-  --baby-bg:       #0d1727;
-  --baby-border:   #2b5fb6;
-  --baby-text:     #cfe1ff;
-  --chad-bg:       #141e37;
-  --chad-border:   #3a68ed;
-  --chad-text:     #c6d5ff;
-  --real-bg:       #13231b;
-  --real-border:   #2ec27a;
-  --real-text:     #8fe0b5;
-  --success:       #30d158;
-  --warning:       #FFB020;
-  --radius-sm:     14px;
-  --radius-md:     18px;
-  --radius-lg:     24px;
-  --radius-xl:     34px;
-  --shadow-xs:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-sm:     0 2px 8px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
-  --shadow-md:     0 4px 20px rgba(0,0,0,0.09), 0 2px 8px rgba(0,0,0,0.06);
-  --shadow-lg:     0 8px 40px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.07);
-  --font-body:     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono:     "SF Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Anthropic-adjacent warm ivory + clay accent */
+  --bg:            #faf8f3;
+  --surface:       #f3efe6;
+  --surface-2:     #ebe4d8;
+  --border:        rgba(40, 32, 24, 0.10);
+  --border-strong: rgba(40, 32, 24, 0.16);
+  --text-primary:  #1e1b16;
+  --text-secondary:#5a5347;
+  --text-tertiary: #8a8174;
+  --accent:        #b84a2a;
+  --accent-hover:  #9c3d22;
+  --accent-glow:   rgba(184, 74, 42, 0.22);
+  --baby-bg:       #f7f1e8;
+  --baby-border:   #c4a574;
+  --baby-text:     #3d3a32;
+  --chad-bg:       #f2eadf;
+  --chad-border:   #b84a2a;
+  --chad-text:     #3d2a22;
+  --real-bg:       #e8f2ea;
+  --real-border:   #3d8f5a;
+  --real-text:     #1f5c36;
+  --success:       #2d7a48;
+  --warning:       #b8860b;
+  /* Paper surfaces (practice nav / tiles) */
+  --ct-paper:      #fffdf9;
+  --ct-paper-muted: #faf6ef;
+  --radius-sm:     10px;
+  --radius-md:     14px;
+  --radius-lg:     20px;
+  --radius-xl:     28px;
+  --shadow-xs:     0 1px 2px rgba(30, 24, 18, 0.05);
+  --shadow-sm:     0 2px 10px rgba(30, 24, 18, 0.07), 0 1px 2px rgba(30, 24, 18, 0.04);
+  --shadow-md:     0 6px 24px rgba(30, 24, 18, 0.09), 0 2px 8px rgba(30, 24, 18, 0.05);
+  --shadow-lg:     0 12px 40px rgba(30, 24, 18, 0.1), 0 4px 14px rgba(30, 24, 18, 0.06);
+  --font-body:     "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display:  "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-mono:     "DM Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
   --transition:    cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -55,13 +60,15 @@
   --ct-text-muted:             var(--text-tertiary);
   --ct-accent-main:            var(--accent);
   --ct-accent-glow:            var(--accent-glow);
-  --ct-accent-contrast:        #F8F9FF;
-  --ct-shadow-subtle:          0 8px 24px rgba(0,0,0,0.38), inset 0 0 0 1px rgba(255,255,255,0.06);
+  --ct-accent-contrast:        #fffefb;
+  --ct-shadow-subtle:          0 6px 20px rgba(30, 24, 18, 0.08), inset 0 0 0 1px rgba(40, 32, 24, 0.04);
   --ct-shadow-elevated:        var(--shadow-md);
-  --ct-focus-ring:             0 0 0 3px rgba(10,132,255,0.3);
-  --ct-lift-shadow:            0 8px 26px rgba(0,0,0,0.12);
+  --ct-focus-ring:             0 0 0 3px rgba(184, 74, 42, 0.28);
+  --ct-lift-shadow:            0 10px 32px rgba(30, 24, 18, 0.1);
   --ct-radius-shell:           var(--radius-xl);
   --ct-radius-card:            var(--radius-lg);
+  /* Prominent rounding for the Solve a Problem input card (warm elevated box) */
+  --ct-radius-solve:           clamp(24px, 3.2vw, 40px);
   --ct-motion-curve:           var(--transition);
   --ct-motion-fast:            0.2s;
   --ct-motion-normal:          0.34s;
@@ -71,32 +78,78 @@
   --ct-layer-tray:             95;
 }
 
-/* Dark mode */
+/* Warm night (for users on OS dark mode — still brown-tinted, not blue-black) */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg:            #0a0f16;
-    --surface:       #11161f;
-    --surface-2:     #151b27;
-    --border:        rgba(255,255,255,0.1);
-    --border-strong: rgba(255,255,255,0.18);
-    --text-primary:  #F4F6FB;
-    --text-secondary:#AFB8CC;
-    --text-tertiary: #8A93A8;
-    --baby-bg:       #0f1824;
-    --baby-border:   #2b5fb6;
-    --baby-text:     #F8D87A;
-    --chad-bg:       #141e37;
-    --chad-border:   #3a68ed;
-    --chad-text:     #c6d5ff;
-    --real-bg:       #13231b;
-    --real-border:   #2ec27a;
-    --real-text:     #8fe0b5;
-    --accent:        #0A84FF;
-    --accent-hover:  #3b96ff;
-    --accent-glow:   rgba(10,132,255,0.26);
-    --success:       #30d158;
-    --warning:       #FFB020;
+    --bg:            #1a1714;
+    --surface:       #222019;
+    --surface-2:     #2a2622;
+    --border:        rgba(245, 240, 230, 0.10);
+    --border-strong: rgba(245, 240, 230, 0.16);
+    --text-primary:  #f5f0e8;
+    --text-secondary:#b8b0a3;
+    --text-tertiary: #8a8276;
+    --baby-bg:       #1e1c19;
+    --baby-border:   #8b7355;
+    --baby-text:     #e8dcc8;
+    --chad-bg:       #232018;
+    --chad-border:   #c96b45;
+    --chad-text:     #f0d4c8;
+    --real-bg:       #182218;
+    --real-border:   #4a9d6a;
+    --real-text:     #9fd4b0;
+    --accent:        #d47852;
+    --accent-hover:  #e08f6c;
+    --accent-glow:   rgba(212, 120, 82, 0.28);
+    --success:       #5cb878;
+    --warning:       #d4a64a;
+    --ct-paper:        var(--surface);
+    --ct-paper-muted:  var(--surface-2);
+    --ct-accent-contrast: #fff8f2;
+    --ct-shadow-subtle: 0 8px 28px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.04);
+    --ct-focus-ring: 0 0 0 3px rgba(212, 120, 82, 0.35);
   }
+}
+
+/* Tutor workspace: always warm light. System dark mode was making elevated cards and
+   OS tokens overlap (e.g. dark “Topics”/domain text on warm-dark surfaces) and
+   Gradio’s layers looked square against rounded shells. */
+#ct-solve-panel,
+#ct-practice-outer {
+  color-scheme: only light;
+  --bg: #faf8f3;
+  --surface: #f3efe6;
+  --surface-2: #e8e2d6;
+  --border: rgba(40, 32, 24, 0.11);
+  --border-strong: rgba(40, 32, 24, 0.17);
+  --text-primary: #14110d;
+  --text-secondary: #3a342c;
+  --text-tertiary: #5a5347;
+  --ct-page-bg: #faf8f3;
+  --ct-surface-primary: #f3efe6;
+  --ct-surface-elevated: #e2dcd2;
+  --ct-surface-secondary: #ebe4d8;
+  --ct-surface-glass: #ebe4d8;
+  --ct-paper: #fffef9;
+  --ct-paper-muted: #f5efe6;
+  --ct-border-soft: rgba(40, 32, 24, 0.11);
+  --ct-text-main: #14110d;
+  --ct-text-sub: #3a342c;
+  --ct-text-muted: #5a5347;
+  --ct-shadow-subtle: 0 6px 20px rgba(30, 24, 18, 0.08),
+    inset 0 0 0 1px rgba(40, 32, 24, 0.04);
+  --ct-shadow-elevated: 0 6px 24px rgba(30, 24, 18, 0.1), 0 2px 8px rgba(30, 24, 18, 0.05);
+  --ct-lift-shadow: 0 10px 32px rgba(30, 24, 18, 0.11);
+  --ct-radius-inset: min(24px, calc(var(--ct-radius-solve) * 0.52));
+  color: var(--text-primary);
+}
+
+/* Kill stray dark column / panel fills from the theme behind our HTML */
+#ct-solve-panel,
+#ct-practice-outer,
+#ct-solve-panel .gr-form,
+#ct-practice-outer .gr-form {
+  background: transparent !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -122,8 +175,21 @@ body, .gradio-container {
   font-family: var(--font-body) !important;
   background: var(--bg) !important;
   color: var(--text-primary) !important;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reading-heavy blocks — editorial serif (Claude-like) */
+.ct-baby-content,
+.ct-problem-statement,
+#ct-problem-stmt,
+.ct-col-content,
+.ct-final-answer-copy,
+.ct-why-block,
+.ct-modal-body,
+.ct-step-work-panel {
+  font-family: "Lora", Georgia, "Times New Roman", serif;
 }
 
 /* ── Hide Gradio chrome we don't want ─────────────────── */
@@ -155,18 +221,19 @@ footer { display: none !important; }
 }
 
 .ct-wordmark-primary {
+  font-family: var(--font-display);
   font-size: 22px;
   font-weight: 600;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
 }
 
 .ct-wordmark-accent {
-  font-family: var(--font-body);
-  font-style: normal;
+  font-family: var(--font-display);
+  font-style: italic;
   font-size: 24px;
-  font-weight: 720;
-  letter-spacing: 0.01em;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   color: var(--accent);
 }
 
@@ -210,7 +277,7 @@ footer { display: none !important; }
 .ct-input-zone {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--ct-radius-solve);
   padding: 18px;
   box-shadow: var(--shadow-sm);
   margin-bottom: 12px;
@@ -230,6 +297,13 @@ footer { display: none !important; }
   color: var(--text-tertiary);
   margin-bottom: 8px;
   font-family: var(--font-mono);
+}
+
+/* Solve card: labels on warm elevated surface */
+#ct-solve-panel .ct-input-label {
+  color: #2a261f;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 /* Gradio textarea overrides */
@@ -252,6 +326,13 @@ footer { display: none !important; }
   font-style: italic;
 }
 
+#ct-solve-panel .ct-input-zone textarea::placeholder,
+#ct-problem-input textarea::placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 0.92;
+  font-style: italic;
+}
+
 /* Problem textbox — inset field, visible focus (overrides transparent textarea above) */
 #ct-problem-input {
   background: var(--surface-2) !important;
@@ -271,7 +352,7 @@ footer { display: none !important; }
 #ct-problem-input textarea {
   background: var(--surface) !important;
   border: 1px solid var(--border) !important;
-  border-radius: var(--radius-sm) !important;
+  border-radius: var(--ct-radius-inset, min(16px, calc(var(--ct-radius-solve) * 0.42))) !important;
   padding: 10px 12px !important;
   resize: vertical !important;
   min-height: 76px !important;
@@ -289,7 +370,7 @@ footer { display: none !important; }
 .ct-math-preview {
   min-height: 48px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: min(18px, calc(var(--ct-radius-solve) * 0.45));
   padding: 12px 14px;
   margin-top: 4px;
   margin-bottom: 8px;
@@ -302,8 +383,10 @@ footer { display: none !important; }
 }
 
 .ct-math-preview .ct-math-preview-empty {
-  color: var(--text-tertiary) !important;
+  color: var(--text-secondary) !important;
   font-style: italic;
+  font-weight: 500;
+  opacity: 0.95;
 }
 
 .ct-math-preview .katex,
@@ -372,7 +455,7 @@ footer { display: none !important; }
   margin-right: 0;
   padding: 10px 26px;
   background: var(--accent);
-  color: white !important;
+  color: var(--ct-accent-contrast) !important;
   font-family: var(--font-body) !important;
   font-size: 15px !important;
   font-weight: 600 !important;
@@ -401,6 +484,12 @@ footer { display: none !important; }
   text-transform: uppercase;
   color: var(--text-tertiary);
   font-family: var(--font-mono);
+}
+
+#ct-solve-panel .ct-solve-profile-label {
+  color: #2a261f;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .ct-solve-profile-btn {
@@ -435,7 +524,7 @@ footer { display: none !important; }
 .ct-solve-btn:hover {
   background: var(--accent-hover) !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 20px rgba(10, 132, 255, 0.32) !important;
+  box-shadow: 0 4px 20px rgba(184, 74, 42, 0.3) !important;
 }
 
 .ct-solve-btn:active {
@@ -548,7 +637,7 @@ footer { display: none !important; }
 
 .ct-step-row.mastered {
   border-color: var(--success);
-  background: linear-gradient(to right, rgba(48, 209, 88, 0.2), var(--surface));
+  background: linear-gradient(to right, rgba(60, 130, 80, 0.14), var(--surface));
 }
 
 /* Step number gutter */
@@ -695,13 +784,13 @@ footer { display: none !important; }
 .ct-why-panel.open { display: block; }
 
 .ct-why-panel.baby-panel {
-  background: #2f2410;
+  background: #f5ecd8;
   border-color: var(--baby-border);
   color: var(--baby-text);
 }
 
 .ct-why-panel.real-panel {
-  background: #183f22;
+  background: #e2efe5;
   border-color: var(--real-border);
   color: var(--real-text);
 }
@@ -731,7 +820,7 @@ footer { display: none !important; }
 .ct-generation-item {
   padding: 8px 10px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--border);
   background: var(--ct-surface-secondary);
   color: var(--text-secondary);
   font-size: 12px;
@@ -741,14 +830,14 @@ footer { display: none !important; }
 
 .ct-generation-item--running {
   border-color: var(--accent);
-  color: var(--text-main);
+  color: var(--text-primary);
   background: var(--surface-2);
 }
 
 .ct-generation-item--done {
   border-color: var(--success);
   color: var(--text-primary);
-  background: rgba(48, 209, 88, 0.2);
+  background: rgba(60, 130, 80, 0.12);
 }
 
 .ct-why-block {
@@ -1004,7 +1093,7 @@ footer { display: none !important; }
 /* ── Image upload zone ─────────────────────────────────── */
 .ct-upload-zone {
   border: 2px dashed var(--border-strong);
-  border-radius: var(--radius-md);
+  border-radius: min(var(--radius-xl), 22px);
   padding: 18px;
   text-align: center;
   cursor: pointer;
@@ -1176,26 +1265,47 @@ button.ct-solve-btn {
 
 .ct-topics-layout {
   display: grid;
-  grid-template-columns: minmax(340px, 1fr) minmax(170px, 220px);
+  grid-template-columns: 1fr;
   grid-template-areas:
-    "topics difficulty"
-    "content content";
+    "shelf"
+    "content";
   gap: 16px;
   align-items: start;
   margin-bottom: 10px;
 }
 
-.ct-topics-sidebar {
-  grid-area: topics;
+/* Single rounded shell for the whole first row: avoids a “sharp” top-right on the
+   Topics card next to a separate difficulty cell (old grid gap). */
+.ct-practice-top-shelf {
+  grid-area: shelf;
   position: sticky;
-  top: 18px;
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--radius-md);
-  background: var(--ct-surface-elevated);
-  box-shadow: var(--ct-shadow-subtle);
-  padding: 10px;
-  overflow: hidden;
+  top: 10px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px 20px;
   min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-solve);
+  background: var(--ct-paper);
+  box-shadow: var(--ct-shadow-subtle);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ct-topics-sidebar {
+  position: static;
+  flex: 1 1 280px;
+  min-width: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  overflow: visible;
 }
 
 .ct-topics-sidebar-head {
@@ -1208,17 +1318,21 @@ button.ct-solve-btn {
 
 .ct-topics-sidebar-title {
   display: block;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-size: 19px;
+  font-weight: 800;
+  color: #120f0a;
   line-height: 1.2;
+  letter-spacing: -0.03em;
 }
 
 .ct-topics-sidebar-subtitle {
   display: block;
-  margin-top: 2px;
-  color: var(--text-tertiary);
-  font-size: 12px;
-  font-family: var(--font-mono);
+  margin-top: 5px;
+  color: #3a342c;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  line-height: 1.4;
 }
 
 .ct-topic-nav-toggle {
@@ -1258,48 +1372,60 @@ button.ct-solve-btn {
   text-align: left;
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--radius-md);
-  background: var(--ct-surface-elevated);
-  padding: 10px 12px;
+  background: var(--ct-paper-muted);
+  padding: 11px 12px;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 6px;
+  grid-template-columns: auto minmax(0, 1fr) minmax(7.5rem, 32%);
+  gap: 8px 10px;
   align-items: center;
-  min-height: 48px;
+  min-height: 52px;
   color: var(--ct-text-main);
 }
 
 .ct-topic-nav-index {
   font-family: var(--font-mono);
-  color: var(--text-tertiary);
-  font-size: 11px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+  align-self: start;
+  padding-top: 2px;
+  opacity: 0.88;
 }
 
 .ct-topic-nav-name {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  white-space: nowrap;
+  line-height: 1.3;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-word;
+  min-width: 0;
 }
 
 .ct-topic-nav-meta {
   min-width: 0;
-  font-size: 11px;
-  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  opacity: 0.75;
   text-transform: none;
   letter-spacing: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 7.5ch;
+  line-height: 1.3;
   text-align: right;
+  font-family: var(--font-body);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .ct-topic-nav-item.ct-topic-nav-active,
 .ct-topic-nav-item:hover {
   border-color: var(--ct-accent-main);
-  background: #20324f;
+  background: rgba(184, 74, 42, 0.1);
 }
 
 .ct-practice-content {
@@ -1308,32 +1434,40 @@ button.ct-solve-btn {
 }
 
 .ct-practice-difficulty-wrap {
-  grid-area: difficulty;
+  flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 4px;
+  align-items: center;
+  align-self: center;
+  margin: 0 0 0 auto;
+  padding: 4px 4px 4px 16px;
+  background: var(--ct-paper-muted);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
 }
 
 @media (max-width: 980px) {
   .ct-topics-layout {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "topics"
-      "difficulty"
+      "shelf"
       "content";
   }
 
-  .ct-topics-sidebar {
-    position: static;
-    top: auto;
-  }
-
-  .ct-topic-nav-toggle {
-    display: inline-flex;
+  .ct-practice-top-shelf {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .ct-practice-difficulty-wrap {
     justify-content: flex-start;
+    margin-left: 0;
+    align-self: stretch;
+  }
+
+  .ct-topic-nav-toggle {
+    display: inline-flex;
   }
 
   .ct-topic-nav-list.ct-topic-nav-list--collapsed {
@@ -1355,40 +1489,42 @@ button.ct-solve-btn {
 .ct-difficulty-row {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .ct-difficulty-label {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: #120f0a;
+  font-family: var(--font-body);
   margin-right: 0;
   white-space: nowrap;
 }
 
 .ct-difficulty-select {
-  min-width: 160px;
-  height: 40px;
-  padding: 0 34px 0 12px;
-  border: 1px solid var(--ct-border-soft);
+  min-width: 180px;
+  min-height: 44px;
+  height: auto;
+  padding: 0 40px 0 16px;
+  border: 1.5px solid var(--border-strong);
   border-radius: 999px;
-  background: var(--ct-surface-elevated);
+  background-color: var(--ct-paper);
   font-family: var(--font-body);
-  color: var(--ct-text-main);
-  font-size: 13px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
   appearance: none;
   -webkit-appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, var(--text-secondary) 50%), linear-gradient(135deg, var(--text-secondary) 50%, transparent 50%);
-  background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+  background-image: linear-gradient(45deg, transparent 50%, #5a5347 50%), linear-gradient(135deg, #5a5347 50%, transparent 50%);
+  background-position: calc(100% - 16px) calc(50% - 2px), calc(100% - 10px) calc(50% - 2px);
   background-size: 6px 6px, 6px 6px;
   background-repeat: no-repeat;
   cursor: pointer;
   transition: border-color 0.18s var(--transition), box-shadow 0.18s var(--transition);
   user-select: none;
-  line-height: 1;
+  line-height: 1.25;
 }
 
 .ct-difficulty-select:hover {
@@ -1401,12 +1537,25 @@ button.ct-solve-btn {
   box-shadow: var(--ct-focus-ring);
 }
 
+@media (prefers-color-scheme: dark) {
+  .ct-difficulty-select {
+    background-image: linear-gradient(45deg, transparent 50%, #b8b0a3 50%), linear-gradient(135deg, #b8b0a3 50%, transparent 50%);
+  }
+}
+
+/* Practice workspace is always light — keep chevrons legible (don’t use dark-OS chevrons here). */
+#ct-practice-outer .ct-difficulty-select {
+  background-image: linear-gradient(45deg, transparent 50%, #3a342c 50%), linear-gradient(135deg, #3a342c 50%, transparent 50%);
+}
+
 /* ── Domain section label ───────────────────────────────────────── */
 .ct-domain-label {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 24px 0 10px;
+  flex-wrap: wrap;
+  row-gap: 4px;
 }
 
 .ct-domain-emoji {
@@ -1424,25 +1573,27 @@ button.ct-solve-btn {
 }
 
 .ct-domain-name {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--text-secondary);
-  font-family: var(--font-mono);
+  color: #120f0a;
+  font-family: var(--font-body);
 }
 
 .ct-domain-desc {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  font-family: var(--font-mono);
+  font-size: 14px;
+  color: #3a342c;
+  font-family: var(--font-body);
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 /* ── Bento grid ─────────────────────────────────────────────────── */
 .ct-bento-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 10px;
   margin-bottom: 10px;
   animation: ct-fade-up var(--ct-motion-normal) var(--ct-motion-curve);
 }
@@ -1454,14 +1605,14 @@ button.ct-solve-btn {
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
-  padding: 14px 14px 12px;
-  background: var(--surface);
+  padding: 14px 36px 14px 14px;
+  background: var(--ct-paper);
   border: 1.5px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: min(var(--radius-xl), 26px);
   cursor: pointer;
   transition: all 0.18s var(--transition);
   user-select: none;
-  min-height: 84px;
+  min-height: 96px;
   overflow: hidden;
 }
 
@@ -1495,7 +1646,7 @@ button.ct-solve-btn {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
   border-color: var(--ct-accent-main);
-  background: rgba(10, 132, 255, 0.16);
+  background: rgba(184, 74, 42, 0.12);
 }
 
 .ct-topic-tile.selected .ct-tile-label {
@@ -1526,31 +1677,32 @@ button.ct-solve-btn {
 
 /* Domain color theming for tiles */
 .domain-vectors    .ct-topic-tile.selected,
-.ct-topic-tile.selected[data-domain="vectors"]    { border-color: var(--accent); background: rgba(10, 132, 255, 0.2); color: var(--ct-text-main); }
+.ct-topic-tile.selected[data-domain="vectors"]    { border-color: var(--accent); background: rgba(184, 74, 42, 0.14); color: var(--ct-text-main); }
 .domain-vfunc      .ct-topic-tile.selected,
-.ct-topic-tile.selected[data-domain="vector_functions"] { border-color: var(--accent); background: rgba(10, 132, 255, 0.2); color: var(--ct-text-main); }
+.ct-topic-tile.selected[data-domain="vector_functions"] { border-color: var(--accent); background: rgba(184, 74, 42, 0.14); color: var(--ct-text-main); }
 .domain-partial    .ct-topic-tile.selected,
-.ct-topic-tile.selected[data-domain="partial_diff"]{ border-color: var(--warning); background: rgba(255, 159, 10, 0.2); color: var(--ct-text-main); }
+.ct-topic-tile.selected[data-domain="partial_diff"]{ border-color: var(--warning); background: rgba(200, 150, 50, 0.16); color: var(--ct-text-main); }
 .domain-integrals  .ct-topic-tile.selected,
-.ct-topic-tile.selected[data-domain="multiple_integrals"]{ border-color: var(--success); background: rgba(48, 209, 88, 0.2); color: var(--ct-text-main); }
+.ct-topic-tile.selected[data-domain="multiple_integrals"]{ border-color: var(--success); background: rgba(60, 130, 80, 0.14); color: var(--ct-text-main); }
 .domain-vcalc      .ct-topic-tile.selected,
-.ct-topic-tile.selected[data-domain="vector_calculus"]  { border-color: #ff6a60; background: rgba(255, 107, 96, 0.2); color: var(--ct-text-main); }
+.ct-topic-tile.selected[data-domain="vector_calculus"]  { border-color: #c45c4a; background: rgba(200, 90, 70, 0.14); color: var(--ct-text-main); }
 .domain-surfaces   .ct-topic-tile.selected,
-.ct-topic-tile.selected[data-domain="surfaces"]   { border-color: var(--accent); background: rgba(88, 194, 255, 0.18); color: var(--ct-text-main); }
+.ct-topic-tile.selected[data-domain="surfaces"]   { border-color: #6b8fa3; background: rgba(100, 130, 150, 0.14); color: var(--ct-text-main); }
 
 /* Tile inner content */
 .ct-tile-emoji {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-style: normal;
 }
 
 .ct-tile-label {
-  font-size: 12.5px;
-  font-weight: 500;
-  line-height: 1.35;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
   color: var(--text-primary);
+  letter-spacing: -0.01em;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -1568,13 +1720,13 @@ button.ct-solve-btn {
 }
 
 .ct-tile-badge.mastered {
-  background: #1f5530;
-  color: var(--real-text);
+  background: #c8e4ce;
+  color: #1a4d2e;
 }
 
 .ct-tile-badge.weak {
-  background: #47310f;
-  color: var(--warning);
+  background: #f0e0c4;
+  color: #7a4a0a;
 }
 
 /* ── Generated problem content ─────────────────────────────── */
@@ -1588,10 +1740,10 @@ button.ct-solve-btn {
   text-transform: uppercase;
 }
 
-.ct-problem-diff-badge.warmup   { background: rgba(48, 209, 88, 0.2);  color: var(--success); border: 1px solid rgba(48, 209, 88, 0.45); }
-.ct-problem-diff-badge.standard { background: rgba(10, 132, 255, 0.2);  color: var(--accent); border: 1px solid rgba(10, 132, 255, 0.45); }
-.ct-problem-diff-badge.hard     { background: rgba(255, 159, 10, 0.2); color: var(--warning); border: 1px solid #e6aa2a; }
-.ct-problem-diff-badge.evil     { background: rgba(255, 107, 96, 0.22);  color: #FFB0AA; border: 1px solid #ff6a60; }
+.ct-problem-diff-badge.warmup   { background: rgba(60, 130, 80, 0.15);  color: var(--success); border: 1px solid rgba(60, 130, 80, 0.4); }
+.ct-problem-diff-badge.standard { background: rgba(184, 74, 42, 0.12);  color: var(--accent); border: 1px solid rgba(184, 74, 42, 0.4); }
+.ct-problem-diff-badge.hard     { background: rgba(200, 150, 50, 0.15); color: var(--warning); border: 1px solid rgba(180, 120, 30, 0.45); }
+.ct-problem-diff-badge.evil     { background: rgba(200, 80, 65, 0.14);  color: #8b2e22; border: 1px solid rgba(200, 80, 65, 0.45); }
 
 .ct-problem-type-label {
   font-size: 12px;
@@ -1652,7 +1804,7 @@ button.ct-solve-btn {
 
 /* ── Responsive ─────────────────────────────────────────────────── */
 @media (max-width: 700px) {
-  .ct-bento-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .ct-bento-grid { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); }
   .ct-mode-btn span:not(.ct-mode-icon) { display: none; }
 }
 
@@ -1791,14 +1943,14 @@ button.ct-solve-btn {
 
 .ct-chat-gotit-btn:hover {
   border-color: var(--success);
-  color: var(--real-text);
-  background: #184228;
+  color: #14532a;
+  background: #d4eadc;
 }
 
 .ct-chat-gotit-btn.confirmed {
   border-color: var(--success);
-  background: #1f5735;
-  color: var(--real-text);
+  background: #b8dcc4;
+  color: #0f3d22;
   pointer-events: none;
 }
 
@@ -1903,13 +2055,13 @@ button.ct-solve-btn {
   font-size: 16px;
   transition: all 0.18s var(--transition);
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.24);
+  box-shadow: 0 2px 8px rgba(184, 74, 42, 0.22);
 }
 
 .ct-chat-send-btn:hover {
   background: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(10, 132, 255, 0.34);
+  box-shadow: 0 4px 14px rgba(184, 74, 42, 0.28);
 }
 
 .ct-chat-send-btn:disabled {
@@ -2035,10 +2187,10 @@ button.ct-solve-btn {
 body,
 .gradio-container {
   background:
-    radial-gradient(1200px 1200px at 2% 3%, rgba(10, 132, 255, 0.14), transparent 46%),
-    radial-gradient(1000px 1000px at 98% 0%, rgba(56, 189, 248, 0.11), transparent 42%),
-    radial-gradient(1000px 1000px at 10% 100%, rgba(88, 194, 255, 0.10), transparent 45%),
-              var(--ct-page-bg) !important;
+    radial-gradient(1000px 800px at 0% 0%, rgba(200, 160, 110, 0.12), transparent 45%),
+    radial-gradient(900px 700px at 100% 5%, rgba(184, 90, 50, 0.08), transparent 42%),
+    radial-gradient(800px 600px at 50% 100%, rgba(160, 140, 100, 0.07), transparent 48%),
+    var(--ct-page-bg) !important;
   position: relative;
 }
 
@@ -2056,9 +2208,9 @@ body,
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(to right, rgba(255,255,255,0.05), transparent 14%),
-    linear-gradient(to bottom, rgba(255,255,255,0.02), transparent 18%);
-  opacity: 0.16;
+    linear-gradient(to right, rgba(120, 90, 60, 0.04), transparent 20%),
+    linear-gradient(to bottom, rgba(60, 48, 36, 0.03), transparent 22%);
+  opacity: 1;
   z-index: -1;
 }
 
@@ -2111,15 +2263,17 @@ textarea:focus-visible,
 }
 
 .ct-wordmark-primary {
+  font-family: var(--font-display);
   font-size: 30px;
-  letter-spacing: -0.55px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
 }
 
 .ct-wordmark-accent {
-  font-family: var(--font-body);
-  font-style: normal;
-  font-weight: 740;
-  letter-spacing: 0.01em;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   font-size: 30px;
   color: var(--ct-accent-main);
 }
@@ -2138,21 +2292,65 @@ textarea:focus-visible,
   color: var(--ct-accent-main);
 }
 
-/* Solve flow and preview */
+/* ── Gradio 5 gr.Group corner override ─────────────────────────────
+   Gradio 5 Group renders:
+     <div.gr-group #ct-solve-panel>
+       <div.styler style="--block-radius:0px">  <- inline 0px kills CSS vars
+         <div.gr-group .ct-input-zone>
+           <div.styler style="--block-radius:0px">
+           </div>
+         </div>
+       </div>
+     </div>
+   JS fixGroupCorners() applies border-radius via setProperty at runtime.
+   CSS below targets .styler and .gr-group directly as the static fallback.  */
+
+/* Outer solve card: the gr-group shell + the .styler that carries the background */
+#ct-solve-panel.gr-group,
+#ct-solve-panel > .styler {
+  border-radius: clamp(24px, 3.2vw, 36px) !important;
+  overflow: hidden !important;
+}
+
+/* Inner input-zone group + its .styler */
+#ct-solve-panel .ct-input-zone.gr-group,
+#ct-solve-panel .ct-input-zone > .styler {
+  border-radius: clamp(14px, 1.8vw, 22px) !important;
+  overflow: hidden !important;
+}
+
+/* Legacy .ct-input-zone rules (kept for non-gr.Group usage) */
 .ct-input-zone {
   border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-card);
+  border-radius: clamp(14px, 1.8vw, 22px) !important;
   padding: clamp(12px, 2.5vw, 20px);
-  background: var(--ct-surface-elevated);
-  box-shadow: var(--ct-shadow-elevated);
   overflow: hidden;
 }
 
-.gr-group.ct-input-zone,
-#component-7 {
-  border-radius: var(--ct-radius-card) !important;
-  overflow: hidden;
+/* Flatten nested Gradio blocks that draw square sheets behind controls */
+#ct-solve-panel .ct-input-zone .block,
+#ct-solve-panel .ct-input-zone .form {
   background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Accordions */
+#ct-solve-panel .ct-input-zone [class*="accordion"],
+#ct-solve-panel .ct-input-zone details,
+#ct-solve-panel .ct-input-zone summary {
+  border-radius: var(--ct-radius-inset) !important;
+  overflow: hidden !important;
+}
+#ct-solve-panel .ct-input-zone [class*="accordion"] {
+  border: 1px solid var(--ct-border-soft) !important;
+}
+
+/* Image upload */
+#ct-solve-panel .ct-input-zone [data-testid="image"],
+#ct-solve-panel .ct-input-zone [data-testid="image"] > *,
+#ct-solve-panel .ct-input-zone .ct-upload-zone {
+  border-radius: var(--ct-radius-inset) !important;
+  overflow: hidden;
 }
 
 .ct-input-zone:focus-within {
@@ -2162,12 +2360,13 @@ textarea:focus-visible,
 
 #ct-problem-input {
   border: 1px solid var(--ct-border-soft) !important;
-  border-radius: var(--radius-md) !important;
-  background: var(--ct-surface-elevated) !important;
+  border-radius: var(--ct-radius-inset) !important;
+  background: var(--ct-paper) !important;
 }
 
 #ct-solve-panel,
 #ct-practice-outer {
+  /* Outer groups stay clear so inner ct-input-zone supplies the real surface */
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
@@ -2178,10 +2377,15 @@ textarea:focus-visible,
   box-shadow: var(--ct-focus-ring) !important;
 }
 
+#ct-solve-panel #ct-math-preview-pane,
+#ct-solve-panel .ct-math-preview {
+  border-radius: var(--ct-radius-inset) !important;
+}
+
 #ct-math-preview-pane,
 .ct-math-preview {
   border-color: var(--ct-border-soft);
-  border-radius: var(--radius-md);
+  border-radius: var(--ct-radius-inset, min(20px, calc(var(--ct-radius-solve) * 0.45)));
   background: var(--ct-surface-elevated);
   box-shadow: inset 0 0 0 1px var(--ct-border-soft);
   position: relative;
@@ -2194,7 +2398,7 @@ textarea:focus-visible,
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(130deg, transparent 46%, rgba(255,255,255,0.12), transparent 56%);
+  background: linear-gradient(130deg, transparent 46%, rgba(255, 255, 255, 0.35), transparent 56%);
   transform: translateX(-110%);
   transition: transform var(--ct-motion-normal) var(--ct-motion-curve);
 }
@@ -2210,8 +2414,8 @@ textarea:focus-visible,
   padding: 5px;
   width: fit-content;
   border-radius: 999px;
-  border-color: var(--ct-border-soft);
-  background: #1a2438;
+  border: 1px solid var(--ct-border-soft);
+  background: var(--surface-2);
   box-shadow: var(--ct-shadow-subtle);
 }
 
@@ -2245,10 +2449,6 @@ textarea:focus-visible,
 }
 
 /* Practice mode cards / chips */
-.ct-difficulty-label {
-  letter-spacing: 0.075em;
-}
-
 .ct-diff-chip {
   border-radius: 999px;
   min-height: 44px;
@@ -2366,13 +2566,15 @@ textarea:focus-visible,
   width: 24px;
   height: 24px;
   border-radius: 999px;
-  background: #1e3d65;
+  background: var(--surface-2);
+  border: 1px solid var(--ct-border-soft);
   color: var(--ct-accent-main);
 }
 
 .ct-step-row.mastered .ct-step-num-inner {
-  color: #0d7130;
-  background: #2a6e38;
+  color: #0f4a24;
+  background: #b8dcc4;
+  border-color: #5a9a6e;
 }
 
 /* Chat lane */
@@ -2420,9 +2622,9 @@ textarea:focus-visible,
   right: 0;
   bottom: 0;
   z-index: calc(var(--ct-layer-tray) * 1);
-  background: #131e32;
+  background: var(--surface);
   border-top: 1px solid var(--ct-border-soft);
-  box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 -4px 28px rgba(30, 24, 18, 0.12);
   padding: 10px 16px;
 }
 
@@ -2515,7 +2717,7 @@ body.ct-modal-open {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #202d47;
+  background: var(--surface);
   border: 1px solid var(--ct-accent-main);
   border-radius: 999px;
   padding: 5px 10px;
@@ -2622,7 +2824,7 @@ body.ct-modal-open {
 .ct-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(4, 8, 16, 0.76);
+  background: rgba(28, 22, 16, 0.45);
 }
 
 .ct-modal-panel {
@@ -2654,7 +2856,7 @@ body.ct-modal-open {
   height: 4px;
   border-radius: 999px;
   margin: 10px auto 0;
-  background: #2c3e63;
+  background: rgba(40, 32, 24, 0.25);
 }
 
 .ct-modal-header {
@@ -2675,8 +2877,8 @@ body.ct-modal-open {
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  border: 1px solid transparent;
-  background: #273349;
+  border: 1px solid var(--ct-border-soft);
+  background: var(--surface-2);
   color: var(--ct-text-sub);
   cursor: pointer;
 }

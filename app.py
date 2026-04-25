@@ -35,8 +35,8 @@ def _gradio_major() -> int:
 
 def _app_theme():
     return gr.themes.Soft(
-        primary_hue="blue",
-        neutral_hue="slate",
+        primary_hue="orange",
+        neutral_hue="stone",
         font=gr.themes.GoogleFont("DM Sans"),
     )
 
@@ -102,7 +102,7 @@ KATEX_HEAD = (
     "})();\n"
     "</script>\n"
     '<link rel=\"stylesheet\" '
-    'href=\"https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@1,400;1,500&display=swap">\n'
+    'href=\"https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@1,400;1,500&display=swap">\n'
 )
 
 APP_BRIDGE_SCRIPT = f'<script id="ct-app-bridge">{APP_BRIDGE_SOURCE}</script>'
@@ -594,6 +594,7 @@ def build_topics_nav_html() -> str:
 
     return """
 <div class="ct-topics-layout">
+  <div class="ct-practice-top-shelf" aria-label="Topics and difficulty">
   <aside class="ct-topics-sidebar" aria-label="Topics">
     <div class="ct-topics-sidebar-head">
       <div>
@@ -615,6 +616,7 @@ def build_topics_nav_html() -> str:
   </aside>
   <div class="ct-practice-difficulty-wrap">
     {difficulty}
+  </div>
   </div>
   <section class="ct-practice-content">
 """.format(items="\n".join(items), difficulty=build_difficulty_selector_html())
@@ -670,6 +672,39 @@ def build_generated_problem_card_html(problem: dict, topic_label: str) -> str:
 
 JS_BLOCK = APP_BRIDGE_SCRIPT + """
 <script>
+// ── Round Gradio 5 gr.Group corners ────────────────────────
+// Gradio 5 Group renders: <div.gr-group> > <div.styler style="--block-radius:0px">
+// The inline custom property can't be beaten with CSS custom properties, so we
+// must apply border-radius via JS on the concrete elements.
+function fixGroupCorners() {
+  const R  = 'clamp(24px, 3.2vw, 36px)';   // outer card
+  const R2 = 'clamp(14px, 1.8vw, 22px)';   // inner inset controls
+
+  function round(el, r) {
+    if (!el) return;
+    el.style.setProperty('border-radius', r, 'important');
+    el.style.setProperty('overflow', 'hidden', 'important');
+  }
+
+  const panel = document.getElementById('ct-solve-panel');
+  if (panel) {
+    round(panel, R);
+    round(panel.querySelector(':scope > .styler'), R);
+
+    const zone = panel.querySelector('.ct-input-zone');
+    if (zone) {
+      round(zone, R2);
+      round(zone.querySelector(':scope > .styler'), R2);
+    }
+  }
+
+  const practice = document.getElementById('ct-practice-outer');
+  if (practice) {
+    round(practice, R);
+    round(practice.querySelector(':scope > .styler'), R);
+  }
+}
+
 // ── Mode switching ────────────────────────────────────────
 function switchMode(mode) {
   const solveEl    = document.getElementById('ct-solve-panel');
@@ -687,6 +722,8 @@ function switchMode(mode) {
     sBtn?.classList.remove('active');
     pBtn?.classList.add('active');
   }
+  // Re-apply corner radius — display:'' restores elements that Svelte may not have seen before
+  setTimeout(fixGroupCorners, 30);
 }
 
 // ── Practice queue + tray + modal ────────────────────────
@@ -2592,6 +2629,10 @@ def build_app() -> gr.Blocks:
               const el = document.getElementById('ct-practice-outer');
               if (el) el.style.display = 'none';
               injectPracticeTray();
+              fixGroupCorners();
+              // Retry after Svelte finishes any deferred slot renders
+              setTimeout(fixGroupCorners, 120);
+              setTimeout(fixGroupCorners, 600);
             }"""
         )
 
