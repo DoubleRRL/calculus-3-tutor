@@ -679,22 +679,26 @@ JS_BLOCK = APP_BRIDGE_SCRIPT + """
 function fixGroupCorners() {
   const R  = 'clamp(24px, 3.2vw, 36px)';   // outer card
   const R2 = 'clamp(14px, 1.8vw, 22px)';   // inner inset controls
+  const SOLVE_PANEL_BG = '#423d38';
 
-  function round(el, r) {
+  function round(el, r, bg) {
     if (!el) return;
     el.style.setProperty('border-radius', r, 'important');
     el.style.setProperty('overflow', 'hidden', 'important');
+    if (bg) {
+      el.style.setProperty('background', bg, 'important');
+    }
   }
 
   const panel = document.getElementById('ct-solve-panel');
   if (panel) {
-    round(panel, R);
-    round(panel.querySelector(':scope > .styler'), R);
+    round(panel, R, SOLVE_PANEL_BG);
+    round(panel.querySelector(':scope > .styler'), R, SOLVE_PANEL_BG);
 
     const zone = panel.querySelector('.ct-input-zone');
     if (zone) {
-      round(zone, R2);
-      round(zone.querySelector(':scope > .styler'), R2);
+      round(zone, R2, SOLVE_PANEL_BG);
+      round(zone.querySelector(':scope > .styler'), R2, SOLVE_PANEL_BG);
     }
   }
 

@@ -487,9 +487,13 @@ footer { display: none !important; }
 }
 
 #ct-solve-panel .ct-solve-profile-label {
-  color: #2a261f;
+  color: var(--ct-solve-text);
   font-size: 12px;
   font-weight: 700;
+}
+
+#ct-solve-panel .ct-input-label {
+  color: var(--ct-solve-text);
 }
 
 .ct-solve-profile-btn {
@@ -2310,6 +2314,7 @@ textarea:focus-visible,
 #ct-solve-panel > .styler {
   border-radius: clamp(24px, 3.2vw, 36px) !important;
   overflow: hidden !important;
+  background: var(--ct-solve-shell-bg) !important;
 }
 
 /* Inner input-zone group + its .styler */
@@ -2317,6 +2322,7 @@ textarea:focus-visible,
 #ct-solve-panel .ct-input-zone > .styler {
   border-radius: clamp(14px, 1.8vw, 22px) !important;
   overflow: hidden !important;
+  background: var(--ct-solve-shell-bg) !important;
 }
 
 /* Legacy .ct-input-zone rules (kept for non-gr.Group usage) */
@@ -2325,6 +2331,7 @@ textarea:focus-visible,
   border-radius: clamp(14px, 1.8vw, 22px) !important;
   padding: clamp(12px, 2.5vw, 20px);
   overflow: hidden;
+  background: var(--ct-solve-shell-bg) !important;
 }
 
 /* Flatten nested Gradio blocks that draw square sheets behind controls */
@@ -2370,6 +2377,12 @@ textarea:focus-visible,
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
+}
+
+#ct-solve-panel {
+  --ct-solve-shell-bg: #423d38;
+  --ct-solve-text: #f8f2e9;
+  color: var(--ct-solve-text);
 }
 
 #ct-problem-input:focus-within {
