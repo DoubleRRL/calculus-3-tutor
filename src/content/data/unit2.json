@@ -1,0 +1,350 @@
+[
+  {
+    "id": "u2_vf_learn",
+    "skillId": "u2_vector_fn",
+    "kind": "learn",
+    "prompt": "If $\\mathbf{r}(t)=\\langle t, t^2, t^3\\rangle$, then $\\mathbf{r}'(t)=\\langle 1,2t,3t^2\\rangle$. What is the first component of $\\mathbf{r}'(t)$ for $\\mathbf{r}(t)=\\langle \\sin t, \\cos t, t\\rangle$?",
+    "answerType": "exact",
+    "answer": "cos t",
+    "accept": [
+      "cos t",
+      "\\cos t",
+      "cos(t)"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "COMPONENTWISE"
+    ],
+    "rubric": "cos t",
+    "hints": {
+      "nudge": "Differentiate each component separately.",
+      "technique": "$\\frac{d}{dt}\\sin t = \\cos t$",
+      "nextStep": "First component is $\\cos t$",
+      "fullSolution": "$\\mathbf{r}'(t)=\\langle\\cos t, -\\sin t, 1\\rangle$; first component $\\cos t$"
+    }
+  },
+  {
+    "id": "u2_vf_guided",
+    "skillId": "u2_vector_fn",
+    "kind": "guided",
+    "prompt": "$\\int \\langle 1, 2t, 0\\rangle\\,dt$ (omit +C). Enter $a,b,c$ in terms of t.",
+    "answerType": "tuple",
+    "answer": "t,t^2,0",
+    "accept": [
+      "t,t^2,0",
+      "t, t^2, 0"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "COMPONENTWISE"
+    ],
+    "rubric": "(t, t^2, 0)",
+    "hints": {
+      "nudge": "Integrate component-wise.",
+      "technique": "$\\int 1\\,dt=t$, $\\int 2t\\,dt=t^2$, $\\int 0\\,dt=0$",
+      "nextStep": "$\\langle t, t^2, 0\\rangle$",
+      "fullSolution": "$\\langle t, t^2, 0\\rangle$"
+    }
+  },
+  {
+    "id": "u2_vf_drill1",
+    "skillId": "u2_vector_fn",
+    "kind": "drill",
+    "prompt": "$\\mathbf{r}(t)=\\langle e^t, t, 1\\rangle$. $\\mathbf{r}'(0)$ as $a,b,c$?",
+    "answerType": "tuple",
+    "answer": "1,1,0",
+    "accept": [
+      "1,1,0",
+      "(1,1,0)"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "COMPONENTWISE"
+    ],
+    "rubric": "(1,1,0)",
+    "hints": {
+      "nudge": "$\\mathbf{r}'(t)=\\langle e^t, 1, 0\\rangle$",
+      "technique": "Evaluate at $t=0$: $e^0=1$",
+      "nextStep": "$\\langle 1,1,0\\rangle$",
+      "fullSolution": "$\\mathbf{r}'(0)=\\langle 1,1,0\\rangle$"
+    }
+  },
+  {
+    "id": "u2_vf_mastery",
+    "skillId": "u2_vector_fn",
+    "kind": "mastery",
+    "prompt": "$\\|\\mathbf{r}'(t)\\|$ for $\\mathbf{r}(t)=\\langle \\cos t, \\sin t, 0\\rangle$?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "COMPONENTWISE"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "First find $\\mathbf{r}'(t)$",
+      "technique": "$\\mathbf{r}'=\\langle -\\sin t, \\cos t, 0\\rangle$",
+      "nextStep": "$\\|\\mathbf{r}'\\|=\\sqrt{\\sin^2 t+\\cos^2 t}=1$",
+      "fullSolution": "$\\|\\mathbf{r}'(t)\\|=1$ for all $t$"
+    }
+  },
+  {
+    "id": "u2_al_learn",
+    "skillId": "u2_arc_length",
+    "kind": "learn",
+    "prompt": "Arc length $L=\\int_a^b \\|\\mathbf{r}'(t)\\|\\,dt$. For $\\mathbf{r}(t)=\\langle \\cos t,\\sin t,0\\rangle$ on $[0,2\\pi]$, $L=?$",
+    "answerType": "exact",
+    "answer": "2\\pi",
+    "accept": [
+      "2pi",
+      "2π",
+      "2\\pi",
+      "6.28"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "ARC_LENGTH"
+    ],
+    "rubric": "2π",
+    "hints": {
+      "nudge": "This is the unit circle; speed is constantly 1.",
+      "technique": "$L=\\int_0^{2\\pi} 1\\,dt$",
+      "nextStep": "$L=2\\pi$",
+      "fullSolution": "$L=2\\pi$ (circumference of the unit circle)"
+    }
+  },
+  {
+    "id": "u2_al_drill1",
+    "skillId": "u2_arc_length",
+    "kind": "drill",
+    "prompt": "For $\\mathbf{r}(t)=\\langle t,0,0\\rangle$ on $[0,5]$, arc length?",
+    "answerType": "numeric",
+    "answer": "5",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "ARC_LENGTH"
+    ],
+    "rubric": "5",
+    "hints": {
+      "nudge": "$\\mathbf{r}'(t)=\\langle 1,0,0\\rangle$, so speed is 1.",
+      "technique": "$L=\\int_0^5 1\\,dt$",
+      "nextStep": "5",
+      "fullSolution": "Straight segment of length 5."
+    }
+  },
+  {
+    "id": "u2_al_mastery",
+    "skillId": "u2_arc_length",
+    "kind": "mastery",
+    "prompt": "$\\mathbf{r}(t)=\\langle 3t,4t,0\\rangle$ on $[0,1]$. Arc length?",
+    "answerType": "numeric",
+    "answer": "5",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "ARC_LENGTH"
+    ],
+    "rubric": "5",
+    "hints": {
+      "nudge": "$\\mathbf{r}'=\\langle 3,4,0\\rangle$",
+      "technique": "$\\|\\mathbf{r}'\\|=5$",
+      "nextStep": "$L=\\int_0^1 5\\,dt=5$",
+      "fullSolution": "Arc length is 5."
+    }
+  },
+  {
+    "id": "u2_m_learn",
+    "skillId": "u2_motion",
+    "kind": "learn",
+    "prompt": "Velocity is $\\mathbf{r}'(t)$, acceleration $\\mathbf{r}''(t)$. If $\\mathbf{r}(t)=\\langle t^2, t, 0\\rangle$, speed at $t=1$ is $\\|\\mathbf{v}(1)\\|=?$",
+    "answerType": "exact",
+    "answer": "\\sqrt{5}",
+    "accept": [
+      "sqrt(5)",
+      "√5",
+      "\\sqrt{5}",
+      "2.236"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "MOTION"
+    ],
+    "rubric": "$\\sqrt{5}$",
+    "hints": {
+      "nudge": "Speed is $\\|\\mathbf{r}'(t)\\|$, not acceleration.",
+      "technique": "$\\mathbf{v}(t)=\\langle 2t, 1, 0\\rangle$, so $\\mathbf{v}(1)=\\langle 2,1,0\\rangle$",
+      "nextStep": "$\\|\\mathbf{v}(1)\\|=\\sqrt{4+1}=\\sqrt{5}$",
+      "fullSolution": "$\\|\\mathbf{v}(1)\\|=\\sqrt{5}$"
+    }
+  },
+  {
+    "id": "u2_m_drill1",
+    "skillId": "u2_motion",
+    "kind": "drill",
+    "prompt": "$\\mathbf{r}(t)=\\langle t,t^2,t^3\\rangle$. Acceleration at $t=0$ as $a,b,c$?",
+    "answerType": "tuple",
+    "answer": "0,2,0",
+    "accept": [
+      "0,2,0",
+      "(0,2,0)"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "MOTION"
+    ],
+    "rubric": "(0,2,0)",
+    "hints": {
+      "nudge": "Acceleration is $\\mathbf{r}''(t)$",
+      "technique": "$\\mathbf{r}'=\\langle 1,2t,3t^2\\rangle$, $\\mathbf{r}''=\\langle 0,2,6t\\rangle$",
+      "nextStep": "At $t=0$: $\\langle 0,2,0\\rangle$",
+      "fullSolution": "$\\mathbf{a}(0)=\\langle 0,2,0\\rangle$"
+    }
+  },
+  {
+    "id": "u2_m_mastery",
+    "skillId": "u2_motion",
+    "kind": "mastery",
+    "prompt": "Unit tangent $\\mathbf{T}=\\mathbf{r}'/\\|\\mathbf{r}'\\|$ for $\\mathbf{r}(t)=\\langle t,0,0\\rangle$ is? Enter $a,b,c$.",
+    "answerType": "tuple",
+    "answer": "1,0,0",
+    "accept": [
+      "1,0,0",
+      "(1,0,0)"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "MOTION"
+    ],
+    "rubric": "(1,0,0)",
+    "hints": {
+      "nudge": "$\\mathbf{r}'=\\langle 1,0,0\\rangle$ already has length 1.",
+      "technique": "Divide by $\\|\\mathbf{r}'\\|=1$",
+      "nextStep": "$\\mathbf{T}=\\langle 1,0,0\\rangle$",
+      "fullSolution": "$\\mathbf{T}=\\langle 1,0,0\\rangle$"
+    }
+  },
+  {
+    "id": "u2_vf_mix1",
+    "skillId": "u2_vector_fn",
+    "kind": "mix",
+    "prompt": "$\\mathbf{r}(t)=\\langle t^2, e^t\\rangle$. $\\mathbf{r}'(0)$ as $a,b$?",
+    "answerType": "tuple",
+    "answer": "0,1",
+    "accept": [
+      "0,1",
+      "(0,1)"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "COMPONENTWISE"
+    ],
+    "rubric": "(0,1)",
+    "hints": {
+      "nudge": "Differentiate component-wise.",
+      "technique": "$\\mathbf{r}'=\\langle 2t, e^t\\rangle$",
+      "nextStep": "At 0: $\\langle 0,1\\rangle$",
+      "fullSolution": "$\\langle 0,1\\rangle$"
+    }
+  },
+  {
+    "id": "u2_al_guided",
+    "skillId": "u2_arc_length",
+    "kind": "guided",
+    "prompt": "$\\mathbf{r}(t)=\\langle \\cos 2t, \\sin 2t, 0\\rangle$ on $[0,\\pi]$. Constant speed $\\|\\mathbf{r}'\\|=$?",
+    "answerType": "numeric",
+    "answer": "2",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "ARC_LENGTH"
+    ],
+    "rubric": "2",
+    "hints": {
+      "nudge": "$\\mathbf{r}'=\\langle -2\\sin 2t, 2\\cos 2t, 0\\rangle$",
+      "technique": "$\\|\\mathbf{r}'\\|=2$",
+      "nextStep": "2",
+      "fullSolution": "Speed is 2"
+    }
+  },
+  {
+    "id": "u2_m_mix1",
+    "skillId": "u2_motion",
+    "kind": "mix",
+    "prompt": "If velocity is constant $\\langle 3,0,4\\rangle$, speed is?",
+    "answerType": "numeric",
+    "answer": "5",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "MOTION"
+    ],
+    "rubric": "5",
+    "hints": {
+      "nudge": "Speed is magnitude of velocity.",
+      "technique": "$\\sqrt{9+16}$",
+      "nextStep": "5",
+      "fullSolution": "5"
+    }
+  },
+  {
+    "id": "u2_m_guided",
+    "skillId": "u2_motion",
+    "kind": "guided",
+    "prompt": "Position $\\mathbf{r}(t)=\\langle t^2, t\\rangle$. Acceleration $\\mathbf{a}(t)$ as $a,b$?",
+    "answerType": "tuple",
+    "answer": "2,0",
+    "accept": [
+      "2,0",
+      "(2,0)"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "MOTION"
+    ],
+    "rubric": "(2,0)",
+    "hints": {
+      "nudge": "Differentiate velocity.",
+      "technique": "$\\mathbf{v}=\\langle 2t,1\\rangle$, then $\\mathbf{a}=\\langle 2,0\\rangle$",
+      "nextStep": "2,0",
+      "fullSolution": "$\\langle 2,0\\rangle$"
+    }
+  },
+  {
+    "id": "u2_vf_drill2",
+    "skillId": "u2_vector_fn",
+    "kind": "drill",
+    "prompt": "$\\mathbf{r}(t)=\\langle e^t, t\\rangle$. $\\mathbf{r}'(0)$ as $a,b$?",
+    "answerType": "tuple",
+    "answer": "1,1",
+    "accept": [
+      "1,1"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "COMPONENTWISE"
+    ],
+    "rubric": "(1,1)",
+    "hints": {
+      "nudge": "Differentiate each component.",
+      "technique": "$\\langle e^t,1\\rangle$ at 0",
+      "nextStep": "1,1",
+      "fullSolution": "$\\langle 1,1\\rangle$"
+    }
+  },
+  {
+    "id": "u2_al_drill2",
+    "skillId": "u2_arc_length",
+    "kind": "drill",
+    "prompt": "$\\mathbf{r}(t)=\\langle 3t,4t\\rangle$ on $[0,1]$. Arc length?",
+    "answerType": "numeric",
+    "answer": "5",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "ARC_LENGTH"
+    ],
+    "rubric": "5",
+    "hints": {
+      "nudge": "$\\|\\mathbf{r}'\\|=5$",
+      "technique": "∫ from 0 to 1 of 5",
+      "nextStep": "5",
+      "fullSolution": "5"
+    }
+  }
+]

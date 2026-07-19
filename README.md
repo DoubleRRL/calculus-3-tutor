@@ -1,38 +1,54 @@
 # CalcTutor
 
-Simple, local app for Calc 3:
-- Solve mode: paste a problem and get step-by-step help.
-- Practice mode: pick a topic and generate problems.
+Local Calc 3 mastery system. Curated skills + verified problems; Ollama as a per-problem Socratic coach. Progress measured by mastery, retention, and exam readiness.
 
-## super simple start (recommended)
-
-From this folder, run:
+## Run (web)
 
 ```bash
-./scripts/run.sh
+npm install
+npm run dev
 ```
 
-If you get a permission error:
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000).
+
+Requires [Ollama](https://ollama.com) for Ask coach:
 
 ```bash
-chmod +x scripts/run.sh
-./scripts/run.sh
+ollama serve
+# recommended
+ollama pull phi4   # quality mode (~9GB) — M2 Air 16GB OK if other apps closed
+# you likely already have:
+# qwen3:8b  (default coach)
+# qwen3:4b  (flash)
 ```
 
-The script handles all of this for you:
-- makes a `.venv` if needed
-- installs python deps
-- checks Ollama
-- starts the app
+## Desktop app (Tauri)
 
-Then open:
-
-```
-http://127.0.0.1:7860
+```bash
+npm run tauri build
 ```
 
-## if something breaks
+App bundle:
 
-- First run can be slow while the model downloads/loading takes time.
-- If generation hangs, close/open the tab and retry.
-- Make sure Ollama is running (`ollama serve`).
+`src-tauri/target/release/bundle/macos/CalcTutor.app`
+
+DMG:
+
+`src-tauri/target/release/bundle/dmg/CalcTutor_0.1.0_aarch64.dmg`
+
+Dev desktop shell:
+
+```bash
+npm run tauri dev
+```
+
+Ollama must be running separately for Ask coach.
+
+## Pedagogy
+
+1. Diagnostic (Calc 1–2) → Units 1–5 (Stewart-aligned) → exam simulator  
+2. Per skill: learn → guided → drill → mix → mastery gate → FSRS reviews  
+3. Stuck? curated hint ladder first; Ask coach second (scoped context, anti-spoiler)  
+4. Exam mode: coach off  
+
+No cloud. No LLM-generated primary problem bank.

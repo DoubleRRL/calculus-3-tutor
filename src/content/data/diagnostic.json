@@ -1,0 +1,140 @@
+[
+  {
+    "id": "diag_der_1",
+    "skillId": "diag_derivatives",
+    "kind": "drill",
+    "prompt": "Differentiate: $f(x) = (3x^2 + 1)^5$",
+    "answerType": "exact",
+    "answer": "30x(3x^2+1)^4",
+    "accept": [
+      "30x(3x^2+1)^4",
+      "5(3x^2+1)^4 * 6x",
+      "30x(3x^{2}+1)^{4}"
+    ],
+    "hints": {
+      "nudge": "This is a composition — chain rule.",
+      "technique": "Outer power rule, then multiply by derivative of inside.",
+      "nextStep": "$f'(x) = 5(3x^2+1)^4 \\cdot 6x$",
+      "fullSolution": "$f'(x) = 5(3x^2+1)^4 \\cdot 6x = 30x(3x^2+1)^4$"
+    },
+    "misconceptionTags": [
+      "CHAIN_RULE_MISS"
+    ],
+    "rubric": "Must include both the outer derivative and the 6x factor.",
+    "difficulty": 1
+  },
+  {
+    "id": "diag_der_2",
+    "skillId": "diag_derivatives",
+    "kind": "mastery",
+    "prompt": "Find $\\frac{d}{dx}[x^2 \\sin x]$",
+    "answerType": "exact",
+    "answer": "2x sin x + x^2 cos x",
+    "accept": [
+      "2x\\sin x+x^2\\cos x",
+      "2x sin(x) + x^2 cos(x)"
+    ],
+    "hints": {
+      "nudge": "Product rule.",
+      "technique": "$(uv)' = u'v + uv'$.",
+      "nextStep": "$u=x^2$, $v=\\sin x$ → $2x\\sin x + x^2\\cos x$",
+      "fullSolution": "$\\frac{d}{dx}[x^2\\sin x] = 2x\\sin x + x^2\\cos x$"
+    },
+    "misconceptionTags": [
+      "PRODUCT_RULE"
+    ],
+    "rubric": "Both terms required.",
+    "difficulty": 1
+  },
+  {
+    "id": "diag_int_1",
+    "skillId": "diag_integrals",
+    "kind": "drill",
+    "prompt": "Evaluate $\\int_0^1 2x\\,dx$",
+    "answerType": "numeric",
+    "answer": "1",
+    "accept": [
+      "1",
+      "1.0"
+    ],
+    "hints": {
+      "nudge": "Antiderivative of $2x$ is $x^2$.",
+      "technique": "Evaluate $x^2$ from 0 to 1.",
+      "nextStep": "$[x^2]_0^1 = 1 - 0$",
+      "fullSolution": "$\\int_0^1 2x\\,dx = [x^2]_0^1 = 1$"
+    },
+    "misconceptionTags": [
+      "FTC"
+    ],
+    "rubric": "Exact value 1.",
+    "difficulty": 1
+  },
+  {
+    "id": "diag_int_2",
+    "skillId": "diag_integrals",
+    "kind": "mastery",
+    "prompt": "Evaluate $\\int 2x e^{x^2}\\,dx$ (omit $+C$)",
+    "answerType": "exact",
+    "answer": "e^{x^2}",
+    "accept": [
+      "e^{x^2}",
+      "exp(x^2)",
+      "e^(x^2)"
+    ],
+    "hints": {
+      "nudge": "Look for $u$-sub with $u = x^2$.",
+      "technique": "$du = 2x\\,dx$, so the integral is $\\int e^u\\,du$.",
+      "nextStep": "$e^u = e^{x^2}$",
+      "fullSolution": "$\\int 2x e^{x^2}\\,dx = e^{x^2}$"
+    },
+    "misconceptionTags": [
+      "U_SUB"
+    ],
+    "rubric": "Answer $e^{x^2}$.",
+    "difficulty": 2
+  },
+  {
+    "id": "diag_vec_1",
+    "skillId": "diag_vectors2d",
+    "kind": "drill",
+    "prompt": "Compute $\\langle 3,4\\rangle \\cdot \\langle 1,2\\rangle$",
+    "answerType": "numeric",
+    "answer": "11",
+    "hints": {
+      "nudge": "Dot product: sum of component products.",
+      "technique": "$3\\cdot 1 + 4\\cdot 2$",
+      "nextStep": "$3 + 8 = 11$",
+      "fullSolution": "$\\langle 3,4\\rangle\\cdot\\langle 1,2\\rangle = 11$"
+    },
+    "misconceptionTags": [
+      "DOT_VS_CROSS"
+    ],
+    "rubric": "Scalar 11.",
+    "difficulty": 1
+  },
+  {
+    "id": "diag_vec_2",
+    "skillId": "diag_vectors2d",
+    "kind": "mastery",
+    "prompt": "Convert polar $(r,\\theta) = (2, \\pi/3)$ to rectangular $(x,y)$. Enter as $x,y$.",
+    "answerType": "tuple",
+    "answer": "1,\\sqrt{3}",
+    "accept": [
+      "1,sqrt(3)",
+      "1, √3",
+      "1,\\sqrt{3}",
+      "1,1.732"
+    ],
+    "hints": {
+      "nudge": "$x = r\\cos\\theta$, $y = r\\sin\\theta$.",
+      "technique": "$\\cos(\\pi/3)=1/2$, $\\sin(\\pi/3)=\\sqrt{3}/2$.",
+      "nextStep": "$x=1$, $y=\\sqrt{3}$",
+      "fullSolution": "$(x,y) = (1, \\sqrt{3})$"
+    },
+    "misconceptionTags": [
+      "POLAR_CONVERT"
+    ],
+    "rubric": "$(1, \\sqrt{3})$",
+    "difficulty": 2
+  }
+]

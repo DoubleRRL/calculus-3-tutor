@@ -1,0 +1,463 @@
+[
+  {
+    "id": "exam_1",
+    "skillId": "u1_cross",
+    "kind": "exam",
+    "prompt": "$\\langle 1,0,0\\rangle\\times\\langle 0,1,0\\rangle$ as $a,b,c$?",
+    "answerType": "tuple",
+    "answer": "0,0,1",
+    "accept": [
+      "0,0,1"
+    ],
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "CROSS_SIGN"
+    ],
+    "rubric": "(0,0,1)",
+    "hints": {
+      "nudge": "$\\mathbf{i}\\times\\mathbf{j}=\\mathbf{k}$",
+      "technique": "Use the determinant formula for the cross product.",
+      "nextStep": "$\\langle 0,0,1\\rangle$",
+      "fullSolution": "$\\langle 0,0,1\\rangle$"
+    }
+  },
+  {
+    "id": "exam_2",
+    "skillId": "u3_gradient",
+    "kind": "exam",
+    "prompt": "$f=xy$. $\\nabla f(2,3)$ as $a,b$?",
+    "answerType": "tuple",
+    "answer": "3,2",
+    "accept": [
+      "3,2"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "GRADIENT"
+    ],
+    "rubric": "(3,2)",
+    "hints": {
+      "nudge": "$\\nabla f=\\langle f_x,f_y\\rangle=\\langle y,x\\rangle$",
+      "technique": "At $(2,3)$: $\\langle 3,2\\rangle$",
+      "nextStep": "3,2",
+      "fullSolution": "$\\nabla f(2,3)=\\langle 3,2\\rangle$"
+    }
+  },
+  {
+    "id": "exam_3",
+    "skillId": "u3_limits",
+    "kind": "exam",
+    "prompt": "Two different path limits for a function at a point imply the limit… (exists / DNE)",
+    "answerType": "choice",
+    "answer": "DNE",
+    "choices": [
+      "exists",
+      "DNE"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "LIMIT_PATH_FALLACY"
+    ],
+    "rubric": "DNE",
+    "hints": {
+      "nudge": "A true limit must match on every path.",
+      "technique": "Disagreement between paths is a disproof.",
+      "nextStep": "DNE",
+      "fullSolution": "DNE"
+    }
+  },
+  {
+    "id": "exam_4",
+    "skillId": "u4_bounds",
+    "kind": "exam",
+    "prompt": "Triangle $(0,0),(2,0),(0,2)$ Type I: $x$ from 0 to 2, $y$ from 0 to?",
+    "answerType": "exact",
+    "answer": "2-x",
+    "accept": [
+      "2-x",
+      "2 - x"
+    ],
+    "difficulty": 3,
+    "examWeight": 1.5,
+    "misconceptionTags": [
+      "BOUNDS_SETUP"
+    ],
+    "rubric": "$2-x$",
+    "hints": {
+      "nudge": "Hypotenuse connects $(2,0)$ to $(0,2)$: $x+y=2$.",
+      "technique": "Solve for $y$: $y=2-x$",
+      "nextStep": "$2-x$",
+      "fullSolution": "Upper limit is $2-x$"
+    }
+  },
+  {
+    "id": "exam_5",
+    "skillId": "u4_polar",
+    "kind": "exam",
+    "prompt": "Polar $dA$ includes factor… (1 / r / r^2)",
+    "answerType": "choice",
+    "answer": "r",
+    "choices": [
+      "1",
+      "r",
+      "r^2"
+    ],
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "POLAR_JACOBIAN"
+    ],
+    "rubric": "r",
+    "hints": {
+      "nudge": "$dx\\,dy = r\\,dr\\,d\\theta$",
+      "technique": "The Jacobian factor is $r$, not $r^2$ (that's spherical).",
+      "nextStep": "r",
+      "fullSolution": "r"
+    }
+  },
+  {
+    "id": "exam_6",
+    "skillId": "u5_conservative",
+    "kind": "exam",
+    "prompt": "Is $\\langle y,x\\rangle$ conservative on $\\mathbb{R}^2$? yes/no",
+    "answerType": "choice",
+    "answer": "yes",
+    "choices": [
+      "yes",
+      "no"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.3,
+    "misconceptionTags": [
+      "CONSERVATIVE"
+    ],
+    "rubric": "yes",
+    "hints": {
+      "nudge": "Check $P_y=Q_x$ on $\\mathbb{R}^2$.",
+      "technique": "$P=y$, $Q=x$ ⇒ $P_y=1=Q_x$",
+      "nextStep": "yes (potential $f=xy$)",
+      "fullSolution": "yes"
+    }
+  },
+  {
+    "id": "exam_7",
+    "skillId": "u5_theorem_pick",
+    "kind": "exam",
+    "prompt": "Outward flux through closed surface — best first tool?",
+    "answerType": "choice",
+    "answer": "Divergence",
+    "choices": [
+      "Green",
+      "Stokes",
+      "Divergence"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.5,
+    "misconceptionTags": [
+      "THEOREM_PICK"
+    ],
+    "rubric": "Divergence",
+    "hints": {
+      "nudge": "Closed surface + flux → Divergence theorem.",
+      "technique": "Stokes needs a boundary curve; Green is planar.",
+      "nextStep": "Divergence",
+      "fullSolution": "Divergence"
+    }
+  },
+  {
+    "id": "exam_8",
+    "skillId": "u5_stokes",
+    "kind": "exam",
+    "prompt": "Stokes converts circulation to flux of… (F / curl F / div F)",
+    "answerType": "choice",
+    "answer": "curl F",
+    "choices": [
+      "F",
+      "curl F",
+      "div F"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.4,
+    "misconceptionTags": [
+      "STOKES"
+    ],
+    "rubric": "curl F",
+    "hints": {
+      "nudge": "Right-hand side of Stokes is $\\iint_S (\\mathrm{curl}\\mathbf{F})\\cdot d\\mathbf{S}$",
+      "technique": "Circulation ↔ flux of curl",
+      "nextStep": "curl F",
+      "fullSolution": "curl F"
+    }
+  },
+  {
+    "id": "exam_9",
+    "skillId": "u1_lines_planes",
+    "kind": "exam",
+    "prompt": "Normal to $3x-y+2z=5$ as $a,b,c$?",
+    "answerType": "tuple",
+    "answer": "3,-1,2",
+    "accept": [
+      "3,-1,2"
+    ],
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "PLANE_NORMAL"
+    ],
+    "rubric": "(3,-1,2)",
+    "hints": {
+      "nudge": "Coefficients of $x,y,z$ form a normal vector.",
+      "technique": "Read off $\\langle 3,-1,2\\rangle$",
+      "nextStep": "3,-1,2",
+      "fullSolution": "$\\mathbf{n}=\\langle 3,-1,2\\rangle$"
+    }
+  },
+  {
+    "id": "exam_10",
+    "skillId": "u4_cyl_sph_int",
+    "kind": "exam",
+    "prompt": "Spherical volume element includes… (r / $\\rho^2\\sin\\phi$ / 1)",
+    "answerType": "choice",
+    "answer": "ρ² sin φ",
+    "choices": [
+      "r",
+      "ρ² sin φ",
+      "1"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.4,
+    "misconceptionTags": [
+      "SPH_JACOBIAN"
+    ],
+    "rubric": "$\\rho^2\\sin\\phi$",
+    "hints": {
+      "nudge": "$dV=\\rho^2\\sin\\phi\\,d\\rho\\,d\\phi\\,d\\theta$",
+      "technique": "$r$ is the cylindrical factor; spherical uses $\\rho^2\\sin\\phi$",
+      "nextStep": "$\\rho^2\\sin\\phi$",
+      "fullSolution": "$\\rho^2\\sin\\phi$"
+    }
+  },
+  {
+    "id": "exam_11",
+    "skillId": "u3_partials",
+    "kind": "exam",
+    "prompt": "$f(x,y)=x y^2$. $f_y(2,3)=?$",
+    "answerType": "numeric",
+    "answer": "12",
+    "difficulty": 2,
+    "examWeight": 1.1,
+    "misconceptionTags": [
+      "PARTIAL"
+    ],
+    "rubric": "12",
+    "hints": {
+      "nudge": "$f_y=2xy$",
+      "technique": "2(2)(3)=12",
+      "nextStep": "12",
+      "fullSolution": "12"
+    }
+  },
+  {
+    "id": "exam_12",
+    "skillId": "u4_triple",
+    "kind": "exam",
+    "prompt": "Volume of $[0,2]\\times[0,3]\\times[0,4]$?",
+    "answerType": "numeric",
+    "answer": "24",
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "TRIPLE"
+    ],
+    "rubric": "24",
+    "hints": {
+      "nudge": "Product of sides.",
+      "technique": "2·3·4",
+      "nextStep": "24",
+      "fullSolution": "24"
+    }
+  },
+  {
+    "id": "exam_13",
+    "skillId": "u5_green",
+    "kind": "exam",
+    "prompt": "Green converts planar closed line integral into a… (triple / double / surface) integral",
+    "answerType": "choice",
+    "answer": "double",
+    "choices": [
+      "triple",
+      "double",
+      "surface"
+    ],
+    "difficulty": 1,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "GREEN"
+    ],
+    "rubric": "double",
+    "hints": {
+      "nudge": "Green: line ↔ double.",
+      "technique": "Planar region.",
+      "nextStep": "double",
+      "fullSolution": "double"
+    }
+  },
+  {
+    "id": "exam_14",
+    "skillId": "u5_curl_div",
+    "kind": "exam",
+    "prompt": "$\\mathrm{div}\\langle x^2,y^2,z^2\\rangle$ at $(1,1,1)$?",
+    "answerType": "numeric",
+    "answer": "6",
+    "difficulty": 2,
+    "examWeight": 1.1,
+    "misconceptionTags": [
+      "CURL_DIV"
+    ],
+    "rubric": "6",
+    "hints": {
+      "nudge": "2x+2y+2z",
+      "technique": "At (1,1,1): 6",
+      "nextStep": "6",
+      "fullSolution": "6"
+    }
+  },
+  {
+    "id": "exam_15",
+    "skillId": "u4_jacobian",
+    "kind": "exam",
+    "prompt": "If $x=u+v$, $y=u-v$, $|J|=$?",
+    "answerType": "numeric",
+    "answer": "2",
+    "difficulty": 3,
+    "examWeight": 1.4,
+    "misconceptionTags": [
+      "JACOBIAN"
+    ],
+    "rubric": "2",
+    "hints": {
+      "nudge": "Det of [[1,1],[1,-1]]",
+      "technique": "|-2|=2",
+      "nextStep": "2",
+      "fullSolution": "2"
+    }
+  },
+  {
+    "id": "exam_16",
+    "skillId": "u2_arc_length",
+    "kind": "exam",
+    "prompt": "$\\mathbf{r}(t)=\\langle t,t,t\\rangle$ on $[0,1]$. Arc length?",
+    "answerType": "exact",
+    "answer": "\\sqrt{3}",
+    "accept": [
+      "sqrt(3)",
+      "√3",
+      "\\sqrt{3}"
+    ],
+    "difficulty": 2,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "ARC_LENGTH"
+    ],
+    "rubric": "$\\sqrt{3}$",
+    "hints": {
+      "nudge": "$\\mathbf{r}'=\\langle 1,1,1\\rangle$",
+      "technique": "$\\sqrt{3}$",
+      "nextStep": "$\\sqrt{3}$",
+      "fullSolution": "$\\sqrt{3}$"
+    }
+  },
+  {
+    "id": "exam_17",
+    "skillId": "u5_divergence",
+    "kind": "exam",
+    "prompt": "If div F=0 on solid E, outward flux through ∂E is?",
+    "answerType": "numeric",
+    "answer": "0",
+    "difficulty": 1,
+    "examWeight": 1.3,
+    "misconceptionTags": [
+      "DIVERGENCE_THM"
+    ],
+    "rubric": "0",
+    "hints": {
+      "nudge": "Flux=∭div F",
+      "technique": "0",
+      "nextStep": "0",
+      "fullSolution": "0"
+    }
+  },
+  {
+    "id": "exam_18",
+    "skillId": "u3_extrema",
+    "kind": "exam",
+    "prompt": "D>0 and f_xx<0 means… (min / max / saddle)",
+    "answerType": "choice",
+    "answer": "max",
+    "choices": [
+      "min",
+      "max",
+      "saddle"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "SECOND_DER_TEST"
+    ],
+    "rubric": "max",
+    "hints": {
+      "nudge": "Local max case.",
+      "technique": "Opposite of min.",
+      "nextStep": "max",
+      "fullSolution": "max"
+    }
+  },
+  {
+    "id": "exam_19",
+    "skillId": "u1_dot",
+    "kind": "exam",
+    "prompt": "$\\langle 1,2,2\\rangle\\cdot\\langle 2,-1,0\\rangle$?",
+    "answerType": "numeric",
+    "answer": "0",
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "DOT_VS_CROSS"
+    ],
+    "rubric": "0",
+    "hints": {
+      "nudge": "2-2+0",
+      "technique": "0",
+      "nextStep": "0",
+      "fullSolution": "0"
+    }
+  },
+  {
+    "id": "exam_20",
+    "skillId": "u5_theorem_pick",
+    "kind": "exam",
+    "prompt": "Flux through boundary of a solid ball — best tool?",
+    "answerType": "choice",
+    "answer": "Divergence",
+    "choices": [
+      "Green",
+      "Stokes",
+      "Divergence"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.5,
+    "misconceptionTags": [
+      "THEOREM_PICK"
+    ],
+    "rubric": "Divergence",
+    "hints": {
+      "nudge": "Closed surface + volume.",
+      "technique": "Divergence theorem",
+      "nextStep": "Divergence",
+      "fullSolution": "Divergence"
+    }
+  }
+]

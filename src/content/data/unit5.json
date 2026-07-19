@@ -1,0 +1,1141 @@
+[
+  {
+    "id": "u5_f_learn",
+    "skillId": "u5_fields",
+    "kind": "learn",
+    "prompt": "$\\mathbf{F}=\\langle -y,x\\rangle$ swirls counterclockwise. At $(1,0)$, $\\mathbf{F}=$? Enter $a,b$.",
+    "answerType": "tuple",
+    "answer": "0,1",
+    "accept": [
+      "0,1",
+      "(0,1)"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "FIELD_READ"
+    ],
+    "rubric": "(0,1)",
+    "hints": {
+      "nudge": "Plug the point into the field components.",
+      "technique": "$-y=0$, $x=1$",
+      "nextStep": "$\\langle 0,1\\rangle$",
+      "fullSolution": "$\\mathbf{F}(1,0)=\\langle 0,1\\rangle$"
+    }
+  },
+  {
+    "id": "u5_f_drill1",
+    "skillId": "u5_fields",
+    "kind": "drill",
+    "prompt": "$\\mathbf{F}=\\langle x,y\\rangle$ at $(2,3)$ as $a,b$?",
+    "answerType": "tuple",
+    "answer": "2,3",
+    "accept": [
+      "2,3",
+      "(2,3)"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "FIELD_READ"
+    ],
+    "rubric": "(2,3)",
+    "hints": {
+      "nudge": "Evaluate each component at the point.",
+      "technique": "$x=2$, $y=3$",
+      "nextStep": "$(2,3)$",
+      "fullSolution": "$\\langle 2,3\\rangle$"
+    }
+  },
+  {
+    "id": "u5_f_mastery",
+    "skillId": "u5_fields",
+    "kind": "mastery",
+    "prompt": "A constant field $\\langle 1,0\\rangle$ points… (right / up / left)",
+    "answerType": "choice",
+    "answer": "right",
+    "choices": [
+      "right",
+      "up",
+      "left"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "FIELD_READ"
+    ],
+    "rubric": "right",
+    "hints": {
+      "nudge": "First component is horizontal; positive means rightward.",
+      "technique": "$\\langle 1,0\\rangle$ is the unit vector $\\mathbf{i}$",
+      "nextStep": "right",
+      "fullSolution": "right"
+    }
+  },
+  {
+    "id": "u5_li_learn",
+    "skillId": "u5_line",
+    "kind": "learn",
+    "prompt": "$\\int_C \\mathbf{F}\\cdot d\\mathbf{r} = \\int_a^b \\mathbf{F}(\\mathbf{r}(t))\\cdot\\mathbf{r}'(t)\\,dt$. If $\\mathbf{F}=\\langle 1,0\\rangle$, $\\mathbf{r}(t)=\\langle t,0\\rangle$, $t\\in[0,2]$, value?",
+    "answerType": "numeric",
+    "answer": "2",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "LINE_INT"
+    ],
+    "rubric": "2",
+    "hints": {
+      "nudge": "$\\mathbf{r}'(t)=\\langle 1,0\\rangle$",
+      "technique": "$\\mathbf{F}\\cdot\\mathbf{r}'=1$",
+      "nextStep": "$\\int_0^2 1\\,dt=2$",
+      "fullSolution": "2"
+    }
+  },
+  {
+    "id": "u5_li_drill1",
+    "skillId": "u5_line",
+    "kind": "drill",
+    "prompt": "Scalar line integral $\\int_C 1\\,ds$ along line from $(0,0)$ to $(3,4)$ equals length?",
+    "answerType": "numeric",
+    "answer": "5",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "LINE_INT"
+    ],
+    "rubric": "5",
+    "hints": {
+      "nudge": "$\\int_C 1\\,ds$ is arc length.",
+      "technique": "Distance $\\sqrt{3^2+4^2}$",
+      "nextStep": "5",
+      "fullSolution": "5"
+    }
+  },
+  {
+    "id": "u5_li_mastery",
+    "skillId": "u5_line",
+    "kind": "mastery",
+    "prompt": "Work of a force field along a curve is which line integral type? (vector / scalar)",
+    "answerType": "choice",
+    "answer": "vector",
+    "choices": [
+      "vector",
+      "scalar"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "LINE_INT"
+    ],
+    "rubric": "vector",
+    "hints": {
+      "nudge": "Work is $\\int \\mathbf{F}\\cdot d\\mathbf{r}$",
+      "technique": "That is the vector-field line integral.",
+      "nextStep": "vector",
+      "fullSolution": "vector"
+    }
+  },
+  {
+    "id": "u5_c_learn",
+    "skillId": "u5_conservative",
+    "kind": "learn",
+    "prompt": "In 2D, $\\mathbf{F}=\\langle P,Q\\rangle$ conservative on simply connected domain if $P_y=Q_x$. For $\\langle y,x\\rangle$, $P_y=?$",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "CONSERVATIVE"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "$P=y$, so differentiate in $y$.",
+      "technique": "$P_y=1$",
+      "nextStep": "1",
+      "fullSolution": "$P_y=1$ (and $Q_x=1$, so it passes the test)"
+    }
+  },
+  {
+    "id": "u5_c_drill1",
+    "skillId": "u5_conservative",
+    "kind": "drill",
+    "prompt": "Is $\\langle -y,x\\rangle$ conservative on $\\mathbb{R}^2$? yes/no",
+    "answerType": "choice",
+    "answer": "no",
+    "choices": [
+      "yes",
+      "no"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "CONSERVATIVE"
+    ],
+    "rubric": "no",
+    "hints": {
+      "nudge": "Check $P_y$ vs $Q_x$.",
+      "technique": "$P_y=-1$, $Q_x=1$",
+      "nextStep": "Not equal → not conservative.",
+      "fullSolution": "no"
+    }
+  },
+  {
+    "id": "u5_c_mastery",
+    "skillId": "u5_conservative",
+    "kind": "mastery",
+    "prompt": "If $\\mathbf{F}=\\nabla f$, line integral depends only on… (path / endpoints)",
+    "answerType": "choice",
+    "answer": "endpoints",
+    "choices": [
+      "path",
+      "endpoints"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "CONSERVATIVE"
+    ],
+    "rubric": "endpoints",
+    "hints": {
+      "nudge": "Fundamental theorem for line integrals.",
+      "technique": "$\\int_A^B \\nabla f\\cdot d\\mathbf{r}=f(B)-f(A)$",
+      "nextStep": "endpoints",
+      "fullSolution": "endpoints"
+    }
+  },
+  {
+    "id": "u5_g_learn",
+    "skillId": "u5_green",
+    "kind": "learn",
+    "prompt": "Green: $\\oint_C P\\,dx+Q\\,dy = \\iint_D (Q_x-P_y)\\,dA$. For area via Green, a common choice gives integrand 1. $Q_x-P_y$ for area form often equals?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "GREEN"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "Area $=\\iint_D 1\\,dA$",
+      "technique": "Choose $P,Q$ so $Q_x-P_y=1$",
+      "nextStep": "1",
+      "fullSolution": "The integrand is 1"
+    }
+  },
+  {
+    "id": "u5_g_drill1",
+    "skillId": "u5_green",
+    "kind": "drill",
+    "prompt": "Green applies to… (open curves / positively oriented closed curves in plane)",
+    "answerType": "choice",
+    "answer": "positively oriented closed curves in plane",
+    "choices": [
+      "open curves",
+      "positively oriented closed curves in plane",
+      "any space curve"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "GREEN"
+    ],
+    "rubric": "closed planar positively oriented",
+    "hints": {
+      "nudge": "Green is a planar theorem about circulation on a boundary.",
+      "technique": "It needs a positively oriented, piecewise smooth closed curve in the plane.",
+      "nextStep": "Open curves and space curves are out.",
+      "fullSolution": "Positively oriented closed curves in the plane."
+    }
+  },
+  {
+    "id": "u5_g_mastery",
+    "skillId": "u5_green",
+    "kind": "mastery",
+    "prompt": "Green is the planar special case of… (Stokes / Divergence / Fubini)",
+    "answerType": "choice",
+    "answer": "Stokes",
+    "choices": [
+      "Stokes",
+      "Divergence",
+      "Fubini"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "GREEN"
+    ],
+    "rubric": "Stokes",
+    "hints": {
+      "nudge": "Stokes relates circulation to curl flux in 3D.",
+      "technique": "Restrict Stokes to a flat region in the $xy$-plane → Green.",
+      "nextStep": "Stokes",
+      "fullSolution": "Stokes"
+    }
+  },
+  {
+    "id": "u5_cd_learn",
+    "skillId": "u5_curl_div",
+    "kind": "learn",
+    "prompt": "$\\mathrm{div}\\langle x,y,z\\rangle=?$",
+    "answerType": "numeric",
+    "answer": "3",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "CURL_DIV"
+    ],
+    "rubric": "3",
+    "hints": {
+      "nudge": "$\\mathrm{div}\\mathbf{F}=P_x+Q_y+R_z$",
+      "technique": "$1+1+1$",
+      "nextStep": "3",
+      "fullSolution": "3"
+    }
+  },
+  {
+    "id": "u5_cd_drill1",
+    "skillId": "u5_curl_div",
+    "kind": "drill",
+    "prompt": "$\\mathrm{curl}\\langle -y,x,0\\rangle$ as $a,b,c$?",
+    "answerType": "tuple",
+    "answer": "0,0,2",
+    "accept": [
+      "0,0,2",
+      "(0,0,2)"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "CURL_DIV"
+    ],
+    "rubric": "(0,0,2)",
+    "hints": {
+      "nudge": "Only the $k$-component $Q_x-P_y$ is nonzero here.",
+      "technique": "$Q_x=1$, $P_y=-1$, so $Q_x-P_y=2$",
+      "nextStep": "$\\langle 0,0,2\\rangle$",
+      "fullSolution": "$\\mathrm{curl}\\mathbf{F}=\\langle 0,0,2\\rangle$"
+    }
+  },
+  {
+    "id": "u5_cd_mastery",
+    "skillId": "u5_curl_div",
+    "kind": "mastery",
+    "prompt": "div(curl F) is always… (0 / 1 / F)",
+    "answerType": "choice",
+    "answer": "0",
+    "choices": [
+      "0",
+      "1",
+      "F"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "CURL_DIV"
+    ],
+    "rubric": "0",
+    "hints": {
+      "nudge": "Vector calculus identity: divergence of a curl vanishes.",
+      "technique": "Mixed partials cancel.",
+      "nextStep": "0",
+      "fullSolution": "0"
+    }
+  },
+  {
+    "id": "u5_s_learn",
+    "skillId": "u5_surface",
+    "kind": "learn",
+    "prompt": "Flux $\\iint_S \\mathbf{F}\\cdot d\\mathbf{S}$. For graph $z=g(x,y)$, $d\\mathbf{S}=\\langle -g_x,-g_y,1\\rangle\\,dx\\,dy$ (upward). For plane $z=0$, the $z$-component of $dS$ is?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "ORIENTATION"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "For $z=0$, $g_x=g_y=0$.",
+      "technique": "$d\\mathbf{S}=\\langle 0,0,1\\rangle\\,dx\\,dy$",
+      "nextStep": "z-component is 1",
+      "fullSolution": "1"
+    }
+  },
+  {
+    "id": "u5_s_drill1",
+    "skillId": "u5_surface",
+    "kind": "drill",
+    "prompt": "Orientation mistakes usually flip the… (sign / integrand degree / domain)",
+    "answerType": "choice",
+    "answer": "sign",
+    "choices": [
+      "sign",
+      "integrand degree",
+      "domain"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "ORIENTATION"
+    ],
+    "rubric": "sign",
+    "hints": {
+      "nudge": "Reversing the normal multiplies flux by $-1$.",
+      "technique": "Domain and degree stay the same; sign flips.",
+      "nextStep": "sign",
+      "fullSolution": "sign"
+    }
+  },
+  {
+    "id": "u5_s_mastery",
+    "skillId": "u5_surface",
+    "kind": "mastery",
+    "prompt": "Scalar surface integral $\\iint_S 1\\,dS$ computes… (flux / surface area / work)",
+    "answerType": "choice",
+    "answer": "surface area",
+    "choices": [
+      "flux",
+      "surface area",
+      "work"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "SURFACE"
+    ],
+    "rubric": "surface area",
+    "hints": {
+      "nudge": "Integrating 1 with respect to surface measure.",
+      "technique": "That is the definition of surface area.",
+      "nextStep": "surface area",
+      "fullSolution": "surface area"
+    }
+  },
+  {
+    "id": "u5_st_learn",
+    "skillId": "u5_stokes",
+    "kind": "learn",
+    "prompt": "Stokes: $\\oint_{\\partial S}\\mathbf{F}\\cdot d\\mathbf{r} = \\iint_S \\mathrm{curl}\\mathbf{F}\\cdot d\\mathbf{S}$. It relates circulation to… (flux of curl / div)",
+    "answerType": "choice",
+    "answer": "flux of curl",
+    "choices": [
+      "flux of curl",
+      "div",
+      "area"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "STOKES"
+    ],
+    "rubric": "flux of curl",
+    "hints": {
+      "nudge": "Right-hand side is a flux integral of $\\mathrm{curl}\\mathbf{F}$.",
+      "technique": "Circulation ↔ flux of curl",
+      "nextStep": "flux of curl",
+      "fullSolution": "flux of curl"
+    }
+  },
+  {
+    "id": "u5_st_drill1",
+    "skillId": "u5_stokes",
+    "kind": "drill",
+    "prompt": "Stokes needs a consistent… (orientation / metric / chart atlas)",
+    "answerType": "choice",
+    "answer": "orientation",
+    "choices": [
+      "orientation",
+      "metric",
+      "chart atlas"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "ORIENTATION"
+    ],
+    "rubric": "orientation",
+    "hints": {
+      "nudge": "Boundary orientation must match the surface normal (right-hand rule).",
+      "technique": "Wrong orientation flips the sign.",
+      "nextStep": "orientation",
+      "fullSolution": "orientation"
+    }
+  },
+  {
+    "id": "u5_st_mastery",
+    "skillId": "u5_stokes",
+    "kind": "mastery",
+    "prompt": "If curl F = 0 on a surface with boundary, Stokes says circulation is?",
+    "answerType": "numeric",
+    "answer": "0",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "STOKES"
+    ],
+    "rubric": "0",
+    "hints": {
+      "nudge": "Right-hand side becomes $\\iint_S \\mathbf{0}\\cdot d\\mathbf{S}$",
+      "technique": "That integral is 0.",
+      "nextStep": "0",
+      "fullSolution": "0"
+    }
+  },
+  {
+    "id": "u5_dv_learn",
+    "skillId": "u5_divergence",
+    "kind": "learn",
+    "prompt": "Divergence theorem: $\\iint_{\\partial E}\\mathbf{F}\\cdot d\\mathbf{S} = \\iiint_E \\mathrm{div}\\mathbf{F}\\,dV$. Outward flux of $\\langle x,y,z\\rangle$ through unit sphere equals $\\iiint 3\\,dV = $? (enter approx $4.19$)",
+    "answerType": "numeric",
+    "answer": "4.19",
+    "accept": [
+      "4.19",
+      "4.1888",
+      "4.2"
+    ],
+    "difficulty": 3,
+    "misconceptionTags": [
+      "DIVERGENCE_THM"
+    ],
+    "rubric": "$4\\pi \\approx 4.19$",
+    "hints": {
+      "nudge": "$\\mathrm{div}\\langle x,y,z\\rangle=3$",
+      "technique": "Unit ball volume is $\\tfrac{4}{3}\\pi$",
+      "nextStep": "$3\\cdot\\tfrac{4}{3}\\pi=4\\pi\\approx 4.19$",
+      "fullSolution": "$4\\pi\\approx 4.19$"
+    }
+  },
+  {
+    "id": "u5_dv_drill1",
+    "skillId": "u5_divergence",
+    "kind": "drill",
+    "prompt": "Divergence theorem converts flux to a… (line / double / triple) integral",
+    "answerType": "choice",
+    "answer": "triple",
+    "choices": [
+      "line",
+      "double",
+      "triple"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "DIVERGENCE_THM"
+    ],
+    "rubric": "triple",
+    "hints": {
+      "nudge": "Right-hand side is $\\iiint_E \\mathrm{div}\\mathbf{F}\\,dV$",
+      "technique": "That is a triple integral over the solid.",
+      "nextStep": "triple",
+      "fullSolution": "triple"
+    }
+  },
+  {
+    "id": "u5_dv_mastery",
+    "skillId": "u5_divergence",
+    "kind": "mastery",
+    "prompt": "Closed surface + want flux + easy div → use… (Stokes / Divergence / Green)",
+    "answerType": "choice",
+    "answer": "Divergence",
+    "choices": [
+      "Stokes",
+      "Divergence",
+      "Green"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "THEOREM_PICK"
+    ],
+    "rubric": "Divergence",
+    "hints": {
+      "nudge": "Closed surface flux is the Divergence theorem's job.",
+      "technique": "Stokes is for circulation; Green is planar.",
+      "nextStep": "Divergence",
+      "fullSolution": "Divergence"
+    }
+  },
+  {
+    "id": "u5_tp_learn",
+    "skillId": "u5_theorem_pick",
+    "kind": "learn",
+    "prompt": "Closed curve in plane, convert line to double → … (Green / Stokes / Divergence)",
+    "answerType": "choice",
+    "answer": "Green",
+    "choices": [
+      "Green",
+      "Stokes",
+      "Divergence"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "THEOREM_PICK"
+    ],
+    "rubric": "Green",
+    "hints": {
+      "nudge": "Planar closed curve ↔ double integral over interior.",
+      "technique": "That is exactly Green.",
+      "nextStep": "Green",
+      "fullSolution": "Green"
+    }
+  },
+  {
+    "id": "u5_tp_drill1",
+    "skillId": "u5_theorem_pick",
+    "kind": "drill",
+    "prompt": "Circulation around boundary of an oriented surface in 3D → …",
+    "answerType": "choice",
+    "answer": "Stokes",
+    "choices": [
+      "Green",
+      "Stokes",
+      "Divergence"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "THEOREM_PICK"
+    ],
+    "rubric": "Stokes",
+    "hints": {
+      "nudge": "3D surface with boundary → Stokes.",
+      "technique": "Green is the flat special case; Divergence needs a closed surface.",
+      "nextStep": "Stokes",
+      "fullSolution": "Stokes"
+    }
+  },
+  {
+    "id": "u5_tp_drill2",
+    "skillId": "u5_theorem_pick",
+    "kind": "drill",
+    "prompt": "Outward flux through a closed surface → …",
+    "answerType": "choice",
+    "answer": "Divergence",
+    "choices": [
+      "Green",
+      "Stokes",
+      "Divergence"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "THEOREM_PICK"
+    ],
+    "rubric": "Divergence",
+    "hints": {
+      "nudge": "Closed surface flux → Divergence theorem.",
+      "technique": "Stokes would need a boundary curve, not a closed surface alone.",
+      "nextStep": "Divergence",
+      "fullSolution": "Divergence"
+    }
+  },
+  {
+    "id": "u5_tp_mix1",
+    "skillId": "u5_theorem_pick",
+    "kind": "mix",
+    "prompt": "Hard flux through a sphere of $\\mathbf{F}$ with simple divergence: first try…",
+    "answerType": "choice",
+    "answer": "Divergence",
+    "choices": [
+      "direct flux",
+      "Stokes",
+      "Divergence"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "THEOREM_PICK"
+    ],
+    "rubric": "Divergence",
+    "hints": {
+      "nudge": "Sphere is a closed surface; check if div is easy.",
+      "technique": "If div is simple, Divergence beats direct flux.",
+      "nextStep": "Divergence",
+      "fullSolution": "Divergence"
+    }
+  },
+  {
+    "id": "u5_tp_mastery",
+    "skillId": "u5_theorem_pick",
+    "kind": "mastery",
+    "prompt": "Planar region, line integral of $\\langle P,Q\\rangle$ on boundary: default tool?",
+    "answerType": "choice",
+    "answer": "Green",
+    "choices": [
+      "Green",
+      "Stokes",
+      "Divergence"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "THEOREM_PICK"
+    ],
+    "rubric": "Green",
+    "hints": {
+      "nudge": "2D field on a planar boundary → Green.",
+      "technique": "Stokes works but Green is the direct tool.",
+      "nextStep": "Green",
+      "fullSolution": "Green"
+    }
+  },
+  {
+    "id": "u5_tp_mix2",
+    "skillId": "u5_theorem_pick",
+    "kind": "mix",
+    "prompt": "Circulation around a space curve that bounds a surface in $\\mathbb{R}^3$ — first tool?",
+    "answerType": "choice",
+    "answer": "Stokes",
+    "choices": [
+      "Green",
+      "Stokes",
+      "Divergence"
+    ],
+    "difficulty": 3,
+    "examWeight": 1.5,
+    "misconceptionTags": [
+      "THEOREM_PICK"
+    ],
+    "rubric": "Stokes",
+    "hints": {
+      "nudge": "3D boundary curve.",
+      "technique": "Not planar Green; not closed-surface Divergence.",
+      "nextStep": "Stokes",
+      "fullSolution": "Stokes"
+    }
+  },
+  {
+    "id": "u5_st_mix1",
+    "skillId": "u5_stokes",
+    "kind": "mix",
+    "prompt": "Stokes right-hand rule matches…",
+    "answerType": "choice",
+    "answer": "normal to surface with boundary orientation",
+    "choices": [
+      "normal to surface with boundary orientation",
+      "outward normal on closed surface",
+      "nothing"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.3,
+    "misconceptionTags": [
+      "ORIENTATION"
+    ],
+    "rubric": "normal with boundary",
+    "hints": {
+      "nudge": "Consistent orientation required.",
+      "technique": "Fingers along boundary, thumb = normal.",
+      "nextStep": "normal to surface with boundary orientation",
+      "fullSolution": "normal to surface with boundary orientation"
+    }
+  },
+  {
+    "id": "u5_c_mix1",
+    "skillId": "u5_conservative",
+    "kind": "mix",
+    "prompt": "A potential for $\\langle 2x, 2y\\rangle$ is? (like x^2+y^2)",
+    "answerType": "exact",
+    "answer": "x^2+y^2",
+    "accept": [
+      "x^2+y^2",
+      "x^{2}+y^{2}"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "CONSERVATIVE"
+    ],
+    "rubric": "x^2+y^2",
+    "hints": {
+      "nudge": "Find f with ∇f=F.",
+      "technique": "∫ 2x dx = x² + g(y).",
+      "nextStep": "x^2+y^2",
+      "fullSolution": "$f=x^2+y^2$"
+    }
+  },
+  {
+    "id": "u5_f_guided",
+    "skillId": "u5_fields",
+    "kind": "guided",
+    "prompt": "A vector field assigns a vector to each point in a domain. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "FIELDS"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Definition.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_f_drill2",
+    "skillId": "u5_fields",
+    "kind": "drill",
+    "prompt": "$\\mathbf{F}=\\langle -y,x\\rangle$ is a rotation field in the plane. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "FIELDS"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Classic swirl field.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_line_guided",
+    "skillId": "u5_line",
+    "kind": "guided",
+    "prompt": "Line integral $\\int_C \\mathbf{F}\\cdot d\\mathbf{r}$ needs a parametrization of C. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "LINE"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Definition via r(t).",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_line_drill2",
+    "skillId": "u5_line",
+    "kind": "drill",
+    "prompt": "If $\\mathbf{F}$ is conservative, line integrals depend only on endpoints. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "CONSERVATIVE"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Path independence.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_surf_guided",
+    "skillId": "u5_surface",
+    "kind": "guided",
+    "prompt": "Surface integral of a vector field is often written $\\iint_S \\mathbf{F}\\cdot d\\mathbf{S}$. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "SURFACE"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Flux notation.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_surf_drill2",
+    "skillId": "u5_surface",
+    "kind": "drill",
+    "prompt": "Orientation of a surface picks a consistent normal direction. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "ORIENTATION"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Normal field choice.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_g_guided",
+    "skillId": "u5_green",
+    "kind": "guided",
+    "prompt": "Green's theorem needs a positively oriented, piecewise smooth, simple closed curve. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "GREEN"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Standard hypotheses.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_g_drill2",
+    "skillId": "u5_green",
+    "kind": "drill",
+    "prompt": "Green: $\\oint_C P\\,dx+Q\\,dy = \\iint_D (Q_x - P_y)\\,dA$. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "GREEN"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Standard form.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_cd_guided",
+    "skillId": "u5_curl_div",
+    "kind": "guided",
+    "prompt": "div F is a scalar; curl F is a vector (in 3D). true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "CURL_DIV"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Type of each operator.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_cd_drill2",
+    "skillId": "u5_curl_div",
+    "kind": "drill",
+    "prompt": "$\\mathrm{curl}\\langle 0,0,x\\rangle$ as $a,b,c$?",
+    "answerType": "tuple",
+    "answer": "0,-1,0",
+    "accept": [
+      "0,-1,0"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "CURL_DIV"
+    ],
+    "rubric": "(0,-1,0)",
+    "hints": {
+      "nudge": "curl = ⟨∂R/∂y−∂Q/∂z, ∂P/∂z−∂R/∂x, ∂Q/∂x−∂P/∂y⟩",
+      "technique": "⟨0, −1, 0⟩",
+      "nextStep": "0,-1,0",
+      "fullSolution": "⟨0,-1,0⟩"
+    }
+  },
+  {
+    "id": "u5_div_guided",
+    "skillId": "u5_divergence",
+    "kind": "guided",
+    "prompt": "Divergence theorem: flux through closed surface = triple integral of div F. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "DIVERGENCE_THM"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Statement of the theorem.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_div_drill2",
+    "skillId": "u5_divergence",
+    "kind": "drill",
+    "prompt": "$\\mathrm{div}\\langle x,y,z\\rangle=$?",
+    "answerType": "numeric",
+    "answer": "3",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "CURL_DIV"
+    ],
+    "rubric": "3",
+    "hints": {
+      "nudge": "1+1+1",
+      "technique": "3",
+      "nextStep": "3",
+      "fullSolution": "3"
+    }
+  },
+  {
+    "id": "u5_c_guided",
+    "skillId": "u5_conservative",
+    "kind": "guided",
+    "prompt": "If curl F = 0 on a simply connected domain, F is conservative. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "CONSERVATIVE"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Standard criterion in simply connected sets.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_c_drill2",
+    "skillId": "u5_conservative",
+    "kind": "drill",
+    "prompt": "Potential of $\\langle y,x\\rangle$ is? (xy)",
+    "answerType": "exact",
+    "answer": "xy",
+    "accept": [
+      "xy",
+      "x y"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "CONSERVATIVE"
+    ],
+    "rubric": "xy",
+    "hints": {
+      "nudge": "∫ y dx = xy + g(y)",
+      "technique": "Then fy = x + g' = x ⇒ g'=0",
+      "nextStep": "xy",
+      "fullSolution": "f=xy"
+    }
+  },
+  {
+    "id": "u5_st_guided",
+    "skillId": "u5_stokes",
+    "kind": "guided",
+    "prompt": "Stokes: $\\oint_{\\partial S} \\mathbf{F}\\cdot d\\mathbf{r} = \\iint_S \\mathrm{curl}\\,\\mathbf{F}\\cdot d\\mathbf{S}$. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "STOKES"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Statement of Stokes.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_st_drill2",
+    "skillId": "u5_stokes",
+    "kind": "drill",
+    "prompt": "Stokes reduces to Green when S lies in the xy-plane. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "STOKES",
+      "GREEN"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Special case of Stokes.",
+      "technique": "true",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_tp_guided",
+    "skillId": "u5_theorem_pick",
+    "kind": "guided",
+    "prompt": "Closed surface enclosing a volume → reach for Divergence theorem first. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "THEOREM_PICK"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Closed surface + solid.",
+      "technique": "Divergence",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u5_tp_drill3",
+    "skillId": "u5_theorem_pick",
+    "kind": "drill",
+    "prompt": "Planar region with boundary curve → Green. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "THEOREM_PICK"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "2D closed curve.",
+      "technique": "Green",
+      "nextStep": "true",
+      "fullSolution": "true"
+    }
+  }
+]
