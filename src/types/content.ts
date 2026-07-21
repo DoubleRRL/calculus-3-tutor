@@ -1,5 +1,7 @@
 /** Domain types for CalcTutor mastery system */
 
+import type { InteractionSpec } from "./interactions";
+
 export type UnitId =
   | "diagnostic"
   | "unit1"
@@ -18,7 +20,13 @@ export type ItemKind =
   | "review"
   | "exam";
 
-export type AnswerType = "exact" | "numeric" | "choice" | "free" | "tuple";
+export type AnswerType =
+  | "exact"
+  | "numeric"
+  | "choice"
+  | "free"
+  | "tuple"
+  | "interactive";
 
 export interface HintLadder {
   nudge: string;
@@ -39,6 +47,8 @@ export interface ProblemItem {
   choices?: string[];
   /** For tuple: if true, component order does not matter. Default false (ordered). */
   tupleUnordered?: boolean;
+  /** Visual/conceptual interaction; required when answerType is "interactive". */
+  interaction?: InteractionSpec;
   hints: HintLadder;
   misconceptionTags: string[];
   rubric: string;

@@ -38,6 +38,8 @@ export interface PersistedState {
   dailyGoal: number;
   sessionsCompletedToday: number;
   goalMetToday: boolean;
+  /** Skill ids where the learner acknowledged the ELI5 intro. */
+  grokked: string[];
 }
 
 function dayKey(d = new Date()): string {
@@ -85,6 +87,7 @@ export function createInitialState(): PersistedState {
     dailyGoal: DAILY_GOAL_DEFAULT,
     sessionsCompletedToday: 0,
     goalMetToday: false,
+    grokked: [],
   };
 }
 
@@ -172,6 +175,9 @@ export function parsePersisted(raw: unknown): PersistedState | null {
         : DAILY_GOAL_DEFAULT,
     sessionsCompletedToday,
     goalMetToday,
+    grokked: Array.isArray(raw.grokked)
+      ? (raw.grokked as unknown[]).filter((id): id is string => typeof id === "string")
+      : [],
   };
 }
 
@@ -308,6 +314,14 @@ export function recordSessionComplete(state: PersistedState): PersistedState {
   next.lastActiveDay = today;
   next.goalMetToday = next.sessionsCompletedToday >= next.dailyGoal;
   return next;
+}
+
+export function markSkillGroked(
+  state: PersistedState,
+  skillId: string,
+): PersistedState {
+  if (state.grokked.includes(skillId)) return state;
+  return { ...state, grokked: [...state.grokked, skillId] };
 }
 
 export function computeReadiness(state: PersistedState): ReadinessSnapshot {

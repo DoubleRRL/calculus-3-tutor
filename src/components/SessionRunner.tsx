@@ -5,6 +5,7 @@ import {
   buildTodayQueue,
   buildExamQueue,
   buildDiagnosticQueue,
+  buildSkillQueue,
   scoreExamAttempt,
   type QueueItem,
 } from "@/lib/scheduler";
@@ -14,9 +15,11 @@ import { skillById } from "@/content";
 import { MathText } from "@/components/MathText";
 import { HintLadderPanel } from "@/components/HintLadder";
 import { CoachPanel } from "@/components/CoachPanel";
+import { InteractionHost } from "@/components/interactions/InteractionHost";
 import type { CoachMessage } from "@/types/content";
 import { defaultExamWeight, EXAM_SIZE } from "@/lib/pedagogy";
 import { nextMilestone } from "@/lib/store";
+import { itemHasInteraction } from "@/lib/interactions";
 
 export type SessionConfig = {
   coach: boolean;
@@ -28,7 +31,8 @@ export type SessionConfig = {
 };
 
 export function SessionRunner({ config }: { config: SessionConfig }) {
-  const { state, recordAttempt, pushExamScore, completeSession } = useApp();
+  const { state, recordAttempt, pushExamScore, completeSession, setFocusSkillId } =
+    useApp();
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [idx, setIdx] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -81,6 +85,15 @@ export function SessionRunner({ config }: { config: SessionConfig }) {
 
   const current = queue[idx];
   const skill = current ? skillById(current.item.skillId) : undefined;
+
+  useEffect(() => {
+    const id = current?.item.skillId;
+    if (id) setFocusSkillId(id);
+  }, [current?.item.skillId, setFocusSkillId]);
+
+  useEffect(() => {
+    return () => setFocusSkillId(null);
+  }, [setFocusSkillId]);
 
   const progressLabel = useMemo(() => {
     if (!queue.length) return "";
@@ -272,7 +285,16 @@ export function SessionRunner({ config }: { config: SessionConfig }) {
         </p>
       )}
 
-      {current.item.answerType === "choice" && current.item.choices ? (
+      {itemHasInteraction(current.item) ? (
+        <div className="mt-5">
+          <InteractionHost
+            spec={current.item.interaction}
+            value={answer}
+            onChange={setAnswer}
+            disabled={locked}
+          />
+        </div>
+      ) : current.item.answerType === "choice" && current.item.choices ? (
         <div className="mt-5 flex flex-col gap-2">
           {current.item.choices.map((c) => (
             <button
@@ -308,7 +330,7 @@ export function SessionRunner({ config }: { config: SessionConfig }) {
           <button
             type="button"
             onClick={submit}
-            className="px-4 py-2 bg-[var(--color-ink)] text-[var(--color-on-accent)] font-mono text-sm rounded-sm"
+            className="px-4 py-2 bg-[var(--color-ink)] text-[var(--color-on-accent)] font-mono text-sm rounded-sm active:scale-[0.98] transition-transform"
           >
             Check
           </button>
@@ -316,7 +338,7 @@ export function SessionRunner({ config }: { config: SessionConfig }) {
           <button
             type="button"
             onClick={next}
-            className="px-4 py-2 bg-[var(--color-good)] text-[var(--color-on-accent)] font-mono text-sm rounded-sm"
+            className="px-4 py-2 bg-[var(--color-good)] text-[var(--color-on-accent)] font-mono text-sm rounded-sm active:scale-[0.98] transition-transform"
           >
             Continue
           </button>
@@ -327,8 +349,8 @@ export function SessionRunner({ config }: { config: SessionConfig }) {
         <p
           className={`mt-3 font-mono text-sm ${
             feedback.startsWith("Correct")
-              ? "text-[var(--color-good)]"
-              : "text-[var(--color-bad)]"
+              ? "text-[var(--color-good)] animate-success-pop"
+              : "text-[var(--color-bad)] animate-shake"
           }`}
         >
           <MathText text={feedback} />
@@ -399,4 +421,22 @@ export function DiagnosticSession({ onFinished }: { onFinished: () => void }) {
     [onFinished],
   );
   return <SessionRunner config={config} />;
+}
+
+/** Topic-scoped practice for a Course lesson. */
+export function SkillSession({ skillId }: { skillId: string }) {
+  const { state } = useApp();
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const config: SessionConfig = useMemo(
+    () => ({
+      coach: true,
+      hints: true,
+      trackExamScore: false,
+      countSession: true,
+      buildQueue: () => buildSkillQueue(skillId, stateRef.current, 8),
+    }),
+    [skillId],
+  );
+  return <SessionRunner key={skillId} config={config} />;
 }

@@ -7,6 +7,7 @@ import unit3Raw from "./data/unit3.json";
 import unit4Raw from "./data/unit4.json";
 import unit5Raw from "./data/unit5.json";
 import examRaw from "./data/exam.json";
+import interactiveRaw from "./data/interactive.json";
 import { SKILLS, UNITS, skillById, skillsForUnit } from "./skills";
 
 function loadBank(raw: unknown[]): ProblemItem[] {
@@ -21,6 +22,7 @@ export const ALL_ITEMS: ProblemItem[] = [
   ...loadBank(unit4Raw as unknown[]),
   ...loadBank(unit5Raw as unknown[]),
   ...loadBank(examRaw as unknown[]),
+  ...loadBank(interactiveRaw as unknown[]),
 ];
 
 assertItemHints(ALL_ITEMS);

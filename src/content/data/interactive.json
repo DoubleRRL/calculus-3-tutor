@@ -1,0 +1,709 @@
+[
+  {
+    "id": "ix_diag_v_ortho",
+    "skillId": "diag_vectors2d",
+    "kind": "learn",
+    "prompt": "Drag $\\mathbf{v}$ so it is orthogonal to the fixed $\\mathbf{u}=\\langle 2,0\\rangle$. Watch the live dot product hit $0$.",
+    "answerType": "interactive",
+    "answer": "{\"tips\":{\"u\":{\"x\":2,\"y\":0},\"v\":{\"x\":0,\"y\":2}}}",
+    "accept": [
+      "{\"tips\":{\"u\":{\"x\":2,\"y\":0},\"v\":{\"x\":0,\"y\":-2}}}",
+      "{\"tips\":{\"u\":{\"x\":2,\"y\":0},\"v\":{\"x\":0,\"y\":1}}}",
+      "{\"tips\":{\"u\":{\"x\":2,\"y\":0},\"v\":{\"x\":0,\"y\":3}}}"
+    ],
+    "interaction": {
+      "type": "vector",
+      "grid": { "min": -4, "max": 4, "step": 1 },
+      "vectors": [
+        { "id": "u", "tip": { "x": 2, "y": 0 }, "fixed": true, "label": "u" },
+        { "id": "v", "tip": { "x": 2, "y": 2 }, "label": "v" }
+      ],
+      "task": { "kind": "orthogonal", "aId": "u", "bId": "v", "tol": 0.35 },
+      "show": ["dot", "magnitude"]
+    },
+    "hints": {
+      "nudge": "Orthogonal means $\\mathbf{u}\\cdot\\mathbf{v}=0$.",
+      "technique": "With $\\mathbf{u}=\\langle 2,0\\rangle$, you need $2v_x=0$, so $v_x=0$.",
+      "nextStep": "Drag $\\mathbf{v}$ onto the $y$-axis (any nonzero $y$).",
+      "fullSolution": "Any $\\mathbf{v}=\\langle 0,t\\rangle$ with $t\\neq 0$ works, e.g. $\\langle 0,2\\rangle$."
+    },
+    "misconceptionTags": ["DOT_AS_COMPONENT"],
+    "rubric": "dot product ≈ 0",
+    "difficulty": 1
+  },
+  {
+    "id": "ix_u1_v_sum",
+    "skillId": "u1_vectors",
+    "kind": "learn",
+    "prompt": "Fixed $\\mathbf{u}=\\langle 2,1\\rangle$ and $\\mathbf{v}=\\langle 1,2\\rangle$. Drag $\\mathbf{w}$ so $\\mathbf{w}=\\mathbf{u}+\\mathbf{v}$.",
+    "answerType": "interactive",
+    "answer": "{\"tips\":{\"u\":{\"x\":2,\"y\":1},\"v\":{\"x\":1,\"y\":2},\"w\":{\"x\":3,\"y\":3}}}",
+    "interaction": {
+      "type": "vector",
+      "grid": { "min": -1, "max": 5, "step": 1 },
+      "vectors": [
+        { "id": "u", "tip": { "x": 2, "y": 1 }, "fixed": true, "label": "u" },
+        { "id": "v", "tip": { "x": 1, "y": 2 }, "fixed": true, "label": "v" },
+        { "id": "w", "tip": { "x": 1, "y": 1 }, "label": "w" }
+      ],
+      "task": { "kind": "sum", "aId": "u", "bId": "v", "resultId": "w", "tolerance": 0.45 },
+      "show": ["magnitude"]
+    },
+    "hints": {
+      "nudge": "Add components: $\\mathbf{u}+\\mathbf{v}=\\langle u_x+v_x,\\,u_y+v_y\\rangle$.",
+      "technique": "$\\langle 2+1,\\,1+2\\rangle=\\langle 3,3\\rangle$.",
+      "nextStep": "Drag the tip of $\\mathbf{w}$ to $(3,3)$.",
+      "fullSolution": "$\\mathbf{w}=\\langle 3,3\\rangle$."
+    },
+    "misconceptionTags": ["VECTOR_TIP_VS_TAIL"],
+    "rubric": "w tip at u+v",
+    "difficulty": 1
+  },
+  {
+    "id": "ix_u1_dot_ortho",
+    "skillId": "u1_dot",
+    "kind": "guided",
+    "prompt": "Drag $\\mathbf{v}$ until it is orthogonal to $\\mathbf{u}=\\langle 3,1\\rangle$. Confirm with the live dot product.",
+    "answerType": "interactive",
+    "answer": "{\"tips\":{\"u\":{\"x\":3,\"y\":1},\"v\":{\"x\":-1,\"y\":3}}}",
+    "accept": [
+      "{\"tips\":{\"u\":{\"x\":3,\"y\":1},\"v\":{\"x\":1,\"y\":-3}}}"
+    ],
+    "interaction": {
+      "type": "vector",
+      "grid": { "min": -4, "max": 4, "step": 1 },
+      "vectors": [
+        { "id": "u", "tip": { "x": 3, "y": 1 }, "fixed": true, "label": "u" },
+        { "id": "v", "tip": { "x": 2, "y": 2 }, "label": "v" }
+      ],
+      "task": { "kind": "orthogonal", "aId": "u", "bId": "v", "tol": 0.4 },
+      "show": ["dot", "projection"]
+    },
+    "hints": {
+      "nudge": "Need $3v_x+v_y=0$.",
+      "technique": "A perpendicular to $\\langle 3,1\\rangle$ is $\\langle -1,3\\rangle$ (or $\\langle 1,-3\\rangle$).",
+      "nextStep": "Drag $\\mathbf{v}$ to $(-1,3)$ or $(1,-3)$.",
+      "fullSolution": "$\\mathbf{v}=\\langle -1,3\\rangle$ works: $3(-1)+1(3)=0$."
+    },
+    "misconceptionTags": ["DOT_ZERO_MEANS_PARALLEL"],
+    "rubric": "orthogonal",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u1_cross_area",
+    "skillId": "u1_cross",
+    "kind": "learn",
+    "prompt": "In 2D the cross product is the signed parallelogram area $u_xv_y-u_yv_x$. Drag $\\mathbf{v}$ so the live $(\\mathbf{u}\\times\\mathbf{v})_z$ equals $6$, with fixed $\\mathbf{u}=\\langle 3,0\\rangle$.",
+    "fadePrompt": "Match tip so signed area is 6.",
+    "answerType": "interactive",
+    "answer": "{\"tips\":{\"u\":{\"x\":3,\"y\":0},\"v\":{\"x\":0,\"y\":2}}}",
+    "interaction": {
+      "type": "vector",
+      "grid": { "min": -1, "max": 5, "step": 1 },
+      "vectors": [
+        { "id": "u", "tip": { "x": 3, "y": 0 }, "fixed": true, "label": "u" },
+        { "id": "v", "tip": { "x": 1, "y": 1 }, "label": "v" }
+      ],
+      "task": { "kind": "matchTip", "vectorId": "v", "target": { "x": 0, "y": 2 }, "tolerance": 0.45 },
+      "show": ["cross", "magnitude"]
+    },
+    "hints": {
+      "nudge": "With $u_y=0$: area $=u_x v_y=3v_y$. Want $3v_y=6$.",
+      "technique": "$v_y=2$. Any $v_x$ works for area, but the target tip is $(0,2)$.",
+      "nextStep": "Drag $\\mathbf{v}$ to $(0,2)$.",
+      "fullSolution": "$\\mathbf{v}=\\langle 0,2\\rangle$ gives cross $z$-component $6$."
+    },
+    "misconceptionTags": ["CROSS_ABS_ONLY"],
+    "rubric": "v near (0,2)",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u1_unit",
+    "skillId": "u1_vectors",
+    "kind": "guided",
+    "prompt": "Fixed $\\mathbf{u}=\\langle 3,4\\rangle$. Drag $\\hat{\\mathbf{u}}$ to the unit vector in the same direction.",
+    "answerType": "interactive",
+    "answer": "{\"tips\":{\"u\":{\"x\":3,\"y\":4},\"uhat\":{\"x\":0.6,\"y\":0.8}}}",
+    "interaction": {
+      "type": "vector",
+      "grid": { "min": -1, "max": 5, "step": 0.5 },
+      "vectors": [
+        { "id": "u", "tip": { "x": 3, "y": 4 }, "fixed": true, "label": "u" },
+        { "id": "uhat", "tip": { "x": 1, "y": 1 }, "label": "û" }
+      ],
+      "task": { "kind": "unitOf", "sourceId": "u", "unitId": "uhat", "tolerance": 0.35 },
+      "show": ["magnitude"]
+    },
+    "hints": {
+      "nudge": "Unit vector $=\\mathbf{u}/\\|\\mathbf{u}\\|$.",
+      "technique": "$\\|\\mathbf{u}\\|=5$, so $\\hat{\\mathbf{u}}=\\langle 3/5,4/5\\rangle$.",
+      "nextStep": "Drag to $(0.6, 0.8)$.",
+      "fullSolution": "$\\langle 0.6, 0.8\\rangle$."
+    },
+    "misconceptionTags": ["UNIT_LENGTH"],
+    "rubric": "unit tip",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u4_rect_bounds",
+    "skillId": "u4_double_rect",
+    "kind": "learn",
+    "prompt": "The shaded rectangle is $[0,2]\\times[0,3]$. Set order $dy\\,dx$ and drag limits to match $\\int_0^2\\int_0^3 1\\,dy\\,dx$.",
+    "answerType": "interactive",
+    "answer": "{\"order\":\"dydx\",\"outerLo\":0,\"outerHi\":2,\"innerLo\":0,\"innerHi\":3}",
+    "accept": [
+      "{\"order\":\"dxdy\",\"outerLo\":0,\"outerHi\":3,\"innerLo\":0,\"innerHi\":2}"
+    ],
+    "interaction": {
+      "type": "region",
+      "grid": { "min": -1, "max": 4, "step": 1 },
+      "shade": { "kind": "rect", "x0": 0, "x1": 2, "y0": 0, "y1": 3 },
+      "integrand": "1",
+      "initial": { "order": "dydx", "outerLo": 0, "outerHi": 1, "innerLo": 0, "innerHi": 1 },
+      "solution": { "order": "dydx", "outerLo": 0, "outerHi": 2, "innerLo": 0, "innerHi": 3 },
+      "accept": [
+        { "order": "dxdy", "outerLo": 0, "outerHi": 3, "innerLo": 0, "innerHi": 2 }
+      ],
+      "tolerance": 0.25
+    },
+    "hints": {
+      "nudge": "For $dy\\,dx$, outer limits are on $x$, inner on $y$.",
+      "technique": "$x$ runs $0\\to 2$, and for each $x$, $y$ runs $0\\to 3$.",
+      "nextStep": "Set outerLo=0, outerHi=2, innerLo=0, innerHi=3.",
+      "fullSolution": "$\\int_0^2\\int_0^3 1\\,dy\\,dx$ (or swapped order)."
+    },
+    "misconceptionTags": ["BOUNDS_SWAP"],
+    "rubric": "correct rectangle bounds",
+    "difficulty": 1
+  },
+  {
+    "id": "ix_u4_typeI",
+    "skillId": "u4_bounds",
+    "kind": "learn",
+    "prompt": "Region under $y=x$ from $x=0$ to $x=2$ (above $y=0$). Set $dy\\,dx$: outer constants on $x$, then pick the inner expressions so $y$ runs from the bottom curve to the top curve.",
+    "answerType": "interactive",
+    "answer": "{\"order\":\"dydx\",\"outerLo\":0,\"outerHi\":2,\"innerLo\":0,\"innerHi\":\"x\"}",
+    "accept": [
+      "{\"order\":\"dxdy\",\"outerLo\":0,\"outerHi\":2,\"innerLo\":\"y\",\"innerHi\":2}"
+    ],
+    "interaction": {
+      "type": "region",
+      "grid": { "min": -0.5, "max": 3, "step": 0.5 },
+      "shade": { "kind": "underCurve", "x0": 0, "x1": 2, "yTop": "x", "yBottom": 0 },
+      "integrand": "1",
+      "innerChoices": [0, "x", "y", "x2", "1-x", 2],
+      "initial": { "order": "dydx", "outerLo": 0, "outerHi": 1, "innerLo": 0, "innerHi": "x2" },
+      "solution": { "order": "dydx", "outerLo": 0, "outerHi": 2, "innerLo": 0, "innerHi": "x" },
+      "accept": [
+        { "order": "dxdy", "outerLo": 0, "outerHi": 2, "innerLo": "y", "innerHi": 2 }
+      ],
+      "tolerance": 0.25
+    },
+    "hints": {
+      "nudge": "Type I ($dy\\,dx$): $x$ is outer (constants). For each fixed $x$, $y$ goes from the lower curve up to the upper curve.",
+      "technique": "Lower curve is $y=0$, upper is $y=x$. So inner $=\\int_0^{x}$.",
+      "nextStep": "Set outer $0\\to 2$, then chip innerLo $=0$ and innerHi $=x$. (Or flip to $dx\\,dy$: $y:0\\to 2$, $x:y\\to 2$.)",
+      "fullSolution": "$\\int_0^2\\int_0^x 1\\,dy\\,dx$ or $\\int_0^2\\int_y^2 1\\,dx\\,dy$."
+    },
+    "misconceptionTags": ["VARIABLE_BOUND_AS_CONST"],
+    "rubric": "Type I with inner 0 to x",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u4_polar",
+    "skillId": "u4_polar",
+    "kind": "guided",
+    "prompt": "Quarter disk $x\\ge 0$, $y\\ge 0$, $x^2+y^2\\le 4$. Choose $r\\,dr\\,d\\theta$ and set $\\theta:0\\to\\pi/2$, $r:0\\to 2$.",
+    "answerType": "interactive",
+    "answer": "{\"order\":\"rdθ\",\"outerLo\":0,\"outerHi\":1.57,\"innerLo\":0,\"innerHi\":2}",
+    "interaction": {
+      "type": "region",
+      "grid": { "min": -0.5, "max": 3, "step": 0.5 },
+      "shade": { "kind": "polarSector", "r0": 0, "r1": 2, "theta0": 0, "theta1": 1.5708 },
+      "integrand": "1",
+      "initial": { "order": "rdθ", "outerLo": 0, "outerHi": 1, "innerLo": 0, "innerHi": 1 },
+      "solution": { "order": "rdθ", "outerLo": 0, "outerHi": 1.5708, "innerLo": 0, "innerHi": 2 },
+      "tolerance": 0.2
+    },
+    "hints": {
+      "nudge": "Polar: include the Jacobian factor $r$. Outer variable is $\\theta$.",
+      "technique": "First quadrant: $\\theta\\in[0,\\pi/2]$, radius to $2$.",
+      "nextStep": "order rdθ, outerHi≈1.57, innerHi=2.",
+      "fullSolution": "$\\int_0^{\\pi/2}\\int_0^2 r\\,dr\\,d\\theta$."
+    },
+    "misconceptionTags": ["FORGOT_JACOBIAN_R"],
+    "rubric": "polar quarter disk",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u5_thm_sort",
+    "skillId": "u5_theorem_pick",
+    "kind": "learn",
+    "prompt": "Drag each scenario into Green, Stokes, or Divergence.",
+    "answerType": "interactive",
+    "answer": "{\"assignment\":{\"c1\":\"green\",\"c2\":\"stokes\",\"c3\":\"div\"}}",
+    "interaction": {
+      "type": "buckets",
+      "buckets": [
+        { "id": "green", "label": "Green" },
+        { "id": "stokes", "label": "Stokes" },
+        { "id": "div", "label": "Divergence" }
+      ],
+      "cards": [
+        { "id": "c1", "label": "Closed curve in the plane; convert $\\oint P\\,dx+Q\\,dy$" },
+        { "id": "c2", "label": "Circulation around a surface boundary ↔ curl flux" },
+        { "id": "c3", "label": "Flux out of a closed solid ↔ $\\iiint \\nabla\\cdot\\mathbf{F}$" }
+      ],
+      "solution": { "c1": "green", "c2": "stokes", "c3": "div" }
+    },
+    "hints": {
+      "nudge": "Green is the planar special case of Stokes.",
+      "technique": "Closed solid → Divergence; oriented surface with boundary → Stokes; flat region with boundary → Green.",
+      "nextStep": "Match each card to that keyword.",
+      "fullSolution": "Planar line → Green; surface curl → Stokes; closed flux → Divergence."
+    },
+    "misconceptionTags": ["THEOREM_MIXUP"],
+    "rubric": "correct bucket mapping",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u4_coords_sort",
+    "skillId": "u4_cyl_sph_int",
+    "kind": "guided",
+    "prompt": "Sort each solid into the natural coordinates.",
+    "answerType": "interactive",
+    "answer": "{\"assignment\":{\"a\":\"cyl\",\"b\":\"sph\",\"c\":\"rect\"}}",
+    "interaction": {
+      "type": "buckets",
+      "buckets": [
+        { "id": "rect", "label": "Rectangular" },
+        { "id": "cyl", "label": "Cylindrical" },
+        { "id": "sph", "label": "Spherical" }
+      ],
+      "cards": [
+        { "id": "a", "label": "Ice cream cone: $z=\\sqrt{x^2+y^2}$, capped by a sphere" },
+        { "id": "b", "label": "Ball $x^2+y^2+z^2\\le 9$" },
+        { "id": "c", "label": "Box $[0,1]\\times[0,2]\\times[0,3]$" }
+      ],
+      "solution": { "a": "cyl", "b": "sph", "c": "rect" }
+    },
+    "hints": {
+      "nudge": "Match symmetry: radial in $xy$ → cylindrical; full radial in 3D → spherical.",
+      "technique": "Boxes love $dx\\,dy\\,dz$; spheres love $\\rho$; cones/cylinders love $r,\\theta,z$.",
+      "nextStep": "Ball → sph, box → rect, cone-cap → cyl (or sph).",
+      "fullSolution": "cone-cap cylindrical; ball spherical; box rectangular."
+    },
+    "misconceptionTags": ["COORD_CHOICE"],
+    "rubric": "coord buckets",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u5_cons_sort",
+    "skillId": "u5_conservative",
+    "kind": "learn",
+    "prompt": "Sort each field as conservative or not (on simply connected domain).",
+    "answerType": "interactive",
+    "answer": "{\"assignment\":{\"a\":\"yes\",\"b\":\"no\",\"c\":\"yes\"}}",
+    "interaction": {
+      "type": "buckets",
+      "buckets": [
+        { "id": "yes", "label": "Conservative" },
+        { "id": "no", "label": "Not conservative" }
+      ],
+      "cards": [
+        { "id": "a", "label": "$\\mathbf{F}=\\langle 2x, 2y\\rangle$" },
+        { "id": "b", "label": "$\\mathbf{F}=\\langle -y, x\\rangle$" },
+        { "id": "c", "label": "$\\mathbf{F}=\\langle y, x\\rangle$" }
+      ],
+      "solution": { "a": "yes", "b": "no", "c": "yes" }
+    },
+    "hints": {
+      "nudge": "In 2D check $P_y=Q_x$.",
+      "technique": "For $\\langle -y,x\\rangle$: $P_y=-1$, $Q_x=1$ — not equal.",
+      "nextStep": "Gradient fields like $\\nabla(x^2+y^2)$ and $\\nabla(xy)$ are conservative.",
+      "fullSolution": "$\\langle 2x,2y\\rangle$ and $\\langle y,x\\rangle$ yes; $\\langle -y,x\\rangle$ no."
+    },
+    "misconceptionTags": ["CURL_TEST"],
+    "rubric": "conservative sort",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u1_quadric_sort",
+    "skillId": "u1_quadrics",
+    "kind": "learn",
+    "prompt": "Match each equation to its quadric name.",
+    "answerType": "interactive",
+    "answer": "{\"assignment\":{\"a\":\"ell\",\"b\":\"hyp\",\"c\":\"par\"}}",
+    "interaction": {
+      "type": "buckets",
+      "buckets": [
+        { "id": "ell", "label": "Ellipsoid" },
+        { "id": "hyp", "label": "Hyperboloid" },
+        { "id": "par", "label": "Elliptic paraboloid" }
+      ],
+      "cards": [
+        { "id": "a", "label": "$x^2/4+y^2+z^2/9=1$" },
+        { "id": "b", "label": "$x^2+y^2-z^2=1$" },
+        { "id": "c", "label": "$z=x^2+y^2$" }
+      ],
+      "solution": { "a": "ell", "b": "hyp", "c": "par" }
+    },
+    "hints": {
+      "nudge": "All positive squares = ellipsoid; a minus sign among squares = hyperboloid; one variable linear = paraboloid.",
+      "technique": "$z=x^2+y^2$ opens along $z$.",
+      "nextStep": "Sort by sign pattern.",
+      "fullSolution": "first ellipsoid, second hyperboloid of one sheet, third elliptic paraboloid."
+    },
+    "misconceptionTags": ["QUADRIC_ID"],
+    "rubric": "quadric names",
+    "difficulty": 1
+  },
+  {
+    "id": "ix_u3_crit",
+    "skillId": "u3_extrema",
+    "kind": "learn",
+    "prompt": "For $f(x,y)=x^2+y^2$, drag the probe to the critical point (where $\\nabla f=\\mathbf{0}$).",
+    "answerType": "interactive",
+    "answer": "{\"probe\":{\"x\":0,\"y\":0},\"direction\":{\"x\":1,\"y\":0}}",
+    "interaction": {
+      "type": "contour",
+      "grid": { "min": -3, "max": 3, "step": 1 },
+      "fn": { "kind": "preset", "name": "paraboloid" },
+      "levels": [0.5, 1, 2, 3, 4],
+      "initialProbe": { "x": 1.5, "y": 1.2 },
+      "task": { "kind": "criticalPoint", "target": { "x": 0, "y": 0 }, "tolerance": 0.4 }
+    },
+    "hints": {
+      "nudge": "Critical points solve $\\nabla f=\\mathbf{0}$.",
+      "technique": "$\\nabla f=\\langle 2x,2y\\rangle=\\mathbf{0}$ ⇒ $(0,0)$.",
+      "nextStep": "Watch the green gradient arrow shrink to nothing at the origin.",
+      "fullSolution": "Critical point at $(0,0)$."
+    },
+    "misconceptionTags": ["CRIT_VS_EXTREMA"],
+    "rubric": "probe at origin",
+    "difficulty": 1
+  },
+  {
+    "id": "ix_u3_grad_see",
+    "skillId": "u3_gradient",
+    "kind": "learn",
+    "prompt": "On $f=x^2+y^2$, place the probe at $(1,0)$. Confirm $\\nabla f$ points radially outward, perpendicular to the level curve.",
+    "answerType": "interactive",
+    "answer": "{\"probe\":{\"x\":1,\"y\":0},\"direction\":{\"x\":1,\"y\":0}}",
+    "interaction": {
+      "type": "contour",
+      "grid": { "min": -3, "max": 3, "step": 1 },
+      "fn": { "kind": "preset", "name": "paraboloid" },
+      "levels": [0.5, 1, 2, 3],
+      "initialProbe": { "x": 0.5, "y": 1.5 },
+      "task": { "kind": "placeProbe", "target": { "x": 1, "y": 0 }, "tolerance": 0.35 }
+    },
+    "hints": {
+      "nudge": "Level curves are circles; gradient is normal to them.",
+      "technique": "At $(1,0)$, $\\nabla f=\\langle 2,0\\rangle$ points along the positive $x$-axis.",
+      "nextStep": "Drag probe to $(1,0)$ and read the mirror.",
+      "fullSolution": "Probe at $(1,0)$; $\\nabla f=\\langle 2,0\\rangle$."
+    },
+    "misconceptionTags": ["GRAD_TANGENT"],
+    "rubric": "probe (1,0)",
+    "difficulty": 1
+  },
+  {
+    "id": "ix_u3_dir_neg",
+    "skillId": "u3_gradient",
+    "kind": "guided",
+    "prompt": "On the saddle $f=x^2-y^2$, place the probe somewhere the directional derivative in the $+\\mathbf{j}$ direction is negative. (Default $\\mathbf{u}$ is horizontal — rotate $\\mathbf{u}$ upward.)",
+    "answerType": "interactive",
+    "answer": "{\"probe\":{\"x\":0,\"y\":1},\"direction\":{\"x\":0,\"y\":1}}",
+    "interaction": {
+      "type": "contour",
+      "grid": { "min": -3, "max": 3, "step": 1 },
+      "fn": { "kind": "preset", "name": "saddle" },
+      "levels": [-2, -1, 0, 1, 2],
+      "initialProbe": { "x": 1, "y": 0 },
+      "task": { "kind": "dirDerivSign", "sign": "neg" }
+    },
+    "hints": {
+      "nudge": "$D_{\\mathbf{u}}f=\\nabla f\\cdot\\mathbf{u}$. For $\\mathbf{u}=\\mathbf{j}$, look at the $y$-component of $\\nabla f$.",
+      "technique": "$\\nabla f=\\langle 2x,-2y\\rangle$, so $D_{\\mathbf{j}}f=-2y$. Negative when $y>0$.",
+      "nextStep": "Move probe to positive $y$ and aim $\\mathbf{u}$ upward.",
+      "fullSolution": "e.g. probe $(0,1)$ with $\\mathbf{u}=\\langle 0,1\\rangle$ gives $D_u f=-2$."
+    },
+    "misconceptionTags": ["DIR_DERIV_SIGN"],
+    "rubric": "negative directional derivative",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u3_lagrange",
+    "skillId": "u3_lagrange",
+    "kind": "guided",
+    "prompt": "Maximize $f=x^2+y^2$ on the circle $x^2+y^2=4$ (constraint shown). Drag to a point of tangency where $\\nabla f\\parallel\\nabla g$ — any point on the circle works for this $f$, but land near $(2,0)$.",
+    "answerType": "interactive",
+    "answer": "{\"probe\":{\"x\":2,\"y\":0},\"direction\":{\"x\":1,\"y\":0}}",
+    "interaction": {
+      "type": "contour",
+      "grid": { "min": -3, "max": 3, "step": 1 },
+      "fn": { "kind": "preset", "name": "paraboloid" },
+      "levels": [1, 2, 3, 4],
+      "constraint": { "kind": "circle", "cx": 0, "cy": 0, "r": 2 },
+      "initialProbe": { "x": 0.5, "y": 0.5 },
+      "task": { "kind": "lagrangeTangency", "target": { "x": 2, "y": 0 }, "tolerance": 0.45 }
+    },
+    "hints": {
+      "nudge": "Lagrange: $\\nabla f=\\lambda\\nabla g$ with $g=x^2+y^2-4$.",
+      "technique": "Here level curves of $f$ are concentric with the constraint — every constraint point is critical. Target $(2,0)$.",
+      "nextStep": "Drag onto the circle near $(2,0)$.",
+      "fullSolution": "e.g. $(2,0)$ on the constraint."
+    },
+    "misconceptionTags": ["LAGRANGE_PARALLEL"],
+    "rubric": "on constraint near (2,0)",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u2_circle_t",
+    "skillId": "u2_vector_fn",
+    "kind": "learn",
+    "prompt": "Curve $\\mathbf{r}(t)=\\langle 2\\cos t,\\,2\\sin t\\rangle$. Scrub to $t=\\pi/2$ (top of the circle).",
+    "answerType": "interactive",
+    "answer": "{\"t\":1.5708}",
+    "interaction": {
+      "type": "curve",
+      "grid": { "min": -3, "max": 3, "step": 1 },
+      "curve": { "kind": "circle", "r": 2 },
+      "tRange": [0, 6.2832],
+      "initialT": 0.3,
+      "task": { "kind": "atT", "t": 1.5708, "tolerance": 0.25 }
+    },
+    "hints": {
+      "nudge": "At $t=\\pi/2$, $\\cos=0$, $\\sin=1$.",
+      "technique": "Position should read $\\langle 0,2\\rangle$.",
+      "nextStep": "Slide until $t\\approx 1.57$.",
+      "fullSolution": "$t=\\pi/2$."
+    },
+    "misconceptionTags": ["PARAM_VS_ANGLE"],
+    "rubric": "t = π/2",
+    "difficulty": 1
+  },
+  {
+    "id": "ix_u2_max_speed",
+    "skillId": "u2_motion",
+    "kind": "guided",
+    "prompt": "On $\\mathbf{r}(t)=\\langle t,\\,0.25 t^2\\rangle$ (parabola), scrub to where speed is largest in $t\\in[-2,2]$. (Speed grows with $|t|$.)",
+    "answerType": "interactive",
+    "answer": "{\"t\":2}",
+    "accept": ["{\"t\":-2}"],
+    "interaction": {
+      "type": "curve",
+      "grid": { "min": -3, "max": 3, "step": 1 },
+      "curve": { "kind": "parabola", "a": 0.25 },
+      "tRange": [-2, 2],
+      "initialT": 0,
+      "task": { "kind": "maxSpeed", "t": 2, "tolerance": 0.3 }
+    },
+    "hints": {
+      "nudge": "Speed $\\|\\mathbf{r}'(t)\\|$. Watch the live readout.",
+      "technique": "$\\mathbf{r}'=\\langle 1, 0.5 t\\rangle$, speed $=\\sqrt{1+0.25 t^2}$ — max at endpoints.",
+      "nextStep": "Scrub to $t=\\pm 2$.",
+      "fullSolution": "Maximum speed at $t=\\pm 2$ on this interval."
+    },
+    "misconceptionTags": ["SPEED_VS_VELOCITY"],
+    "rubric": "endpoint max speed",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u2_accel_perp",
+    "skillId": "u2_motion",
+    "kind": "learn",
+    "prompt": "Uniform circular motion: $\\mathbf{r}=\\langle 2\\cos t, 2\\sin t\\rangle$. Acceleration is always toward the center (perpendicular to velocity). Scrub to $t=0$ and confirm $\\mathbf{a}\\perp\\mathbf{v}$ in the mirror.",
+    "answerType": "interactive",
+    "answer": "{\"t\":0}",
+    "interaction": {
+      "type": "curve",
+      "grid": { "min": -3, "max": 3, "step": 1 },
+      "curve": { "kind": "circle", "r": 2 },
+      "tRange": [0, 6.2832],
+      "initialT": 1,
+      "task": { "kind": "accelPerpVel", "t": 0, "tolerance": 0.25 }
+    },
+    "hints": {
+      "nudge": "At $t=0$, $\\mathbf{v}=\\langle 0,2\\rangle$, $\\mathbf{a}=\\langle -2,0\\rangle$.",
+      "technique": "Dot product $\\mathbf{v}\\cdot\\mathbf{a}=0$ everywhere on the circle.",
+      "nextStep": "Scrub to $t=0$ and read the arrows.",
+      "fullSolution": "$t=0$ shows $\\mathbf{a}$ leftward, $\\mathbf{v}$ upward."
+    },
+    "misconceptionTags": ["CENTRIPETAL"],
+    "rubric": "t=0 circular",
+    "difficulty": 1
+  },
+  {
+    "id": "ix_u1_surf_id",
+    "skillId": "u1_quadrics",
+    "kind": "guided",
+    "prompt": "Orbit the surface, then identify it.",
+    "answerType": "interactive",
+    "answer": "{\"kind\":\"identify\",\"choice\":\"Elliptic paraboloid\"}",
+    "interaction": {
+      "type": "surface3d",
+      "surface": { "kind": "quadric", "name": "paraboloid" },
+      "task": {
+        "kind": "identify",
+        "answer": "Elliptic paraboloid",
+        "choices": [
+          "Ellipsoid",
+          "Elliptic paraboloid",
+          "Hyperboloid of one sheet",
+          "Cone"
+        ]
+      }
+    },
+    "hints": {
+      "nudge": "Look at horizontal traces — circles growing with height.",
+      "technique": "One variable appears linearly (or as the graph variable): paraboloid.",
+      "nextStep": "Pick Elliptic paraboloid.",
+      "fullSolution": "Elliptic paraboloid $z=x^2+y^2$ shape."
+    },
+    "misconceptionTags": ["QUADRIC_ID"],
+    "rubric": "identify paraboloid",
+    "difficulty": 2
+  },
+  {
+    "id": "ix_u3_surf_probe",
+    "skillId": "u3_gradient",
+    "kind": "guided",
+    "prompt": "On the paraboloid surface, click near $(0,0)$ in the $xy$-plane (the bottom). Watch the tangent plane flatten.",
+    "answerType": "interactive",
+    "answer": "{\"kind\":\"probe\",\"uv\":[0,0]}",
+    "interaction": {
+      "type": "surface3d",
+      "surface": { "kind": "zfn", "preset": "paraboloid" },
+      "task": { "kind": "probeAt", "target": [0, 0], "tolerance": 0.4 }
+    },
+    "hints": {
+      "nudge": "The minimum of $z=x^2+y^2$ is at the origin.",
+      "technique": "Click the lowest point of the wire mesh.",
+      "nextStep": "Probe readout should be near $(0,0)$.",
+      "fullSolution": "Probe at $(0,0)$."
+    },
+    "misconceptionTags": ["TANGENT_PLANE"],
+    "rubric": "probe origin",
+    "difficulty": 1
+  },
+  {
+    "id": "ix_u1_surf_saddle",
+    "skillId": "u1_quadrics",
+    "kind": "learn",
+    "prompt": "Orbit this surface. What is it?",
+    "answerType": "interactive",
+    "answer": "{\"kind\":\"identify\",\"choice\":\"Hyperbolic paraboloid (saddle)\"}",
+    "interaction": {
+      "type": "surface3d",
+      "surface": { "kind": "zfn", "preset": "saddle" },
+      "task": {
+        "kind": "identify",
+        "answer": "Hyperbolic paraboloid (saddle)",
+        "choices": [
+          "Ellipsoid",
+          "Elliptic paraboloid",
+          "Hyperbolic paraboloid (saddle)",
+          "Cone"
+        ]
+      }
+    },
+    "hints": {
+      "nudge": "One direction curves up, the orthogonal direction curves down.",
+      "technique": "Classic Pringles / saddle shape.",
+      "nextStep": "Choose hyperbolic paraboloid.",
+      "fullSolution": "Hyperbolic paraboloid (saddle)."
+    },
+    "misconceptionTags": ["QUADRIC_ID"],
+    "rubric": "identify saddle",
+    "difficulty": 1
+  },
+  {
+    "id": "ix_u4_jac_stretch",
+    "skillId": "u4_jacobian",
+    "kind": "learn",
+    "prompt": "Start from the identity map. Drag the column tips (images of $\\hat{\\imath}$ and $\\hat{\\jmath}$) so that $|J|=|ad-bc|=3$, then check.",
+    "answerType": "interactive",
+    "answer": "{\"a\":2,\"b\":0,\"c\":0,\"d\":1.5}",
+    "interaction": {
+      "type": "jacobian",
+      "a": 1,
+      "b": 0,
+      "c": 0,
+      "d": 1,
+      "task": { "kind": "matchDet", "target": 3, "tolerance": 0.15 }
+    },
+    "hints": {
+      "nudge": "Columns of $J$ are the images of the unit axes — drag those tips in the $xy$-plane.",
+      "technique": "One easy map: $\\begin{pmatrix}2&0\\\\0&1.5\\end{pmatrix}$ gives $|J|=3$. Or shear: $\\begin{pmatrix}3&0\\\\0&1\\end{pmatrix}$.",
+      "nextStep": "Check when the mirror shows $|J|\\approx 3$.",
+      "fullSolution": "Any $J$ with $|ad-bc|=3$ works; e.g. $\\mathrm{diag}(2,1.5)$ or $\\mathrm{diag}(3,1)$."
+    },
+    "misconceptionTags": ["JACOBIAN_FORGOT"],
+    "rubric": "|J|=3 from student matrix",
+    "difficulty": 1
+  },
+  {
+    "id": "ix_u3_chain_edge",
+    "skillId": "u3_chain",
+    "kind": "guided",
+    "prompt": "In the $z(x,y)$, $x(t)$, $y(t)$ tree, click the edge that multiplies by $\\frac{dy}{dt}$ (the chain step on the $y$ branch).",
+    "answerType": "interactive",
+    "answer": "{\"selectedEdgeId\":\"y_t\"}",
+    "interaction": {
+      "type": "chainTree",
+      "preset": "z_xy_t",
+      "nodes": [
+        { "id": "z", "label": "z", "x": 180, "y": 36 },
+        { "id": "x", "label": "x", "x": 100, "y": 110 },
+        { "id": "y", "label": "y", "x": 260, "y": 110 },
+        { "id": "t", "label": "t", "x": 180, "y": 184 }
+      ],
+      "edges": [
+        {
+          "id": "z_x",
+          "from": "z",
+          "to": "x",
+          "label": "∂z/∂x",
+          "rule": "partial",
+          "tip": "Hold $y$ fixed."
+        },
+        {
+          "id": "z_y",
+          "from": "z",
+          "to": "y",
+          "label": "∂z/∂y",
+          "rule": "partial",
+          "tip": "Hold $x$ fixed."
+        },
+        {
+          "id": "x_t",
+          "from": "x",
+          "to": "t",
+          "label": "dx/dt",
+          "rule": "chain",
+          "tip": "Chain on $x$."
+        },
+        {
+          "id": "y_t",
+          "from": "y",
+          "to": "t",
+          "label": "dy/dt",
+          "rule": "chain",
+          "tip": "Chain on $y$: multiply by $\\frac{dy}{dt}$."
+        }
+      ],
+      "task": { "kind": "clickEdge", "edgeId": "y_t" }
+    },
+    "hints": {
+      "nudge": "Look for the edge from $y$ down to $t$.",
+      "technique": "That edge is labeled $dy/dt$.",
+      "nextStep": "Click $dy/dt$.",
+      "fullSolution": "Edge $y\\to t$ ($dy/dt$)."
+    },
+    "misconceptionTags": ["CHAIN_TREE"],
+    "rubric": "select y_t",
+    "difficulty": 2
+  }
+]

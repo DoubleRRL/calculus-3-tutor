@@ -1,4 +1,5 @@
 import type { ProblemItem } from "@/types/content";
+import { gradeInteraction } from "@/lib/interactions";
 
 function normalize(s: string): string {
   return s
@@ -91,7 +92,17 @@ export interface GradeResult {
 export function gradeAnswer(item: ProblemItem, raw: string): GradeResult {
   const given = raw.trim();
   if (!given) {
-    return { correct: false, feedback: "Enter an answer." };
+    return {
+      correct: false,
+      feedback:
+        item.answerType === "interactive"
+          ? "Complete the interaction, then check."
+          : "Enter an answer.",
+    };
+  }
+
+  if (item.answerType === "interactive" && item.interaction) {
+    return gradeInteraction(item.interaction, given);
   }
 
   if (item.answerType === "choice") {

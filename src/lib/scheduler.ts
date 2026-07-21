@@ -173,6 +173,51 @@ export function buildExamQueue(count = EXAM_SIZE): QueueItem[] {
   }));
 }
 
+/**
+ * Topic-scoped practice for a lesson: walk the skill's bank in stage order
+ * (learn → guided → drill → mix → mastery), preferring unused items.
+ */
+export function buildSkillQueue(
+  skillId: string,
+  state: PersistedState,
+  target = 8,
+): QueueItem[] {
+  const queue: QueueItem[] = [];
+  const used = new Set<string>();
+  const sp = state.skills[skillId];
+  const stage = sp?.stage ?? "learn";
+
+  const order: SkillProgress["stage"][] = [
+    "learn",
+    "guided",
+    "drill",
+    "mix",
+    "mastery",
+  ];
+  const startIdx = Math.max(0, order.indexOf(stage === "done" ? "mastery" : stage));
+  const stages = [...order.slice(startIdx), ...order.slice(0, startIdx)];
+
+  for (const st of stages) {
+    if (queue.length >= target) break;
+    const pool = stageItems(skillId, st).filter((i) => !used.has(i.id));
+    for (const item of pool) {
+      if (queue.length >= target) break;
+      pushUnique(queue, used, item, reasonForStage(st));
+    }
+  }
+
+  // Fill from any remaining skill items if bank is thin
+  if (queue.length < target) {
+    const rest = itemsForSkill(skillId).filter((i) => !used.has(i.id));
+    for (const item of rest) {
+      if (queue.length >= target) break;
+      pushUnique(queue, used, item, reasonForStage(stage));
+    }
+  }
+
+  return queue;
+}
+
 /** Weighted exam score 0–100 using item.examWeight. */
 export function scoreExamAttempt(
   results: { weight: number; correct: boolean }[],

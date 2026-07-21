@@ -2,10 +2,16 @@ import { useState } from "react";
 import type { CoachMessage } from "@/types/content";
 import { MathText } from "./MathText";
 
-const CHIPS = [
+const DEFAULT_CHIPS = [
   "I don't know where to start",
   "Check my attempt",
   "Why is this wrong?",
+];
+
+export const LESSON_COACH_CHIPS = [
+  "Say that simpler",
+  "What's the analogy again?",
+  "I'm lost on the demo goal",
 ];
 
 export function CoachPanel({
@@ -13,11 +19,15 @@ export function CoachPanel({
   busy,
   messages,
   onAsk,
+  chips = DEFAULT_CHIPS,
+  caption = "Scoped to this problem · Socratic · local model",
 }: {
   enabled: boolean;
   busy: boolean;
   messages: CoachMessage[];
   onAsk: (q: string) => void;
+  chips?: string[];
+  caption?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
@@ -42,10 +52,10 @@ export function CoachPanel({
       {open && (
         <div className="mt-3 rounded-sm border border-[var(--color-panel-2)] bg-[var(--color-panel)] p-3 animate-rise">
           <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-mist)] mb-2">
-            Scoped to this problem · Socratic · local model
+            {caption}
           </p>
           <div className="flex flex-wrap gap-2 mb-3">
-            {CHIPS.map((c) => (
+            {chips.map((c) => (
               <button
                 key={c}
                 type="button"

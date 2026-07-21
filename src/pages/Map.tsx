@@ -1,4 +1,5 @@
-import { SKILLS, UNITS } from "@/content";
+import { Link } from "react-router-dom";
+import { SKILLS, UNITS, skillById } from "@/content";
 import { useApp } from "@/state/AppContext";
 import { ScoreStrip } from "@/components/ScoreStrip";
 import { nextMilestone } from "@/lib/store";
@@ -15,9 +16,10 @@ export function MapPage() {
         streak={state.streak}
         goalMet={state.goalMetToday}
       />
-      <h2 className="font-display text-2xl mb-1 text-[var(--color-ink)]">Skill map</h2>
+      <h2 className="font-display text-2xl mb-1 text-[var(--color-ink)]">Course</h2>
       <p className="text-sm text-[var(--color-mist)] mb-6">
-        Mastery unlocks dependents. Grey = locked, dark border = in progress or mastered.
+        Topics in order. Unlock the next by mastering prerequisites. Click an
+        unlocked topic to learn it — ELI5 intro first, then practice.
       </p>
       <div className="space-y-8">
         {UNITS.map((u) => {
@@ -31,36 +33,68 @@ export function MapPage() {
               <ul className="space-y-2">
                 {skills.map((s) => {
                   const p = state.skills[s.id];
-                  const tone = !p?.unlocked
+                  const unlocked = Boolean(p?.unlocked);
+                  const grokked = state.grokked.includes(s.id);
+                  const tone = !unlocked
                     ? "opacity-40 border-[var(--color-panel-2)]"
-                    : p.mastered
+                    : p?.mastered
                       ? "border-[var(--color-ink)]"
                       : "border-[var(--color-brass)]";
-                  return (
-                    <li
-                      key={s.id}
-                      className={`rounded-sm border bg-[var(--color-panel)] px-3 py-2 ${tone}`}
-                    >
-                      <div className="flex justify-between gap-3">
-                        <div>
-                          <p className="text-sm text-[var(--color-ink)]">{s.title}</p>
-                          <p className="font-mono text-[10px] text-[var(--color-mist)] mt-0.5">
-                            {s.objective}
+                  const missing = s.prerequisites.filter(
+                    (pr) => !state.skills[pr]?.mastered,
+                  );
+                  const lockHint =
+                    missing.length > 0
+                      ? `Needs: ${missing
+                          .map((id) => skillById(id)?.title ?? id)
+                          .join(", ")}`
+                      : null;
+
+                  const body = (
+                    <div className="flex justify-between gap-3">
+                      <div>
+                        <p className="text-sm text-[var(--color-ink)]">{s.title}</p>
+                        <p className="font-mono text-[10px] text-[var(--color-mist)] mt-0.5">
+                          {s.objective}
+                        </p>
+                        {!unlocked && lockHint && (
+                          <p className="font-mono text-[10px] text-[var(--color-mist)] mt-1">
+                            {lockHint}
                           </p>
+                        )}
+                        {unlocked && grokked && (
+                          <p className="font-mono text-[10px] text-[var(--color-brass)] mt-1">
+                            Intro done · practice ready
+                          </p>
+                        )}
+                      </div>
+                      <div className="font-mono text-[10px] text-right text-[var(--color-brass)] shrink-0">
+                        <div>
+                          {p?.mastered
+                            ? "mastered"
+                            : unlocked
+                              ? p?.stage
+                              : "locked"}
                         </div>
-                        <div className="font-mono text-[10px] text-right text-[var(--color-brass)] shrink-0">
-                          <div>
-                            {p?.mastered
-                              ? "mastered"
-                              : p?.unlocked
-                                ? p.stage
-                                : "locked"}
-                          </div>
-                          <div className="text-[var(--color-mist)]">
-                            R{Math.round(p?.rating ?? 1000)}
-                          </div>
+                        <div className="text-[var(--color-mist)]">
+                          R{Math.round(p?.rating ?? 1000)}
                         </div>
                       </div>
+                    </div>
+                  );
+
+                  return (
+                    <li key={s.id} className={`rounded-sm border bg-[var(--color-panel)] ${tone}`}>
+                      {unlocked ? (
+                        <Link
+                          to={`/learn/${s.id}`}
+                          className="block px-3 py-2 transition-transform active:scale-[0.99] hover:bg-[var(--color-paper)] rounded-sm"
+                        >
+                          {body}
+                        </Link>
+                      ) : (
+                        <div className="px-3 py-2 cursor-not-allowed">{body}</div>
+                      )}
                     </li>
                   );
                 })}

@@ -12,6 +12,7 @@ import {
   applyAttempt,
   computeReadiness,
   loadState,
+  markSkillGroked,
   recordSessionComplete,
   resetState,
   saveState,
@@ -27,6 +28,10 @@ interface AppCtx {
   reset: () => void;
   pushExamScore: (pct: number) => void;
   completeSession: () => void;
+  markGroked: (skillId: string) => void;
+  /** Ephemeral: current lesson/problem skill for glossary ranking (not persisted). */
+  focusSkillId: string | null;
+  setFocusSkillId: (skillId: string | null) => void;
 }
 
 const Ctx = createContext<AppCtx | null>(null);
@@ -37,6 +42,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     document.documentElement.dataset.theme = initial.settings.theme;
     return initial;
   });
+  const [focusSkillId, setFocusSkillId] = useState<string | null>(null);
 
   useEffect(() => {
     saveState(state);
@@ -81,6 +87,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState((prev) => recordSessionComplete(prev));
   }, []);
 
+  const markGroked = useCallback((skillId: string) => {
+    setState((prev) => markSkillGroked(prev, skillId));
+  }, []);
+
   const value = useMemo(
     () => ({
       state,
@@ -90,6 +100,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       reset,
       pushExamScore,
       completeSession,
+      markGroked,
+      focusSkillId,
+      setFocusSkillId,
     }),
     [
       state,
@@ -99,6 +112,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       reset,
       pushExamScore,
       completeSession,
+      markGroked,
+      focusSkillId,
     ],
   );
 

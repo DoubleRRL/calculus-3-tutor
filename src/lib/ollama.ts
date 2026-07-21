@@ -1,4 +1,5 @@
 import type { AppSettings, CoachMessage, ProblemItem } from "@/types/content";
+import { describeInteractionState } from "@/lib/interactions";
 
 const DEFAULT_TIMEOUT_MS = 45_000;
 
@@ -36,9 +37,28 @@ export interface CoachContext {
   skillObjective: string;
   attempt: string;
   hintLevel: number;
+  /** When set, coach explains the ELI5 intro — never spoil practice answers. */
+  lessonIntro?: string;
 }
 
 function buildSystemPrompt(ctx: CoachContext): string {
+  if (ctx.lessonIntro) {
+    return `You are CalcTutor's Socratic coach for Calculus 3, helping with a lesson INTRO (ELI5).
+
+Rules:
+- Explain the intro in plain language; rephrase denser bits when asked.
+- 1-4 short sentences. Prefer analogies and questions.
+- Help with the interactive demo goal if present.
+- Do NOT give practice-problem answers or spoil upcoming drills.
+- Use LaTeX ($...$) when helpful. Answer directly; no long chain-of-thought.
+
+Skill: ${ctx.skillTitle}
+Objective: ${ctx.skillObjective}
+
+LESSON INTRO (what the student is reading):
+${ctx.lessonIntro}`;
+  }
+
   return `You are CalcTutor's Socratic coach for Calculus 3.
 You help the student progress WITHOUT spoiling the full solution unless they explicitly ask to reveal.
 
@@ -63,10 +83,25 @@ RUBRIC: ${ctx.item.rubric}`;
 }
 
 function buildUserPayload(ctx: CoachContext, question: string): string {
+  if (ctx.lessonIntro) {
+    return `/no_think
+LESSON INTRO:
+${ctx.lessonIntro}
+
+DEMO / SCRATCH:
+${ctx.attempt || "(none)"}
+
+STUDENT MESSAGE:
+${question}`;
+  }
+  const interactionNote =
+    ctx.item.interaction != null
+      ? `\nINTERACTION STATE:\n${describeInteractionState(ctx.item.interaction, ctx.attempt)}\n`
+      : "";
   return `/no_think
 PROBLEM:
 ${ctx.item.prompt}
-
+${interactionNote}
 STUDENT ATTEMPT / SCRATCH:
 ${ctx.attempt || "(empty)"}
 
