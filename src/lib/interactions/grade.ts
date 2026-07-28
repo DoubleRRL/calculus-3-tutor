@@ -1,17 +1,20 @@
 import type {
   BucketsInteraction,
   ContourInteraction,
+  CoordFrameInteraction,
   CurveInteraction,
   QuadraticFn,
   RegionBounds,
   RegionInteraction,
   Surface3dInteraction,
+  Vector3dInteraction,
   VectorInteraction,
   Vec2,
 } from "@/types/interactions";
 import { near, numClose, parseJsonSafe } from "./math";
 import { gradientAt } from "./contourMath";
 import { boundEquals } from "./regionBounds";
+import { cross, vecNear } from "./vec3";
 
 export type GradeOk = { correct: boolean; feedback: string };
 
@@ -292,4 +295,126 @@ export function gradeChainTree(
     state.selectedEdgeId === spec.task.edgeId,
     `Select the edge “${spec.task.edgeId}”.`,
   );
+}
+
+export type Field2dState = {
+  probe?: Vec2;
+  choice?: string;
+  pathWorks?: { a: number; b: number };
+};
+
+export function gradeField2d(
+  spec: import("@/types/interactions").Field2dInteraction,
+  raw: string,
+): GradeOk {
+  const state = parseJsonSafe<Field2dState>(raw);
+  const task = spec.task;
+
+  if (task.kind === "explore") {
+    return { correct: true, feedback: "Nice exploration." };
+  }
+
+  if (task.kind === "probeCurlDiv") {
+    if (!state?.choice) {
+      return ok(false, "Drag the probe and pick curl, divergence, or neither.");
+    }
+    return ok(
+      state.choice === task.expect,
+      `Expected: ${task.expect}.`,
+    );
+  }
+
+  if (task.kind === "twoPath") {
+    const tol = 0.35;
+    if (state?.choice) {
+      const want = task.expectEqual ? "equal" : "unequal";
+      return ok(state.choice === want, `Paths should have ${want} work.`);
+    }
+    const wa = state?.pathWorks?.a;
+    const wb = state?.pathWorks?.b;
+    if (wa == null || wb == null) {
+      return ok(false, "Compare the two path integrals, then check.");
+    }
+    const diff = Math.abs(wa - wb);
+    if (task.expectEqual) {
+      return ok(diff < tol, "Work should be the same along both paths.");
+    }
+    return ok(diff > tol, "Work should differ between the paths.");
+  }
+
+  return ok(false, "Unknown field task.");
+}
+
+export type Vector3dState = { selected?: string };
+
+export function gradeVector3d(
+  spec: Vector3dInteraction,
+  raw: string,
+): GradeOk {
+  const state = parseJsonSafe<Vector3dState>(raw);
+  if (spec.task.kind === "explore") return ok(true, "");
+  if (spec.task.kind === "identify") {
+    if (!state?.selected) return ok(false, "Pick an answer.");
+    return ok(
+      state.selected === spec.task.answer,
+      `Expected: ${spec.task.answer}`,
+    );
+  }
+  if (spec.task.kind === "matchCross") {
+    const u = spec.vectors[0]?.components;
+    const v = spec.vectors[1]?.components;
+    if (!u || !v) return ok(false, "Need two vectors for the cross product.");
+    const got = cross(u, v);
+    const tol = spec.task.tolerance ?? 0.35;
+    return ok(
+      vecNear(got, spec.task.target, tol),
+      `\\mathbf{u}\\times\\mathbf{v} should match the target.`,
+    );
+  }
+  return ok(false, "Unknown vector3d task.");
+}
+
+export type CoordFrameState = {
+  selected?: string;
+  x?: number;
+  y?: number;
+  z?: number;
+  r?: number;
+  theta?: number;
+  rho?: number;
+  phi?: number;
+};
+
+export function gradeCoordFrame(
+  spec: CoordFrameInteraction,
+  raw: string,
+): GradeOk {
+  const state = parseJsonSafe<CoordFrameState>(raw);
+  if (spec.task.kind === "explore") return ok(true, "");
+  if (spec.task.kind === "matchSystem") {
+    if (!state?.selected) return ok(false, "Pick the coordinate system.");
+    return ok(
+      state.selected === spec.task.answer,
+      `Expected: ${spec.task.answer}`,
+    );
+  }
+  if (!state) return ok(false, "Scrub the coordinates, then check.");
+  const tol = spec.task.tol ?? 0.2;
+  const exp = spec.task.expect;
+  if (exp.r != null && !numClose(state.r ?? NaN, exp.r, tol)) {
+    return ok(false, `r should be near ${exp.r}.`);
+  }
+  if (exp.theta != null && !numClose(state.theta ?? NaN, exp.theta, tol)) {
+    return ok(false, `θ should be near ${exp.theta}.`);
+  }
+  if (exp.z != null && !numClose(state.z ?? NaN, exp.z, tol)) {
+    return ok(false, `z should be near ${exp.z}.`);
+  }
+  if (exp.rho != null && !numClose(state.rho ?? NaN, exp.rho, tol)) {
+    return ok(false, `ρ should be near ${exp.rho}.`);
+  }
+  if (exp.phi != null && !numClose(state.phi ?? NaN, exp.phi, tol)) {
+    return ok(false, `φ should be near ${exp.phi}.`);
+  }
+  return ok(true, "");
 }

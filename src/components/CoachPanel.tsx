@@ -14,6 +14,7 @@ export const LESSON_COACH_CHIPS = [
   "I'm lost on the demo goal",
 ];
 
+/** Chat body only — parent owns open/minimize chrome. */
 export function CoachPanel({
   enabled,
   busy,
@@ -21,6 +22,7 @@ export function CoachPanel({
   onAsk,
   chips = DEFAULT_CHIPS,
   caption = "Scoped to this problem · Socratic · local model",
+  className = "",
 }: {
   enabled: boolean;
   busy: boolean;
@@ -28,92 +30,79 @@ export function CoachPanel({
   onAsk: (q: string) => void;
   chips?: string[];
   caption?: string;
+  className?: string;
 }) {
-  const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
 
   if (!enabled) {
     return (
-      <p className="mt-4 font-mono text-xs text-[var(--color-mist)]">
+      <p className="text-[12px] text-[var(--ink-3)]">
         Coach is off in exam mode.
       </p>
     );
   }
 
   return (
-    <div className="mt-4">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="font-mono text-sm text-[var(--color-brass)] hover:text-[var(--color-ink)]"
-      >
-        {open ? "Hide coach" : "Ask coach"}
-      </button>
-      {open && (
-        <div className="mt-3 rounded-sm border border-[var(--color-panel-2)] bg-[var(--color-panel)] p-3 animate-rise">
-          <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-mist)] mb-2">
-            {caption}
-          </p>
-          <div className="flex flex-wrap gap-2 mb-3">
-            {chips.map((c) => (
-              <button
-                key={c}
-                type="button"
-                disabled={busy}
-                onClick={() => onAsk(c)}
-                className="font-mono text-xs px-2 py-1 rounded-sm border border-[var(--color-panel-2)] text-[var(--color-paper-dim)] hover:text-[var(--color-ink)] disabled:opacity-50"
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-          <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`text-sm ${
-                  m.role === "user"
-                    ? "text-[var(--color-brass)]"
-                    : "text-[var(--color-ink)]"
-                }`}
-              >
-                <span className="font-mono text-[10px] uppercase mr-2 opacity-60">
-                  {m.role === "user" ? "you" : "coach"}
-                </span>
-                <MathText text={m.content} />
-              </div>
-            ))}
-            {busy && messages[messages.length - 1]?.role !== "assistant" && (
-              <p className="font-mono text-xs text-[var(--color-mist)] animate-pulse-soft">
-                Thinking…
-              </p>
-            )}
-          </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!text.trim() || busy) return;
-              onAsk(text.trim());
-              setText("");
-            }}
-            className="flex gap-2"
+    <div className={className}>
+      <p className="text-[10px] uppercase tracking-wider text-[var(--ink-3)] mb-2">
+        {caption}
+      </p>
+      <div className="flex flex-wrap gap-2 mb-3">
+        {chips.map((c) => (
+          <button
+            key={c}
+            type="button"
+            disabled={busy}
+            onClick={() => onAsk(c)}
+            className="text-[12px] px-2 py-1 rounded-[var(--r-nav)] border border-[var(--line)] text-[var(--ink-2)] hover:text-[var(--ink-1)] hover:border-[var(--line-2)] disabled:opacity-50"
           >
-            <input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Ask a focused question…"
-              className="flex-1 bg-[var(--color-paper)] border border-[var(--color-panel-2)] rounded-sm px-3 py-2 text-sm font-body outline-none focus:border-[var(--color-ink)]"
-            />
-            <button
-              type="submit"
-              disabled={busy || !text.trim()}
-              className="px-3 py-2 bg-[var(--color-ink)] text-[var(--color-on-accent)] font-mono text-sm rounded-sm disabled:opacity-40"
-            >
-              Send
-            </button>
-          </form>
-        </div>
-      )}
+            {c}
+          </button>
+        ))}
+      </div>
+      <div className="space-y-2 max-h-40 overflow-y-auto mb-3">
+        {messages.map((m, i) => (
+          <div
+            key={i}
+            className={`text-[13px] ${
+              m.role === "user" ? "text-[var(--accent)]" : "text-[var(--ink-1)]"
+            }`}
+          >
+            <span className="text-[10px] uppercase mr-2 opacity-60">
+              {m.role === "user" ? "you" : "coach"}
+            </span>
+            <MathText text={m.content} />
+          </div>
+        ))}
+        {busy && messages[messages.length - 1]?.role !== "assistant" && (
+          <p className="text-[12px] text-[var(--ink-3)] animate-pulse-soft">
+            Thinking…
+          </p>
+        )}
+      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!text.trim() || busy) return;
+          onAsk(text.trim());
+          setText("");
+        }}
+        className="flex gap-2"
+      >
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Ask a focused question…"
+          className="flex-1 bg-[var(--card)] border border-[var(--line)] rounded-[var(--r-input)] px-3 py-2 text-[13px] outline-none focus:border-[var(--ink-1)]"
+        />
+        <button
+          type="submit"
+          disabled={busy || !text.trim()}
+          className="px-3 py-2 bg-[var(--accent)] text-[var(--on-accent)] text-[13px] font-medium rounded-[var(--r-nav)] disabled:opacity-40"
+        >
+          Send
+        </button>
+      </form>
     </div>
   );
 }

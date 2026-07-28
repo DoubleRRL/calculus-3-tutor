@@ -40,7 +40,8 @@ export const STAGE_THRESHOLDS = {
 
 export const UNIT_ORDER_BIAS_FROM = 30; // skill.order >= this ≈ Unit 3+
 
-export const DAILY_GOAL_DEFAULT = 1; // sessions per day
+/** @deprecated Prefer DAILY_GOAL_XP_DEFAULT from gamify — kept for v1 migration. */
+export const DAILY_GOAL_DEFAULT = 1;
 
 export const DIAGNOSTIC_SESSION_SIZE = 8;
 

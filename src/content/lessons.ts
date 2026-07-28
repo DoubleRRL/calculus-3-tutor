@@ -1,4 +1,5 @@
 import type { InteractionSpec } from "@/types/interactions";
+import type { FigureId } from "./figures";
 import { SKILLS } from "./skills";
 
 export type LessonDemo = {
@@ -7,8 +8,25 @@ export type LessonDemo = {
   spec: InteractionSpec;
 };
 
+export type LessonIntro =
+  | { kind: "figure"; caption: string; figure: FigureId }
+  | {
+      kind: "sequence";
+      caption: string;
+      figure: FigureId;
+      steps: { note: string }[];
+    }
+  | {
+      kind: "showcase";
+      caption: string;
+      spec: InteractionSpec;
+      autoplay?: "scrubT" | "orbit" | "sweepPlane" | "drift";
+    };
+
 export type Lesson = {
   skillId: string;
+  /** Picture-first passive intro before ELI5. Caption ≤12 words. */
+  intro?: LessonIntro;
   /** Plain-language explanation (KaTeX ok via $...$). */
   eli5: string;
   /** Optional short analogy. */
@@ -53,6 +71,21 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u1_coords3d: {
+    intro: {
+      kind: "showcase",
+      caption: "Three axes meet — a point needs x, y, and z.",
+      autoplay: "orbit",
+      spec: {
+        type: "vector3d",
+        vectors: [
+          { id: "i", components: [1.5, 0, 0], fixed: true, label: "i", color: "#c45c26" },
+          { id: "j", components: [0, 1.5, 0], fixed: true, label: "j", color: "#2d6a4f" },
+          { id: "k", components: [0, 0, 1.5], fixed: true, label: "k", color: "#3d5a80" },
+        ],
+        task: { kind: "explore" },
+        autoOrbit: true,
+      },
+    },
     eli5:
       "3D space adds a $z$ axis. Distance between points is $\\sqrt{\\Delta x^2+\\Delta y^2+\\Delta z^2}$. A sphere is all points at fixed distance from a center.",
     analogy: "GPS needs latitude, longitude, and altitude — three numbers.",
@@ -60,6 +93,21 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
       "Distance $(0,0,0)$ to $(2,3,6)$: $\\sqrt{4+9+36}=7$. Sphere radius $4$: $(x-a)^2+(y-b)^2+(z-c)^2=16$.",
   },
   u1_vectors: {
+    intro: {
+      kind: "showcase",
+      caption: "Arrows in space — tip-to-tail addition still works.",
+      autoplay: "orbit",
+      spec: {
+        type: "vector3d",
+        vectors: [
+          { id: "u", components: [2, 0.5, 0.2], fixed: true, label: "u" },
+          { id: "v", components: [0.5, 1.8, 0.4], fixed: true, label: "v" },
+        ],
+        show: ["parallelogram"],
+        task: { kind: "explore" },
+        autoOrbit: true,
+      },
+    },
     eli5:
       "Vectors in $\\mathbb{R}^3$ still add tip-to-tail and scale by stretching. The unit vector points the same way with length $1$: $\\hat{\\mathbf{u}}=\\mathbf{u}/\\|\\mathbf{u}\\|$.",
     analogy: "A push has strength and direction — that's a vector.",
@@ -97,6 +145,21 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u1_cross: {
+    intro: {
+      kind: "showcase",
+      caption: "Cross product stands perpendicular to both arrows.",
+      autoplay: "orbit",
+      spec: {
+        type: "vector3d",
+        vectors: [
+          { id: "u", components: [2, 0, 0], fixed: true, label: "u" },
+          { id: "v", components: [0.5, 1.5, 0], fixed: true, label: "v" },
+        ],
+        show: ["cross", "parallelogram"],
+        task: { kind: "explore" },
+        autoOrbit: true,
+      },
+    },
     eli5:
       "In 3D, $\\mathbf{u}\\times\\mathbf{v}$ is a vector perpendicular to both, length = parallelogram area. In the plane we only see the $z$-component $u_xv_y-u_yv_x$ — the signed area.",
     analogy: "Right-hand rule: fingers from u to v, thumb points cross.",
@@ -115,6 +178,22 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u1_lines_planes: {
+    intro: {
+      kind: "showcase",
+      caption: "A normal arrow defines the plane's tilt.",
+      autoplay: "orbit",
+      spec: {
+        type: "vector3d",
+        vectors: [
+          { id: "n", components: [0.8, 0.6, 1.4], fixed: true, label: "n", color: "#c45c26" },
+          { id: "u", components: [1.5, -0.4, 0], fixed: true, label: "in plane" },
+          { id: "v", components: [-0.3, 1.2, 0], fixed: true, label: "in plane" },
+        ],
+        show: ["parallelogram"],
+        task: { kind: "explore" },
+        autoOrbit: true,
+      },
+    },
     eli5:
       "A line needs a point and a direction: $\\mathbf{r}(t)=\\mathbf{r}_0+t\\mathbf{d}$. A plane needs a point and a normal: $\\mathbf{n}\\cdot(\\mathbf{r}-\\mathbf{r}_0)=0$.",
     analogy: "Line = laser beam. Plane = infinite flat sheet with a 'up' arrow (normal).",
@@ -122,6 +201,22 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
       "Line through $(1,0,0)$ along $\\langle 0,1,1\\rangle$: $\\langle 1,t,t\\rangle$. Plane through origin with normal $\\langle 1,2,3\\rangle$: $x+2y+3z=0$.",
   },
   u1_quadrics: {
+    intro: {
+      kind: "showcase",
+      caption: "Orbit a quadric — traces reveal its type.",
+      autoplay: "orbit",
+      spec: {
+        type: "surface3d",
+        surface: { kind: "quadric", name: "hyperboloid1" },
+        task: { kind: "identify", answer: "Hyperboloid of one sheet", choices: [
+          "Ellipsoid",
+          "Elliptic paraboloid",
+          "Hyperboloid of one sheet",
+          "Cone",
+        ] },
+        showTraces: true,
+      },
+    },
     eli5:
       "Quadrics are the 3D cousins of conic sections. All-positive squares → ellipsoid. A minus among squares → hyperboloid. One linear variable → paraboloid. Orbit the shape, then name it.",
     analogy: "Circles/ellipses/hyperbolas extruded or spun into 3D.",
@@ -144,6 +239,17 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u1_cyl_sph: {
+    intro: {
+      kind: "showcase",
+      caption: "Same point — cylindrical measuring sticks.",
+      autoplay: "orbit",
+      spec: {
+        type: "coordFrame",
+        system: "cylindrical",
+        point: [1, 1, 1.2],
+        task: { kind: "explore" },
+      },
+    },
     eli5:
       "Cylindrical: $(r,\\theta,z)$ — polar in $xy$ plus height. Spherical: $(\\rho,\\theta,\\phi)$ — distance from origin and two angles. Convert when the solid's symmetry matches.",
     analogy: "Cylindrical = lighthouse coords. Spherical = GPS from Earth's center.",
@@ -224,6 +330,17 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u3_partials: {
+    intro: {
+      kind: "showcase",
+      caption: "Level curves — freeze one variable, walk the other.",
+      autoplay: "orbit",
+      spec: {
+        type: "surface3d",
+        surface: { kind: "zfn", preset: "paraboloid" },
+        task: { kind: "probeAt", target: [1, 0], tolerance: 0.6 },
+        showTraces: true,
+      },
+    },
     eli5:
       "A partial derivative freezes one variable and differentiates in the other. $f_x$ = slope if you walk parallel to the $x$-axis. Second partials: $f_{xx}$, $f_{xy}$, …",
     analogy: "Hold the elevator floor constant; measure how steep the hallway is.",
@@ -462,6 +579,17 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u4_cyl_sph_int: {
+    intro: {
+      kind: "showcase",
+      caption: "Spherical shells — match coordinates to the solid.",
+      autoplay: "orbit",
+      spec: {
+        type: "coordFrame",
+        system: "spherical",
+        point: [1.2, 0.8, 0.9],
+        task: { kind: "explore" },
+      },
+    },
     eli5:
       "Match coordinates to the solid: cylinder/cone → cylindrical ($dV=r\\,dr\\,d\\theta\\,dz$). Ball/ice-cream from origin → spherical ($dV=\\rho^2\\sin\\phi\\,d\\rho\\,d\\phi\\,d\\theta$). Box → rectangular.",
     analogy: "Use the measuring sticks that share the object's symmetry.",
@@ -487,11 +615,33 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u5_fields: {
+    intro: {
+      kind: "showcase",
+      caption: "Every point gets an arrow — a swirl field.",
+      autoplay: "drift",
+      spec: {
+        type: "field2d",
+        grid: { min: -2.5, max: 2.5, step: 1 },
+        field: "rotate",
+        mode: "arrows",
+        task: { kind: "explore" },
+      },
+    },
     eli5:
       "A vector field assigns an arrow to every point — wind, force, flow. Sketch by sampling: at each $(x,y)$ draw $\\mathbf{F}(x,y)$.",
     analogy: "Weather map of wind: an arrow at every city.",
     workedExample:
       "$\\mathbf{F}=\\langle -y,x\\rangle$ swirls counterclockwise around the origin.",
+    demo: {
+      goal: "Drag the probe. This rotate field has curl, almost no divergence.",
+      spec: {
+        type: "field2d",
+        grid: { min: -2.5, max: 2.5, step: 1 },
+        field: "rotate",
+        mode: "curlProbe",
+        task: { kind: "probeCurlDiv", expect: "curl" },
+      },
+    },
   },
   u5_line: {
     eli5:
@@ -513,11 +663,43 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u5_conservative: {
+    intro: {
+      kind: "showcase",
+      caption: "Two paths, same endpoints — equal work if conservative.",
+      autoplay: "drift",
+      spec: {
+        type: "field2d",
+        grid: { min: -2, max: 2, step: 1 },
+        field: "radial",
+        mode: "twoPath",
+        task: {
+          kind: "twoPath",
+          pathA: "line",
+          pathB: "arc",
+          expectEqual: true,
+        },
+      },
+    },
     eli5:
       "Conservative means $\\mathbf{F}=\\nabla f$ for some potential. Then path integrals depend only on endpoints. In 2D, check $P_y=Q_x$. Curl zero (on a simply connected domain) is the test.",
     analogy: "Gravity: work depends on height change, not the hiking trail.",
     workedExample:
       "$\\langle 2x,2y\\rangle=\\nabla(x^2+y^2)$ is conservative. $\\langle -y,x\\rangle$ is not ($P_y=-1\\neq 1=Q_x$).",
+    demo: {
+      goal: "Rotate field: work along the two paths differs — not conservative.",
+      spec: {
+        type: "field2d",
+        grid: { min: -2, max: 2, step: 1 },
+        field: "rotate",
+        mode: "twoPath",
+        task: {
+          kind: "twoPath",
+          pathA: "line",
+          pathB: "arc",
+          expectEqual: false,
+        },
+      },
+    },
   },
   u5_green: {
     eli5:
@@ -555,11 +737,33 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u5_curl_div: {
+    intro: {
+      kind: "showcase",
+      caption: "Radial field — sources, almost no spin.",
+      autoplay: "drift",
+      spec: {
+        type: "field2d",
+        grid: { min: -2.5, max: 2.5, step: 1 },
+        field: "radial",
+        mode: "divProbe",
+        task: { kind: "explore" },
+      },
+    },
     eli5:
       "Curl measures local spin; divergence measures local source/sink. In 3D, $\\nabla\\times\\mathbf{F}$ and $\\nabla\\cdot\\mathbf{F}$. Curl zero ↔ conservative (nice domains).",
     analogy: "Curl = tiny paddlewheel spin. Div = how much fluid is created at a point.",
     workedExample:
       "$\\mathbf{F}=\\langle -y,x,0\\rangle$: curl $=\\langle 0,0,2\\rangle$, div $=0$.",
+    demo: {
+      goal: "Probe the rotate field and pick what it has — curl, not div.",
+      spec: {
+        type: "field2d",
+        grid: { min: -2.5, max: 2.5, step: 1 },
+        field: "rotate",
+        mode: "curlProbe",
+        task: { kind: "probeCurlDiv", expect: "curl" },
+      },
+    },
   },
   u5_surface: {
     eli5:
@@ -569,21 +773,45 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
       "Flux of $\\langle 0,0,z\\rangle$ up through $z=1$, $x^2+y^2\\le 1$ is area $\\pi$.",
   },
   u5_stokes: {
+    intro: {
+      kind: "showcase",
+      caption: "Rim circulation equals curl flux through the cap.",
+      autoplay: "orbit",
+      spec: {
+        type: "surface3d",
+        surface: { kind: "zfn", preset: "paraboloid" },
+        task: { kind: "stokesCompare" },
+        stokesField: "rotate",
+        showRim: true,
+      },
+    },
     eli5:
       "Stokes: circulation around a surface's boundary equals flux of curl through the surface. Green's theorem is the flat special case.",
     analogy: "Fence circulation = total spin of the paddles on the tarp.",
     workedExample:
       "Choose the easiest surface with the given boundary — often a flat disk instead of a fancy cap.",
     demo: {
-      goal: "Orbit the surface. The mirror shows rim circulation = curl flux — same number both ways (Stokes).",
+      goal: "Orbit the surface. Rim circulation and curl flux are computed for F=⟨−y,x,0⟩ — they match.",
       spec: {
         type: "surface3d",
         surface: { kind: "zfn", preset: "paraboloid" },
         task: { kind: "stokesCompare" },
+        stokesField: "rotate",
+        showRim: true,
       },
     },
   },
   u5_divergence: {
+    intro: {
+      kind: "showcase",
+      caption: "Sources inside — flux out equals total divergence.",
+      autoplay: "orbit",
+      spec: {
+        type: "surface3d",
+        surface: { kind: "zfn", preset: "paraboloid" },
+        task: { kind: "divIntuition", target: [0, 0], tolerance: 0.5 },
+      },
+    },
     eli5:
       "Divergence theorem: flux out of a closed surface equals $\\iiint(\\nabla\\cdot\\mathbf{F})\\,dV$ over the solid inside. Surface flux ↔ volume sources.",
     analogy: "Net fluid leaving a sealed room = total creation inside.",
@@ -599,6 +827,16 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u5_theorem_pick: {
+    intro: {
+      kind: "sequence",
+      caption: "Closed plane loop, surface rim, or sealed solid?",
+      figure: "theoremPick",
+      steps: [
+        { note: "Planar closed curve → Green (curl over the interior)." },
+        { note: "Surface with a rim → Stokes (flux of curl)." },
+        { note: "Closed surface / solid → Divergence (sources inside)." },
+      ],
+    },
     eli5:
       "Under time pressure: closed planar curve → Green. Oriented surface with boundary → Stokes (curl flux). Closed solid's outer flux → Divergence. Conservative field → potential / endpoints only.",
     analogy: "A flowchart: dimension of the region + open vs closed → picks the theorem.",

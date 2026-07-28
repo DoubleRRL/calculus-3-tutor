@@ -5,11 +5,14 @@ import {
   gradeBuckets,
   gradeChainTree,
   gradeContour,
+  gradeCoordFrame,
   gradeCurve,
+  gradeField2d,
   gradeJacobian,
   gradeRegion,
   gradeSurface3d,
   gradeVector,
+  gradeVector3d,
 } from "./grade";
 
 export function gradeInteraction(
@@ -33,6 +36,12 @@ export function gradeInteraction(
       return gradeJacobian(spec, raw);
     case "chainTree":
       return gradeChainTree(spec, raw);
+    case "vector3d":
+      return gradeVector3d(spec, raw);
+    case "coordFrame":
+      return gradeCoordFrame(spec, raw);
+    case "field2d":
+      return gradeField2d(spec, raw);
     default:
       return { correct: false, feedback: "Unknown interaction type." };
   }
@@ -70,6 +79,27 @@ export function describeInteractionState(
         return `J=[[${state.a},${state.b}],[${state.c},${state.d}]], |J|=${Math.abs(state.a * state.d - state.b * state.c)}`;
       case "chainTree":
         return `selectedEdge=${state.selectedEdgeId ?? "none"}`;
+      case "vector3d":
+        return state.selected
+          ? `selected=${state.selected}`
+          : JSON.stringify(state);
+      case "coordFrame":
+        return JSON.stringify(state);
+      case "field2d": {
+        const parts: string[] = [];
+        if (state.probe) {
+          parts.push(
+            `probe=(${state.probe.x?.toFixed?.(2)}, ${state.probe.y?.toFixed?.(2)})`,
+          );
+        }
+        if (state.choice) parts.push(`choice=${state.choice}`);
+        if (state.pathWorks) {
+          parts.push(
+            `W_a=${state.pathWorks.a?.toFixed?.(2)}, W_b=${state.pathWorks.b?.toFixed?.(2)}`,
+          );
+        }
+        return parts.join("; ") || raw.slice(0, 200);
+      }
       default:
         return raw.slice(0, 200);
     }

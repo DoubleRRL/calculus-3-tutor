@@ -7,10 +7,15 @@ import { ContourExplorer } from "./ContourExplorer";
 import { CurveTracer } from "./CurveTracer";
 import { JacobianStretch } from "./JacobianStretch";
 import { ChainRuleTree } from "./ChainRuleTree";
+import { Field2d } from "./Field2d";
+import { Vector3D } from "./Vector3D";
+import { CoordFrame } from "./CoordFrame";
 
 const Surface3D = lazy(() =>
   import("./Surface3D").then((m) => ({ default: m.Surface3D })),
 );
+
+export type InteractionAutoplay = "scrubT" | "orbit" | "sweepPlane" | "drift";
 
 export type InteractionHostProps = {
   spec: InteractionSpec;
@@ -18,6 +23,8 @@ export type InteractionHostProps = {
   onChange: (serialized: string) => void;
   disabled?: boolean;
   goal?: string;
+  mode?: "task" | "showcase";
+  autoplay?: InteractionAutoplay;
 };
 
 export function InteractionHost({
@@ -26,8 +33,12 @@ export function InteractionHost({
   onChange,
   disabled,
   goal,
+  mode = "task",
+  autoplay,
 }: InteractionHostProps) {
   const common = { value, onChange, disabled };
+  const orbitAutoplay =
+    autoplay === "orbit" || autoplay === "drift" ? autoplay : undefined;
 
   const widget = (() => {
     switch (spec.type) {
@@ -45,6 +56,33 @@ export function InteractionHost({
         return <JacobianStretch spec={spec} {...common} />;
       case "chainTree":
         return <ChainRuleTree spec={spec} {...common} />;
+      case "vector3d":
+        return (
+          <Vector3D
+            spec={spec}
+            {...common}
+            mode={mode}
+            autoplay={orbitAutoplay}
+          />
+        );
+      case "coordFrame":
+        return (
+          <CoordFrame
+            spec={spec}
+            {...common}
+            mode={mode}
+            autoplay={orbitAutoplay}
+          />
+        );
+      case "field2d":
+        return (
+          <Field2d
+            spec={spec}
+            {...common}
+            mode={mode}
+            autoplay={autoplay}
+          />
+        );
       case "surface3d":
         return (
           <Suspense

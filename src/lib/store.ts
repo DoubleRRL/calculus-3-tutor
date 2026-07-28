@@ -3,6 +3,7 @@ import type {
   AttemptRecord,
   ReadinessSnapshot,
   ReviewCard,
+  SessionSummary,
   SkillProgress,
 } from "@/types/content";
 import { SKILLS, UNITS } from "@/content/skills";
@@ -14,8 +15,14 @@ import {
   SESSION_SIZE,
   STAGE_THRESHOLDS,
 } from "./pedagogy";
+import {
+  DAILY_GOAL_XP_DEFAULT,
+  stageToCrowns,
+  todayXp,
+} from "./gamify";
 
-const STORAGE_KEY = "calctutor.v1";
+const STORAGE_KEY_V1 = "calctutor.v1";
+const STORAGE_KEY = "calctutor.v2";
 
 export const DEFAULT_SETTINGS: AppSettings = {
   coachModel: "qwen3:8b",
@@ -24,7 +31,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   ollamaBaseUrl: "http://127.0.0.1:11434",
   onboardingDone: false,
   sessionSize: SESSION_SIZE as 5 | 12 | 20,
-  theme: "light",
+  theme: "system",
+  dailyGoalXp: DAILY_GOAL_XP_DEFAULT,
 };
 
 export interface PersistedState {
@@ -35,14 +43,24 @@ export interface PersistedState {
   examScores: number[];
   streak: number;
   lastActiveDay: string | null;
-  dailyGoal: number;
-  sessionsCompletedToday: number;
-  goalMetToday: boolean;
-  /** Skill ids where the learner acknowledged the ELI5 intro. */
+  longestStreak: number;
+  streakFreezes: number;
+  /** Skill ids where the learner finished the teach deck. */
   grokked: string[];
+  xp: number;
+  xpByDay: Record<string, number>;
+  lastGoalMetDay: string | null;
+  crowns: Record<string, number>;
+  badges: string[];
+  sessionHistory: SessionSummary[];
+  schemaVersion: 2;
+  /** Transient display helpers kept for migration compat (derived). */
+  goalMetToday: boolean;
+  /** Last skill the learner was working on — resume target. */
+  resumeSkillId: string | null;
 }
 
-function dayKey(d = new Date()): string {
+export function dayKey(d = new Date()): string {
   return d.toISOString().slice(0, 10);
 }
 
@@ -63,8 +81,10 @@ function defaultSkillProgress(skillId: string, unlocked: boolean): SkillProgress
 export function createInitialState(): PersistedState {
   const skills: Record<string, SkillProgress> = {};
   const reviews: Record<string, ReviewCard> = {};
+  const crowns: Record<string, number> = {};
   for (const s of SKILLS) {
     skills[s.id] = defaultSkillProgress(s.id, s.prerequisites.length === 0);
+    crowns[s.id] = 0;
     const c = newCard();
     reviews[s.id] = {
       skillId: s.id,
@@ -84,15 +104,28 @@ export function createInitialState(): PersistedState {
     examScores: [],
     streak: 0,
     lastActiveDay: null,
-    dailyGoal: DAILY_GOAL_DEFAULT,
-    sessionsCompletedToday: 0,
-    goalMetToday: false,
+    longestStreak: 0,
+    streakFreezes: 0,
     grokked: [],
+    xp: 0,
+    xpByDay: {},
+    lastGoalMetDay: null,
+    crowns,
+    badges: [],
+    sessionHistory: [],
+    schemaVersion: 2,
+    goalMetToday: false,
+    resumeSkillId: null,
   };
 }
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function parseTheme(raw: unknown): AppSettings["theme"] {
+  if (raw === "dark" || raw === "light" || raw === "system") return raw;
+  return DEFAULT_SETTINGS.theme;
 }
 
 /** Minimal structural validate + merge new skills / engagement fields. */
@@ -108,6 +141,13 @@ export function parsePersisted(raw: unknown): PersistedState | null {
   const sessionSize = ([5, 12, 20] as const).includes(sizeRaw as 5 | 12 | 20)
     ? (sizeRaw as 5 | 12 | 20)
     : DEFAULT_SETTINGS.sessionSize;
+
+  const dailyGoalXp =
+    typeof raw.settings.dailyGoalXp === "number" && raw.settings.dailyGoalXp > 0
+      ? Number(raw.settings.dailyGoalXp)
+      : typeof raw.dailyGoal === "number" && raw.dailyGoal > 0
+        ? Math.max(30, Number(raw.dailyGoal) * 50)
+        : DAILY_GOAL_XP_DEFAULT;
 
   const settings: AppSettings = {
     ...DEFAULT_SETTINGS,
@@ -125,10 +165,8 @@ export function parsePersisted(raw: unknown): PersistedState | null {
       raw.settings.onboardingDone ?? DEFAULT_SETTINGS.onboardingDone,
     ),
     sessionSize,
-    theme:
-      raw.settings.theme === "dark" || raw.settings.theme === "light"
-        ? raw.settings.theme
-        : DEFAULT_SETTINGS.theme,
+    theme: parseTheme(raw.settings.theme),
+    dailyGoalXp,
   };
 
   const skills = { ...base.skills };
@@ -147,21 +185,38 @@ export function parsePersisted(raw: unknown): PersistedState | null {
     }
   }
 
+  const crowns: Record<string, number> = { ...base.crowns };
+  if (isObject(raw.crowns)) {
+    for (const id of Object.keys(base.crowns)) {
+      const n = Number((raw.crowns as Record<string, number>)[id]);
+      if (Number.isFinite(n)) crowns[id] = Math.max(0, Math.min(5, n));
+    }
+  } else {
+    for (const id of Object.keys(skills)) {
+      crowns[id] = stageToCrowns(skills[id]!.stage);
+    }
+  }
+
   const today = dayKey();
   const lastActiveDay =
     typeof raw.lastActiveDay === "string" ? raw.lastActiveDay : null;
   let streak = typeof raw.streak === "number" ? raw.streak : 0;
-  let sessionsCompletedToday =
-    typeof raw.sessionsCompletedToday === "number"
-      ? raw.sessionsCompletedToday
-      : 0;
-  let goalMetToday = Boolean(raw.goalMetToday);
-  if (lastActiveDay && lastActiveDay !== today) {
-    sessionsCompletedToday = 0;
-    goalMetToday = false;
-  }
+  const xpByDay = isObject(raw.xpByDay)
+    ? Object.fromEntries(
+        Object.entries(raw.xpByDay).filter(
+          ([, v]) => typeof v === "number",
+        ) as [string, number][],
+      )
+    : {};
 
-  return {
+  const lastGoalMetDay =
+    typeof raw.lastGoalMetDay === "string"
+      ? raw.lastGoalMetDay
+      : Boolean(raw.goalMetToday) && lastActiveDay === today
+        ? today
+        : null;
+
+  const state: PersistedState = {
     settings,
     skills,
     reviews,
@@ -169,23 +224,47 @@ export function parsePersisted(raw: unknown): PersistedState | null {
     examScores: (raw.examScores as number[]).filter((n) => typeof n === "number"),
     streak,
     lastActiveDay,
-    dailyGoal:
-      typeof raw.dailyGoal === "number" && raw.dailyGoal > 0
-        ? raw.dailyGoal
-        : DAILY_GOAL_DEFAULT,
-    sessionsCompletedToday,
-    goalMetToday,
+    longestStreak:
+      typeof raw.longestStreak === "number"
+        ? raw.longestStreak
+        : streak,
+    streakFreezes:
+      typeof raw.streakFreezes === "number" ? raw.streakFreezes : 0,
     grokked: Array.isArray(raw.grokked)
       ? (raw.grokked as unknown[]).filter((id): id is string => typeof id === "string")
       : [],
+    xp: typeof raw.xp === "number" ? raw.xp : 0,
+    xpByDay,
+    lastGoalMetDay,
+    crowns,
+    badges: Array.isArray(raw.badges)
+      ? (raw.badges as unknown[]).filter((id): id is string => typeof id === "string")
+      : [],
+    sessionHistory: Array.isArray(raw.sessionHistory)
+      ? (raw.sessionHistory as SessionSummary[]).slice(-50)
+      : [],
+    schemaVersion: 2,
+    goalMetToday: lastGoalMetDay === today,
+    resumeSkillId:
+      typeof raw.resumeSkillId === "string" ? raw.resumeSkillId : null,
   };
+  recomputeUnlocks(state);
+  return state;
 }
 
 export function loadState(): PersistedState {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return createInitialState();
-    return parsePersisted(JSON.parse(raw) as unknown) ?? createInitialState();
+    const v2 = localStorage.getItem(STORAGE_KEY);
+    if (v2) {
+      return parsePersisted(JSON.parse(v2) as unknown) ?? createInitialState();
+    }
+    const v1 = localStorage.getItem(STORAGE_KEY_V1);
+    if (v1) {
+      const migrated = parsePersisted(JSON.parse(v1) as unknown) ?? createInitialState();
+      saveState(migrated);
+      return migrated;
+    }
+    return createInitialState();
   } catch {
     return createInitialState();
   }
@@ -201,17 +280,29 @@ export function resetState(): PersistedState {
   return s;
 }
 
-export function unlockDependents(state: PersistedState): void {
-  for (const skill of SKILLS) {
-    const prog = state.skills[skill.id];
-    if (!prog || prog.unlocked) continue;
-    if (skill.prerequisites.every((p) => state.skills[p]?.mastered)) {
-      prog.unlocked = true;
+/** Recompute unlock flags from the current prerequisite graph (never re-locks). */
+export function recomputeUnlocks(state: PersistedState): void {
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const skill of SKILLS) {
+      const prog = state.skills[skill.id];
+      if (!prog || prog.unlocked) continue;
+      const ready =
+        skill.prerequisites.length === 0 ||
+        skill.prerequisites.every((p) => state.skills[p]?.mastered);
+      if (ready) {
+        prog.unlocked = true;
+        changed = true;
+      }
     }
   }
 }
 
-/** Single mastery/stage transition. */
+export function unlockDependents(state: PersistedState): void {
+  recomputeUnlocks(state);
+}
+
 export function advanceSkill(
   sp: SkillProgress,
   attempt: AttemptRecord,
@@ -291,28 +382,67 @@ export function applyAttempt(
     skillId: attempt.skillId,
     ...fsrsUpdate,
   };
+  next.crowns[attempt.skillId] = stageToCrowns(
+    next.skills[attempt.skillId]!.stage,
+  );
 
   unlockDependents(next);
   return next;
 }
 
-/** Record a completed practice/exam session for streak + daily goal. */
-export function recordSessionComplete(state: PersistedState): PersistedState {
+export function awardXp(state: PersistedState, amount: number): PersistedState {
+  if (amount <= 0) return state;
+  const next = structuredClone(state);
+  const today = dayKey();
+  next.xp += amount;
+  next.xpByDay[today] = (next.xpByDay[today] ?? 0) + amount;
+  // trim old days
+  const keys = Object.keys(next.xpByDay).sort();
+  if (keys.length > 120) {
+    for (const k of keys.slice(0, keys.length - 120)) {
+      delete next.xpByDay[k];
+    }
+  }
+  if (
+    todayXp(next.xpByDay, today) >= next.settings.dailyGoalXp &&
+    next.lastGoalMetDay !== today
+  ) {
+    next.lastGoalMetDay = today;
+  }
+  next.goalMetToday = next.lastGoalMetDay === today;
+  return next;
+}
+
+export function recordSessionComplete(
+  state: PersistedState,
+  summary?: SessionSummary,
+): PersistedState {
   const next = structuredClone(state);
   const today = dayKey();
   const yesterday = dayKey(new Date(Date.now() - 86_400_000));
 
   if (next.lastActiveDay === today) {
-    next.sessionsCompletedToday += 1;
+    // same day — streak unchanged
   } else if (next.lastActiveDay === yesterday) {
     next.streak += 1;
-    next.sessionsCompletedToday = 1;
-  } else {
+  } else if (next.lastActiveDay == null) {
     next.streak = 1;
-    next.sessionsCompletedToday = 1;
+  } else {
+    // missed day(s)
+    if (next.streakFreezes > 0) {
+      next.streakFreezes -= 1;
+      next.streak += 1;
+    } else {
+      next.streak = 1;
+    }
   }
   next.lastActiveDay = today;
-  next.goalMetToday = next.sessionsCompletedToday >= next.dailyGoal;
+  next.longestStreak = Math.max(next.longestStreak, next.streak);
+  next.goalMetToday = next.lastGoalMetDay === today;
+
+  if (summary) {
+    next.sessionHistory = [...next.sessionHistory, summary].slice(-50);
+  }
   return next;
 }
 
@@ -322,6 +452,13 @@ export function markSkillGroked(
 ): PersistedState {
   if (state.grokked.includes(skillId)) return state;
   return { ...state, grokked: [...state.grokked, skillId] };
+}
+
+export function applyDayRollover(state: PersistedState): PersistedState {
+  const today = dayKey();
+  const goalMetToday = state.lastGoalMetDay === today;
+  if (state.goalMetToday === goalMetToday) return state;
+  return { ...state, goalMetToday };
 }
 
 export function computeReadiness(state: PersistedState): ReadinessSnapshot {
@@ -367,7 +504,6 @@ export function computeReadiness(state: PersistedState): ReadinessSnapshot {
   };
 }
 
-/** Human-readable next unlock milestone for the score strip. */
 export function nextMilestone(state: PersistedState): string {
   const locked = SKILLS.filter((s) => !state.skills[s.id]?.unlocked).sort(
     (a, b) => a.order - b.order,
@@ -386,3 +522,96 @@ export function nextMilestone(state: PersistedState): string {
   const unitLabel = unit?.title ?? next.unitId;
   return `${missing.length} skill${missing.length === 1 ? "" : "s"} from unlocking ${unitLabel}`;
 }
+
+export function nextUnlockedSkill(state: PersistedState) {
+  return SKILLS.filter(
+    (s) =>
+      s.unitId !== "diagnostic" &&
+      state.skills[s.id]?.unlocked &&
+      !state.skills[s.id]?.mastered,
+  ).sort((a, b) => a.order - b.order)[0];
+}
+
+/**
+ * Next course skill after `afterSkillId` by order that is unlocked
+ * (and not yet mastered). Used when the current topic is mastered.
+ */
+export function nextSequentialSkill(
+  state: PersistedState,
+  afterSkillId: string | undefined,
+) {
+  const course = SKILLS.filter(
+    (s) => s.unitId !== "diagnostic" && s.unitId !== "exam",
+  ).sort((a, b) => a.order - b.order);
+  if (!afterSkillId) return nextUnlockedSkill(state);
+  const after = course.find((s) => s.id === afterSkillId);
+  if (!after) return nextUnlockedSkill(state);
+  return course.find(
+    (s) =>
+      s.order > after.order &&
+      state.skills[s.id]?.unlocked &&
+      !state.skills[s.id]?.mastered,
+  );
+}
+
+/** Next skill in course order after `afterSkillId` (ignores unlock). */
+export function peekNextSkill(afterSkillId: string | undefined) {
+  const course = SKILLS.filter(
+    (s) => s.unitId !== "diagnostic" && s.unitId !== "exam",
+  ).sort((a, b) => a.order - b.order);
+  if (!afterSkillId) return course[0];
+  const after = course.find((s) => s.id === afterSkillId);
+  if (!after) return course[0];
+  return course.find((s) => s.order > after.order);
+}
+
+export type MasteryProgress = {
+  streak: number;
+  need: number;
+  rating: number;
+  minRating: number;
+  mastered: boolean;
+};
+
+export function masteryProgress(
+  state: PersistedState,
+  skillId: string,
+): MasteryProgress {
+  const prog = state.skills[skillId];
+  return {
+    streak: prog?.consecutiveCorrect ?? 0,
+    need: MASTERY.consecutiveClean,
+    rating: prog?.rating ?? 1000,
+    minRating: MASTERY.minRating,
+    mastered: Boolean(prog?.mastered),
+  };
+}
+
+/** Skill to continue — last resume if still in progress, else next on path. */
+export function resumeSkill(state: PersistedState) {
+  const id = state.resumeSkillId;
+  if (id) {
+    const s = SKILLS.find((x) => x.id === id);
+    const prog = state.skills[id];
+    if (
+      s &&
+      s.unitId !== "diagnostic" &&
+      prog?.unlocked &&
+      !prog.mastered
+    ) {
+      return s;
+    }
+  }
+  return nextUnlockedSkill(state);
+}
+
+export function setResumeSkillId(
+  state: PersistedState,
+  skillId: string | null,
+): PersistedState {
+  if (state.resumeSkillId === skillId) return state;
+  return { ...state, resumeSkillId: skillId };
+}
+
+// silence unused import if DAILY_GOAL_DEFAULT only used in comment path
+void DAILY_GOAL_DEFAULT;

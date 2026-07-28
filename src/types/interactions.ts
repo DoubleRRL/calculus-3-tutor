@@ -168,6 +168,12 @@ export type Surface3dInteraction = {
           | "saddle";
       }
     | { kind: "zfn"; preset: "paraboloid" | "saddle" | "gaussian" };
+  /** Draw xy / xz / yz cross-section traces (partials / quadric intuition). */
+  showTraces?: boolean;
+  /** Draw boundary rim for Stokes demos. */
+  showRim?: boolean;
+  /** Field used for Stokes rim/flux computation. */
+  stokesField?: "rotate" | "radial";
   task:
     | { kind: "identify"; answer: string; choices: string[] }
     | { kind: "probeAt"; target: [number, number]; tolerance?: number }
@@ -205,6 +211,70 @@ export type ChainTreeInteraction = {
   task?: { kind: "clickEdge"; edgeId: string };
 };
 
+export type Vec3 = [number, number, number];
+
+export type Vector3dTask =
+  | { kind: "explore" }
+  | { kind: "matchCross"; target: Vec3; tolerance?: number }
+  | { kind: "identify"; answer: string; choices: string[] };
+
+export type Vector3dInteraction = {
+  type: "vector3d";
+  vectors: {
+    id: string;
+    components: Vec3;
+    fixed?: boolean;
+    label?: string;
+    color?: string;
+  }[];
+  show?: ("cross" | "dot" | "parallelogram")[];
+  task: Vector3dTask;
+  autoOrbit?: boolean;
+};
+
+export type CoordFrameSystem = "cartesian" | "cylindrical" | "spherical";
+
+export type CoordFrameInteraction = {
+  type: "coordFrame";
+  system: CoordFrameSystem;
+  /** Point in cartesian for display; student can scrub params */
+  point: Vec3;
+  task:
+    | { kind: "explore" }
+    | { kind: "matchSystem"; answer: CoordFrameSystem; choices: CoordFrameSystem[] }
+    | {
+        kind: "readCoords";
+        expect: {
+          r?: number;
+          theta?: number;
+          z?: number;
+          rho?: number;
+          phi?: number;
+        };
+        tol?: number;
+      };
+};
+
+export type Field2dPreset = "rotate" | "radial" | "uniform" | "shear";
+
+export type Field2dTask =
+  | { kind: "explore" }
+  | { kind: "probeCurlDiv"; expect: "curl" | "div" | "neither" }
+  | {
+      kind: "twoPath";
+      pathA: "line" | "arc";
+      pathB: "line" | "arc";
+      expectEqual: boolean;
+    };
+
+export type Field2dInteraction = {
+  type: "field2d";
+  grid: GridRange;
+  field: Field2dPreset;
+  mode?: "arrows" | "curlProbe" | "divProbe" | "twoPath";
+  task: Field2dTask;
+};
+
 export type InteractionSpec =
   | VectorInteraction
   | RegionInteraction
@@ -213,4 +283,7 @@ export type InteractionSpec =
   | CurveInteraction
   | Surface3dInteraction
   | JacobianInteraction
-  | ChainTreeInteraction;
+  | ChainTreeInteraction
+  | Vector3dInteraction
+  | CoordFrameInteraction
+  | Field2dInteraction;

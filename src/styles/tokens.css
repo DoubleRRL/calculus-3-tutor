@@ -1,0 +1,76 @@
+/* Rico spacing + Opus paper/stone palette */
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Inter Variable", "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+  --text-meta: 12px;
+  --text-sm: 13px;
+  --text-body: 14px;
+  --text-prompt: 18px;
+  --text-title: 24px;
+
+  /* Warm paper field — Opus trailer vibe */
+  --ink-1: #2c261f;
+  --ink-2: #6b5f52;
+  --ink-3: #9a8d7c;
+  --bg: #f3ede2;
+  --bg-sub: #ede6d9;
+  --card: #faf6ee;
+  --line: #e0d6c6;
+  --line-2: #d0c4b0;
+
+  /* Warm stone CTA */
+  --accent: #3a3229;
+  --accent-weak: #e8dfd0;
+  --on-accent: #faf6ee;
+
+  /* Speckled egg / rock accents */
+  --success: #5a7a5c;
+  --success-weak: #e4ebe3;
+  --error: #b85c45;
+  --error-weak: #f5e6e1;
+  --streak: #c4843a;
+  --crown: #b8954a;
+
+  --r-nav: 8px;
+  --r-card: 16px;
+  --r-pill: 999px;
+  --r-input: 12px;
+
+  /* Legacy aliases — widgets */
+  --color-paper: var(--bg);
+  --color-ink: var(--ink-1);
+  --color-paper-dim: var(--ink-2);
+  --color-oxide: var(--ink-1);
+  --color-brass: var(--ink-2);
+  --color-mist: var(--ink-3);
+  --color-panel: var(--card);
+  --color-panel-2: var(--line);
+  --color-good: var(--success);
+  --color-bad: var(--error);
+  --color-on-accent: var(--on-accent);
+  --font-display: var(--font-sans);
+  --font-body: var(--font-sans);
+}
+
+[data-theme="dark"] {
+  --ink-1: #f0e8dc;
+  --ink-2: #b8ab99;
+  --ink-3: #7a6f62;
+  --bg: #1c1914;
+  --bg-sub: #16130f;
+  --card: #242018;
+  --line: #352f26;
+  --line-2: #433c31;
+  --accent: #e8dfd0;
+  --accent-weak: #2e2920;
+  --on-accent: #1c1914;
+  --success: #7a9a7c;
+  --success-weak: #243024;
+  --error: #d47860;
+  --error-weak: #3a2420;
+  --streak: #d4a05a;
+  --crown: #d4b56a;
+}

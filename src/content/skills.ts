@@ -72,7 +72,7 @@ export const SKILLS: Skill[] = [
     unitId: "unit1",
     title: "3D coordinates & distance",
     objective: "Distance formula and sphere equations in ℝ³.",
-    prerequisites: ["diag_vectors2d"],
+    prerequisites: [],
     order: 10,
   },
   {
@@ -120,7 +120,7 @@ export const SKILLS: Skill[] = [
     unitId: "unit1",
     title: "Cylindrical & spherical",
     objective: "Convert among rectangular, cylindrical, spherical.",
-    prerequisites: ["u1_coords3d", "diag_vectors2d"],
+    prerequisites: ["u1_coords3d"],
     order: 16,
   },
 
@@ -130,7 +130,7 @@ export const SKILLS: Skill[] = [
     unitId: "unit2",
     title: "Vector-valued functions",
     objective: "Differentiate and integrate component-wise.",
-    prerequisites: ["u1_vectors", "diag_derivatives"],
+    prerequisites: ["u1_vectors"],
     order: 20,
   },
   {
@@ -138,7 +138,7 @@ export const SKILLS: Skill[] = [
     unitId: "unit2",
     title: "Arc length",
     objective: "Compute arc length of space curves.",
-    prerequisites: ["u2_vector_fn", "diag_integrals"],
+    prerequisites: ["u2_vector_fn"],
     order: 21,
   },
   {
@@ -172,7 +172,7 @@ export const SKILLS: Skill[] = [
     unitId: "unit3",
     title: "Partial derivatives",
     objective: "Compute first and second partials.",
-    prerequisites: ["u3_functions", "diag_derivatives"],
+    prerequisites: ["u3_functions"],
     order: 32,
   },
   {
@@ -214,7 +214,7 @@ export const SKILLS: Skill[] = [
     unitId: "unit4",
     title: "Double integrals (rectangles)",
     objective: "Fubini on rectangles.",
-    prerequisites: ["u3_partials", "diag_integrals"],
+    prerequisites: ["u3_partials"],
     order: 40,
   },
   {
@@ -272,7 +272,7 @@ export const SKILLS: Skill[] = [
     unitId: "unit5",
     title: "Line integrals",
     objective: "Compute ∫ F·dr and scalar line integrals.",
-    prerequisites: ["u5_fields", "u2_vector_fn", "diag_integrals"],
+    prerequisites: ["u5_fields", "u2_vector_fn"],
     order: 51,
   },
   {

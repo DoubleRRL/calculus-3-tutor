@@ -7,18 +7,28 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { AttemptRecord, AppSettings } from "@/types/content";
+import type { AttemptRecord, AppSettings, SessionSummary } from "@/types/content";
 import {
   applyAttempt,
+  applyDayRollover,
+  awardXp,
   computeReadiness,
   loadState,
   markSkillGroked,
   recordSessionComplete,
   resetState,
   saveState,
+  setResumeSkillId,
   type PersistedState,
 } from "@/lib/store";
 import { review, newCard } from "@/lib/fsrs";
+
+function resolveTheme(theme: AppSettings["theme"]): "light" | "dark" {
+  if (theme === "light" || theme === "dark") return theme;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
 
 interface AppCtx {
   state: PersistedState;
@@ -27,9 +37,10 @@ interface AppCtx {
   updateSettings: (patch: Partial<AppSettings>) => void;
   reset: () => void;
   pushExamScore: (pct: number) => void;
-  completeSession: () => void;
+  completeSession: (summary?: SessionSummary) => void;
+  addXp: (amount: number) => void;
   markGroked: (skillId: string) => void;
-  /** Ephemeral: current lesson/problem skill for glossary ranking (not persisted). */
+  setResume: (skillId: string | null) => void;
   focusSkillId: string | null;
   setFocusSkillId: (skillId: string | null) => void;
 }
@@ -39,7 +50,7 @@ const Ctx = createContext<AppCtx | null>(null);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PersistedState>(() => {
     const initial = loadState();
-    document.documentElement.dataset.theme = initial.settings.theme;
+    document.documentElement.dataset.theme = resolveTheme(initial.settings.theme);
     return initial;
   });
   const [focusSkillId, setFocusSkillId] = useState<string | null>(null);
@@ -49,8 +60,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [state]);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = state.settings.theme;
+    const apply = () => {
+      document.documentElement.dataset.theme = resolveTheme(state.settings.theme);
+    };
+    apply();
+    if (state.settings.theme !== "system") return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
   }, [state.settings.theme]);
+
+  useEffect(() => {
+    const tick = () => setState((prev) => applyDayRollover(prev));
+    tick();
+    const id = window.setInterval(tick, 60_000);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, []);
 
   const readiness = useMemo(() => computeReadiness(state), [state]);
 
@@ -83,12 +112,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  const completeSession = useCallback(() => {
-    setState((prev) => recordSessionComplete(prev));
+  const completeSession = useCallback((summary?: SessionSummary) => {
+    setState((prev) => recordSessionComplete(prev, summary));
+  }, []);
+
+  const addXp = useCallback((amount: number) => {
+    setState((prev) => awardXp(prev, amount));
   }, []);
 
   const markGroked = useCallback((skillId: string) => {
     setState((prev) => markSkillGroked(prev, skillId));
+  }, []);
+
+  const setResume = useCallback((skillId: string | null) => {
+    setState((prev) => setResumeSkillId(prev, skillId));
   }, []);
 
   const value = useMemo(
@@ -100,7 +137,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       reset,
       pushExamScore,
       completeSession,
+      addXp,
       markGroked,
+      setResume,
       focusSkillId,
       setFocusSkillId,
     }),
@@ -112,7 +151,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       reset,
       pushExamScore,
       completeSession,
+      addXp,
       markGroked,
+      setResume,
       focusSkillId,
     ],
   );

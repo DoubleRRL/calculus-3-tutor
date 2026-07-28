@@ -107,7 +107,7 @@ export interface ReviewCard {
   lastReviewAt: number | null;
 }
 
-export type ThemeMode = "light" | "dark";
+export type ThemeMode = "light" | "dark" | "system";
 
 export interface AppSettings {
   coachModel: string;
@@ -117,6 +117,21 @@ export interface AppSettings {
   onboardingDone: boolean;
   sessionSize: 5 | 12 | 20;
   theme: ThemeMode;
+  dailyGoalXp: number;
+}
+
+export type SessionMode = "today" | "skill" | "review" | "exam" | "placement";
+
+export interface SessionSummary {
+  at: number;
+  mode: SessionMode;
+  skillId?: string;
+  items: number;
+  correct: number;
+  firstTryCorrect: number;
+  xp: number;
+  durationMs: number;
+  bestCombo: number;
 }
 
 export interface CoachMessage {

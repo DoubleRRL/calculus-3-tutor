@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useApp } from "@/state/AppContext";
 import { listModels, ollamaReachable } from "@/lib/ollama";
+import { Button, Card } from "@/ui";
+import { SESSION_SIZES } from "@/lib/pedagogy";
+import type { ThemeMode } from "@/types/content";
 
 export function SettingsPage() {
   const { state, updateSettings, reset } = useApp();
@@ -16,140 +19,171 @@ export function SettingsPage() {
   }, [state.settings.ollamaBaseUrl]);
 
   return (
-    <div className="animate-rise space-y-8">
+    <div className="animate-rise space-y-4 max-w-xl">
       <div>
-        <h2 className="font-display text-2xl mb-1 text-[var(--color-ink)]">Settings</h2>
-        <p className="text-sm text-[var(--color-mist)]">
-          Local Ollama only. Recommended:{" "}
-          <code className="font-mono text-[var(--color-brass)]">qwen3:8b</code> daily,{" "}
-          <code className="font-mono text-[var(--color-brass)]">phi4</code> quality mode.
+        <h1 className="text-[24px] font-medium text-[var(--ink-1)]">Settings</h1>
+        <p className="text-[13px] text-[var(--ink-3)] mt-1">
+          Local Ollama · qwen3:8b daily · phi4 quality
         </p>
       </div>
 
-      <section className="rounded-sm bg-[var(--color-panel)] border border-[var(--color-panel-2)] p-4 space-y-3">
-        <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-mist)]">
-          Appearance
+      <Section title="Practice length">
+        <p className="text-[12px] text-[var(--ink-3)] mb-2">
+          Problems per topic practice run
         </p>
-        <div className="flex gap-1 font-mono text-xs">
-          {(["light", "dark"] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => updateSettings({ theme: t })}
-              className={`px-3 py-1.5 rounded-sm border capitalize transition-colors ${
-                state.settings.theme === t
-                  ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-[var(--color-on-accent)]"
-                  : "border-[var(--color-panel-2)] text-[var(--color-mist)] hover:text-[var(--color-ink)]"
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-        <p className="font-mono text-[10px] text-[var(--color-mist)]">
-          Light keeps the paper field; dark restores the ink palette.
-        </p>
-      </section>
+        <Seg
+          options={SESSION_SIZES.map(String)}
+          value={String(state.settings.sessionSize)}
+          onChange={(v) =>
+            updateSettings({ sessionSize: Number(v) as 5 | 12 | 20 })
+          }
+        />
+      </Section>
 
-      <section className="rounded-sm bg-[var(--color-panel)] border border-[var(--color-panel-2)] p-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-mist)]">
-            Ollama
-          </p>
-          <p
-            className={`font-mono text-xs ${
-              reachable ? "text-[var(--color-good)]" : "text-[var(--color-bad)]"
+      <Section title="Appearance">
+        <Seg
+          options={["light", "dark", "system"]}
+          value={state.settings.theme}
+          onChange={(v) => updateSettings({ theme: v as ThemeMode })}
+        />
+      </Section>
+
+      <Section title="Ollama">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[13px] text-[var(--ink-2)]">Status</span>
+          <span
+            className={`text-[13px] ${
+              reachable ? "text-[var(--success)]" : "text-[var(--error)]"
             }`}
           >
             {reachable === null ? "…" : reachable ? "reachable" : "offline"}
-          </p>
+          </span>
         </div>
-        <label className="block">
-          <span className="font-mono text-[10px] text-[var(--color-mist)]">Base URL</span>
+        <label className="block mb-3">
+          <span className="text-[12px] text-[var(--ink-3)]">Base URL</span>
           <input
             value={state.settings.ollamaBaseUrl}
             onChange={(e) => updateSettings({ ollamaBaseUrl: e.target.value })}
-            className="mt-1 w-full bg-[var(--color-paper)] border border-[var(--color-panel-2)] rounded-sm px-3 py-2 font-mono text-sm outline-none focus:border-[var(--color-ink)]"
+            className="mt-1 w-full bg-[var(--bg)] border border-[var(--line)] rounded-[var(--r-input)] px-3 py-2 text-[14px] outline-none focus:border-[var(--ink-1)]"
           />
         </label>
-        <label className="flex items-center gap-2 font-mono text-sm">
+        <label className="flex items-center gap-2 text-[14px] mb-3">
           <input
             type="checkbox"
             checked={state.settings.qualityMode}
             onChange={(e) => updateSettings({ qualityMode: e.target.checked })}
           />
-          Quality mode (use phi4 / quality model)
+          Quality mode
         </label>
-        <ModelField
-          label="Coach model"
-          value={state.settings.coachModel}
-          models={models}
-          onChange={(v) => updateSettings({ coachModel: v })}
-        />
-        <ModelField
-          label="Quality model"
-          value={state.settings.qualityModel}
-          models={models}
-          onChange={(v) => updateSettings({ qualityModel: v })}
-        />
-        {models.length > 0 && (
-          <p className="font-mono text-[10px] text-[var(--color-mist)]">
-            Installed: {models.join(", ")}
-          </p>
-        )}
-        <div className="pt-2 border-t border-[var(--color-panel-2)]">
-          <p className="font-mono text-[10px] text-[var(--color-mist)] mb-2">
-            Pull recommended math model:
-          </p>
-          <code className="font-mono text-xs text-[var(--color-brass)]">
-            ollama pull phi4
-          </code>
-        </div>
-      </section>
+        <label className="block mb-2">
+          <span className="text-[12px] text-[var(--ink-3)]">Coach model</span>
+          <ModelSelect
+            value={state.settings.coachModel}
+            models={models}
+            onChange={(v) => updateSettings({ coachModel: v })}
+          />
+        </label>
+        <label className="block">
+          <span className="text-[12px] text-[var(--ink-3)]">Quality model</span>
+          <ModelSelect
+            value={state.settings.qualityModel}
+            models={models}
+            onChange={(v) => updateSettings({ qualityModel: v })}
+          />
+        </label>
+      </Section>
 
-      <section className="rounded-sm bg-[var(--color-panel)] border border-[var(--color-panel-2)] p-4">
-        <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-mist)] mb-3">
-          Progress
-        </p>
-        <button
-          type="button"
+      <Section title="Data">
+        <Button
+          variant="danger"
+          className="w-full"
           onClick={() => {
-            if (confirm("Reset all progress?")) reset();
+            if (window.confirm("Reset all progress? This cannot be undone.")) {
+              reset();
+            }
           }}
-          className="font-mono text-sm text-[var(--color-bad)] hover:underline"
         >
           Reset progress
-        </button>
-      </section>
+        </Button>
+      </Section>
     </div>
   );
 }
 
-function ModelField({
-  label,
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card>
+      <p className="text-[12px] text-[var(--ink-3)] mb-3">{title}</p>
+      {children}
+    </Card>
+  );
+}
+
+function Seg({
+  options,
+  value,
+  onChange,
+}: {
+  options: string[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {options.map((o) => (
+        <button
+          key={o}
+          type="button"
+          onClick={() => onChange(o)}
+          className={`px-3 py-1.5 rounded-[var(--r-nav)] text-[13px] capitalize border transition-colors ${
+            value === o
+              ? "bg-[var(--accent)] text-[var(--on-accent)] border-[var(--accent)]"
+              : "border-[var(--line)] text-[var(--ink-2)] hover:text-[var(--ink-1)]"
+          }`}
+        >
+          {o}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ModelSelect({
   value,
   models,
   onChange,
 }: {
-  label: string;
   value: string;
   models: string[];
   onChange: (v: string) => void;
 }) {
-  return (
-    <label className="block">
-      <span className="font-mono text-[10px] text-[var(--color-mist)]">{label}</span>
-      <input
-        list={`${label}-models`}
+  if (models.length) {
+    return (
+      <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full bg-[var(--color-paper)] border border-[var(--color-panel-2)] rounded-sm px-3 py-2 font-mono text-sm outline-none focus:border-[var(--color-ink)]"
-      />
-      <datalist id={`${label}-models`}>
+        className="mt-1 w-full bg-[var(--bg)] border border-[var(--line)] rounded-[var(--r-input)] px-3 py-2 text-[14px]"
+      >
+        {!models.includes(value) && <option value={value}>{value}</option>}
         {models.map((m) => (
-          <option key={m} value={m} />
+          <option key={m} value={m}>
+            {m}
+          </option>
         ))}
-      </datalist>
-    </label>
+      </select>
+    );
+  }
+  return (
+    <input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="mt-1 w-full bg-[var(--bg)] border border-[var(--line)] rounded-[var(--r-input)] px-3 py-2 text-[14px]"
+    />
   );
 }
