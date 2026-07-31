@@ -41,7 +41,22 @@ export interface CoachContext {
   lessonIntro?: string;
 }
 
-function buildSystemPrompt(ctx: CoachContext): string {
+function explainStyleNote(settings: AppSettings): string {
+  const style = settings.learnerProfile?.explainStyle;
+  if (style === "analogies") {
+    return "Learner preference: lead with concrete analogies before formulas.";
+  }
+  if (style === "formulas") {
+    return "Learner preference: lead with the key formula, then a short gloss.";
+  }
+  if (style === "tldr") {
+    return "Learner preference: one-line TL;DR first, then a short detail.";
+  }
+  return "";
+}
+
+function buildSystemPrompt(ctx: CoachContext, settings: AppSettings): string {
+  const styleLine = explainStyleNote(settings);
   if (ctx.lessonIntro) {
     return `You are CalcTutor's Socratic coach for Calculus 3, helping with a lesson INTRO (ELI5).
 
@@ -51,6 +66,7 @@ Rules:
 - Help with the interactive demo goal if present.
 - Do NOT give practice-problem answers or spoil upcoming drills.
 - Use LaTeX ($...$) when helpful. Answer directly; no long chain-of-thought.
+${styleLine ? `- ${styleLine}` : ""}
 
 Skill: ${ctx.skillTitle}
 Objective: ${ctx.skillObjective}
@@ -70,6 +86,7 @@ Rules:
 - Use plain language + LaTeX ($...$) when helpful.
 - You may reference misconception tags when relevant.
 - Do not use long chain-of-thought; answer directly.
+${styleLine ? `- ${styleLine}` : ""}
 
 Skill: ${ctx.skillTitle}
 Objective: ${ctx.skillObjective}
@@ -199,7 +216,7 @@ export async function askCoach(
 ): Promise<string> {
   const model = activeCoachModel(settings);
   const messages = [
-    { role: "system", content: buildSystemPrompt(ctx) },
+    { role: "system", content: buildSystemPrompt(ctx, settings) },
     ...history.map((m) => ({ role: m.role, content: m.content })),
     { role: "user", content: buildUserPayload(ctx, question) },
   ];

@@ -8,9 +8,10 @@ import { isTeach } from "./types";
 import { SessionShell } from "@/components/shell/SessionShell";
 import { FeedbackBar } from "./FeedbackBar";
 import { SessionComplete } from "./SessionComplete";
+import { LessonDeck, type LessonPhase } from "./LessonDeck";
+import { ClickFill, countBlanks, decodeClickFill } from "./ClickFill";
 import { MathText } from "@/components/MathText";
 import { InteractionHost } from "@/components/interactions/InteractionHost";
-import { IntroFigureHost } from "@/components/IntroFigureHost";
 import { HintLadderPanel } from "@/components/HintLadder";
 import { LESSON_COACH_CHIPS } from "@/components/CoachPanel";
 import { FloatingCoach } from "@/components/FloatingCoach";
@@ -59,7 +60,6 @@ export function SessionPage() {
   const [steps, setSteps] = useState<SessionStep[]>([]);
   const [idx, setIdx] = useState(0);
   const [answer, setAnswer] = useState("");
-  const [demoValue, setDemoValue] = useState("");
   const [hintLevel, setHintLevel] = useState(0);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [correct, setCorrect] = useState(false);
@@ -78,14 +78,24 @@ export function SessionPage() {
   const [coachMsgs, setCoachMsgs] = useState<CoachMessage[]>([]);
   const [coachBusy, setCoachBusy] = useState(false);
   const [coachOpen, setCoachOpen] = useState(false);
+  const [coachSheet, setCoachSheet] = useState(false);
   const [coachPulse, setCoachPulse] = useState(false);
   const [quitOpen, setQuitOpen] = useState(false);
   const [gen, setGen] = useState(0);
-  const [teachXpForSkill, setTeachXpForSkill] = useState(0);
+  const [teachXpAwarded, setTeachXpAwarded] = useState(false);
+  const [lessonPhase, setLessonPhase] = useState<LessonPhase>("pages");
+  const [pageIndex, setPageIndex] = useState(0);
+  const [reviewPass, setReviewPass] = useState(false);
+  const [reviewGate, setReviewGate] = useState(false);
+  /** First-pass practice stats (review retries don't rewrite the summary). */
+  const [firstPassStats, setFirstPassStats] = useState<{
+    items: number;
+    correct: number;
+    firstTryCorrect: number;
+  } | null>(null);
   const examRef = useRef<{ weight: number; correct: boolean }[]>([]);
   const startRef = useRef(Date.now());
   const abortRef = useRef<AbortController | null>(null);
-  const autoTimer = useRef<number | null>(null);
   const reduced = useReducedMotion();
 
   const coachOn = sessionMode !== "exam";
@@ -100,7 +110,6 @@ export function SessionPage() {
     setSteps(built);
     setIdx(0);
     setAnswer("");
-    setDemoValue("");
     setHintLevel(0);
     setFeedback(null);
     setLocked(false);
@@ -115,8 +124,14 @@ export function SessionPage() {
     setExamPct(null);
     setCoachMsgs([]);
     setCoachOpen(false);
+    setCoachSheet(false);
     setCoachPulse(false);
-    setTeachXpForSkill(0);
+    setTeachXpAwarded(false);
+    setLessonPhase("pages");
+    setPageIndex(0);
+    setReviewPass(false);
+    setReviewGate(false);
+    setFirstPassStats(null);
     examRef.current = [];
     startRef.current = Date.now();
     setResults(built.map((s) => (isTeach(s) ? "teach" : "pending")));
@@ -127,7 +142,6 @@ export function SessionPage() {
     boot();
     return () => {
       abortRef.current?.abort();
-      if (autoTimer.current) window.clearTimeout(autoTimer.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gen, sessionMode, skillId, forceTeach]);
@@ -156,26 +170,33 @@ export function SessionPage() {
 
   useEffect(() => () => setFocusSkillId(null), [setFocusSkillId]);
 
+  /** One shell segment for the teach block; one per practice item. */
   const segments = useMemo(() => {
-    return steps.map((s, i) => {
-      if (i === idx && !locked && !done) return "current" as const;
-      if (i < idx || (i === idx && locked)) {
-        return results[i] === "wrong"
-          ? ("wrong" as const)
-          : results[i] === "correct"
-            ? ("correct" as const)
-            : isTeach(s)
-              ? ("teach" as const)
-              : ("correct" as const);
+    type Seg = "pending" | "teach" | "correct" | "wrong" | "current";
+    const out: Seg[] = [];
+    let teachEmitted = false;
+    const onTeach = Boolean(step && isTeach(step));
+    for (let i = 0; i < steps.length; i++) {
+      const s = steps[i]!;
+      if (isTeach(s)) {
+        if (teachEmitted) continue;
+        teachEmitted = true;
+        if (onTeach && !done) out.push("current");
+        else if (i < idx) out.push("teach");
+        else out.push("teach");
+        continue;
       }
-      return isTeach(s) ? ("teach" as const) : ("pending" as const);
-    });
-  }, [steps, idx, results, locked, done]);
+      if (i === idx && !locked && !done) out.push("current");
+      else if (i < idx || (i === idx && locked)) {
+        out.push(results[i] === "wrong" ? "wrong" : "correct");
+      } else out.push("pending");
+    }
+    return out;
+  }, [steps, idx, results, locked, done, step]);
 
   function resetUi() {
     abortRef.current?.abort();
     setAnswer("");
-    setDemoValue("");
     setHintLevel(0);
     setFeedback(null);
     setLocked(false);
@@ -183,11 +204,8 @@ export function SessionPage() {
     setXpEarned(0);
     setCoachMsgs([]);
     setCoachOpen(false);
+    setCoachSheet(false);
     setCoachPulse(false);
-    if (autoTimer.current) {
-      window.clearTimeout(autoTimer.current);
-      autoTimer.current = null;
-    }
   }
 
   function finishSession() {
@@ -197,8 +215,11 @@ export function SessionPage() {
       pushExamScore(pct);
       setExamPct(pct);
     }
-    const perfect =
-      correctCount === problemSteps.length && problemSteps.length > 0;
+    const items = firstPassStats?.items ?? problemSteps.length;
+    const correctFinal = firstPassStats?.correct ?? correctCount;
+    const firstTryFinal =
+      firstPassStats?.firstTryCorrect ?? firstTryCorrect;
+    const perfect = correctFinal === items && items > 0;
     const bonus = XP.sessionComplete + (perfect ? XP.perfectSession : 0);
     const totalXp = sessionXp + bonus;
     if (bonus > 0) addXp(bonus);
@@ -207,9 +228,9 @@ export function SessionPage() {
       at: Date.now(),
       mode: sessionMode,
       skillId,
-      items: problemSteps.length,
-      correct: correctCount,
-      firstTryCorrect,
+      items,
+      correct: correctFinal,
+      firstTryCorrect: firstTryFinal,
       xp: totalXp,
       durationMs: Date.now() - startRef.current,
       bestCombo,
@@ -223,22 +244,50 @@ export function SessionPage() {
 
   function advance() {
     if (idx + 1 >= steps.length) {
-      finishSession();
+      maybeReviewOrFinish();
       return;
     }
     setIdx((i) => i + 1);
     resetUi();
   }
 
-  function advanceTeach() {
-    if (!step || !isTeach(step)) return;
-    if (step.teach === "grok") {
-      markGroked(step.skillId);
+  function maybeReviewOrFinish() {
+    if (!reviewPass && sessionMode !== "exam") {
+      const wrongs = steps.filter(
+        (s, i) => !isTeach(s) && results[i] === "wrong",
+      );
+      if (wrongs.length > 0) {
+        setFirstPassStats({
+          items: steps.filter((s) => !isTeach(s)).length,
+          correct: correctCount,
+          firstTryCorrect,
+        });
+        setReviewGate(true);
+        return;
+      }
     }
-    if (teachXpForSkill < XP.teachCapPerSkill) {
-      const gain = Math.min(XP.teachStep, XP.teachCapPerSkill - teachXpForSkill);
+    finishSession();
+  }
+
+  function startWrongReview() {
+    const wrongs = steps.filter(
+      (s, i) => !isTeach(s) && results[i] === "wrong",
+    );
+    setReviewGate(false);
+    setReviewPass(true);
+    setSteps(wrongs);
+    setIdx(0);
+    setResults(wrongs.map(() => "pending" as const));
+    resetUi();
+  }
+
+  function completeTeachAndStartPractice() {
+    if (!step || !isTeach(step)) return;
+    markGroked(step.skillId);
+    if (!teachXpAwarded) {
+      const gain = XP.teachCapPerSkill;
       addXp(gain);
-      setTeachXpForSkill((t) => t + gain);
+      setTeachXpAwarded(true);
       setSessionXp((x) => x + gain);
     }
     setResults((r) => {
@@ -246,11 +295,41 @@ export function SessionPage() {
       copy[idx] = "teach";
       return copy;
     });
+    setLessonPhase("pages");
+    setPageIndex(0);
     advance();
+  }
+
+  function lessonBack() {
+    if (!step || !isTeach(step)) return;
+    if (lessonPhase === "knowledge") {
+      setLessonPhase("pages");
+      setPageIndex(Math.max(0, step.pages.length - 1));
+      return;
+    }
+    if (pageIndex > 0) setPageIndex((p) => p - 1);
+  }
+
+  function lessonNext() {
+    if (!step || !isTeach(step)) return;
+    if (lessonPhase === "knowledge") {
+      completeTeachAndStartPractice();
+      return;
+    }
+    if (pageIndex + 1 < step.pages.length) {
+      setPageIndex((p) => p + 1);
+      return;
+    }
+    setLessonPhase("knowledge");
   }
 
   function submit() {
     if (!problem || locked) return;
+    if (problem.answerType === "clickFill") {
+      const n = countBlanks(problem.prompt);
+      const slots = decodeClickFill(answer, n);
+      if (slots.some((s) => !s.trim())) return;
+    }
     const result = gradeAnswer(problem, answer);
     setFeedback(result.feedback);
     setCorrect(result.correct);
@@ -315,10 +394,6 @@ export function SessionPage() {
     if (!result.correct && coachOn && !coachOpen) {
       setCoachPulse(true);
     }
-
-    if (result.correct && sessionMode !== "exam") {
-      autoTimer.current = window.setTimeout(() => advance(), 900);
-    }
   }
 
   async function handleCoach(q: string) {
@@ -336,7 +411,18 @@ export function SessionPage() {
     try {
       const lessonIntro =
         step && isTeach(step)
-          ? [step.text, step.goal].filter(Boolean).join("\n\n")
+          ? step.pages
+              .map((p) =>
+                p.kind === "prose"
+                  ? p.text
+                  : p.kind === "demo"
+                    ? p.goal
+                    : p.kind === "showcase" || p.kind === "figure"
+                      ? p.caption
+                      : "",
+              )
+              .filter(Boolean)
+              .join("\n\n")
           : undefined;
       const stubItem = problem ?? {
         id: `teach_${skill.id}`,
@@ -349,7 +435,7 @@ export function SessionPage() {
           nudge: "",
           technique: "",
           nextStep: "",
-          fullSolution: step && isTeach(step) ? step.text : "",
+          fullSolution: lessonIntro ?? "",
         },
         misconceptionTags: [],
         rubric: "teach",
@@ -361,7 +447,7 @@ export function SessionPage() {
           item: stubItem,
           skillTitle: skill.title,
           skillObjective: skill.objective,
-          attempt: problem ? answer : demoValue,
+          attempt: problem ? answer : "",
           hintLevel,
           lessonIntro,
         },
@@ -408,6 +494,35 @@ export function SessionPage() {
     }
   }
 
+  if (reviewGate) {
+    const wrongCount = results.filter((r) => r === "wrong").length;
+    return (
+      <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-[var(--bg)] px-4">
+        <div className="w-full max-w-md space-y-4 text-center">
+          <h2 className="text-[24px] font-medium text-[var(--ink-1)]">
+            Let&apos;s review what you got wrong
+          </h2>
+          <p className="text-[14px] text-[var(--ink-2)]">
+            {wrongCount} item{wrongCount === 1 ? "" : "s"} to retry — short pass.
+          </p>
+          <Button className="w-full" onClick={startWrongReview}>
+            Review mistakes
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={() => {
+              setReviewGate(false);
+              finishSession();
+            }}
+          >
+            Skip to results
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (!steps.length && !done) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-[var(--bg)]">
@@ -419,11 +534,13 @@ export function SessionPage() {
   }
 
   if (done) {
-    const problemTotal = steps.filter((s) => !isTeach(s)).length;
+    const problemTotal =
+      firstPassStats?.items ?? steps.filter((s) => !isTeach(s)).length;
+    const correctFinal = firstPassStats?.correct ?? correctCount;
     return (
       <SessionComplete
         xp={sessionXp}
-        correct={correctCount}
+        correct={correctFinal}
         total={problemTotal}
         bestCombo={bestCombo}
         examPct={examPct}
@@ -435,37 +552,30 @@ export function SessionPage() {
 
   if (!step) return null;
 
-  const teachCta =
-    step && isTeach(step)
-      ? step.teach === "intro"
-        ? "Next"
-        : step.teach === "eli5"
-          ? "Got it"
-          : step.teach === "grok"
-            ? "Let's go"
-            : "Continue"
-      : null;
-
-  const teachLabel =
-    step && isTeach(step)
-      ? step.teach === "intro"
-        ? "Look"
-        : step.teach === "eli5"
-          ? "The idea"
-          : step.teach === "analogy"
-            ? "Analogy"
-            : step.teach === "demo"
-              ? "Try it"
-              : step.teach === "worked"
-                ? "Baby example"
-                : "Ready?"
-      : "";
+  const teachPages = isTeach(step) ? step.pages : [];
+  const canLessonBack =
+    isTeach(step) &&
+    (lessonPhase === "knowledge" || pageIndex > 0);
+  const lessonCta =
+    isTeach(step) && lessonPhase === "knowledge"
+      ? "Start practice"
+      : isTeach(step) && pageIndex + 1 >= teachPages.length
+        ? "Review cards"
+        : "Next";
 
   const footer = isTeach(step) ? (
-    <div className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-2 bg-[var(--bg)]">
-      <div className="max-w-xl mx-auto">
-        <Button className="w-full" onClick={advanceTeach}>
-          {teachCta}
+    <div className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-2 bg-[var(--bg)] border-t border-[var(--line)]">
+      <div className="max-w-xl mx-auto flex gap-2">
+        <Button
+          variant="ghost"
+          className="shrink-0"
+          disabled={!canLessonBack}
+          onClick={lessonBack}
+        >
+          Back
+        </Button>
+        <Button className="flex-1" onClick={lessonNext}>
+          {lessonCta}
         </Button>
       </div>
     </div>
@@ -483,6 +593,23 @@ export function SessionPage() {
     </motion.div>
   ) : null;
 
+  function choiceClass(c: string): string {
+    if (!locked) {
+      return answer === c
+        ? "border-[var(--accent)] bg-[var(--accent-weak)]"
+        : "border-[var(--line)] hover:border-[var(--line-2)]";
+    }
+    const isAnswer = c === problem?.answer;
+    const picked = answer === c;
+    if (isAnswer) {
+      return "border-[var(--success)] bg-[var(--success-weak)] text-[var(--success)]";
+    }
+    if (picked && !correct) {
+      return "border-[var(--error)] bg-[var(--error-weak)] text-[var(--error)]";
+    }
+    return "border-[var(--line)] opacity-50";
+  }
+
   return (
     <>
       <SessionShell
@@ -499,6 +626,15 @@ export function SessionPage() {
                 feedback={feedback}
                 xpEarned={xpEarned}
                 onContinue={advance}
+                onDiscuss={
+                  coachOn
+                    ? () => {
+                        setCoachSheet(true);
+                        setCoachOpen(true);
+                        setCoachPulse(false);
+                      }
+                    : undefined
+                }
               />
             )}
             {coachOn && (
@@ -506,6 +642,7 @@ export function SessionPage() {
                 open={coachOpen}
                 onOpenChange={(o) => {
                   setCoachOpen(o);
+                  if (!o) setCoachSheet(false);
                   if (o) setCoachPulse(false);
                 }}
                 pulse={coachPulse && !coachOpen}
@@ -516,9 +653,10 @@ export function SessionPage() {
                 chips={isTeach(step) ? LESSON_COACH_CHIPS : undefined}
                 caption={
                   isTeach(step)
-                    ? "Lesson intro · local model"
+                    ? "Lesson · local model"
                     : "Scoped to this problem · Socratic · local model"
                 }
+                variant={coachSheet ? "sheet" : "float"}
               />
             )}
           </>
@@ -528,58 +666,19 @@ export function SessionPage() {
         <AnimatePresence mode="wait">
           {isTeach(step) ? (
             <motion.div
-              key={`teach-${idx}`}
-              className="space-y-5"
+              key={`teach-${step.skillId}-${lessonPhase}-${pageIndex}`}
               initial={reduced ? false : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduced ? undefined : { opacity: 0 }}
               transition={springOrInstant(reduced, springs.soft)}
             >
-              <p className="text-[12px] text-[var(--ink-3)] uppercase tracking-wide">
-                {teachLabel}
-              </p>
-              {step.teach === "intro" && step.intro ? (
-                <>
-                  <p className="text-[18px] font-medium leading-snug text-[var(--ink-1)]">
-                    {step.intro.caption}
-                  </p>
-                  {step.intro.kind === "showcase" ? (
-                    <InteractionHost
-                      spec={step.intro.spec}
-                      value={demoValue}
-                      onChange={setDemoValue}
-                      mode="showcase"
-                      autoplay={step.intro.autoplay}
-                    />
-                  ) : (
-                    <IntroFigureHost
-                      figure={step.intro.figure}
-                      caption={step.intro.caption}
-                      steps={
-                        step.intro.kind === "sequence"
-                          ? step.intro.steps
-                          : undefined
-                      }
-                    />
-                  )}
-                </>
-              ) : (
-                <div
-                  className={`${
-                    step.text.length > 160 ? "text-[18px]" : "text-[24px]"
-                  } font-medium leading-snug text-[var(--ink-1)]`}
-                >
-                  <MathText text={step.text} />
-                </div>
-              )}
-              {step.teach === "demo" && step.spec && (
-                <InteractionHost
-                  spec={step.spec}
-                  value={demoValue}
-                  onChange={setDemoValue}
-                  goal={step.goal}
-                />
-              )}
+              <LessonDeck
+                skillId={step.skillId}
+                pages={step.pages}
+                glossaryIds={step.glossaryIds}
+                phase={lessonPhase}
+                pageIndex={pageIndex}
+              />
             </motion.div>
           ) : (
             <motion.div
@@ -591,8 +690,8 @@ export function SessionPage() {
               transition={springOrInstant(reduced, springs.soft)}
             >
               <p className="text-[12px] text-[var(--ink-3)]">
-                {step.queue.reason}
-                {state.grokked.includes(problem!.skillId) && (
+                {reviewPass ? "Review" : step.queue.reason}
+                {state.grokked.includes(problem!.skillId) && !reviewPass && (
                   <>
                     {" · "}
                     <Link
@@ -604,13 +703,15 @@ export function SessionPage() {
                   </>
                 )}
               </p>
-              <div
-                className={`${
-                  problem!.prompt.length > 160 ? "text-[18px]" : "text-[24px]"
-                } font-medium leading-snug text-[var(--ink-1)]`}
-              >
-                <MathText text={problem!.prompt} />
-              </div>
+              {problem!.answerType !== "clickFill" && (
+                <div
+                  className={`${
+                    problem!.prompt.length > 160 ? "text-[18px]" : "text-[24px]"
+                  } font-medium leading-snug text-[var(--ink-1)]`}
+                >
+                  <MathText text={problem!.prompt} />
+                </div>
+              )}
               {problem!.fadePrompt && (
                 <p className="text-[13px] text-[var(--ink-2)]">
                   {problem!.fadePrompt}
@@ -624,6 +725,16 @@ export function SessionPage() {
                   onChange={setAnswer}
                   disabled={locked}
                 />
+              ) : problem!.answerType === "clickFill" && problem!.choices ? (
+                <ClickFill
+                  prompt={problem!.prompt}
+                  choices={problem!.choices}
+                  value={answer}
+                  onChange={setAnswer}
+                  locked={locked}
+                  correctAnswer={problem!.answer}
+                  wasCorrect={correct}
+                />
               ) : problem!.answerType === "choice" && problem!.choices ? (
                 <div className="flex flex-col gap-2">
                   {problem!.choices.map((c) => (
@@ -632,11 +743,7 @@ export function SessionPage() {
                       type="button"
                       disabled={locked}
                       onClick={() => setAnswer(c)}
-                      className={`text-left px-4 py-3 rounded-[var(--r-input)] border text-[14px] transition ${
-                        answer === c
-                          ? "border-[var(--accent)] bg-[var(--accent-weak)]"
-                          : "border-[var(--line)] hover:border-[var(--line-2)]"
-                      }`}
+                      className={`text-left px-4 py-3 rounded-[var(--r-input)] border text-[14px] transition ${choiceClass(c)}`}
                     >
                       <MathText text={c} />
                     </button>

@@ -23,8 +23,47 @@ export type LessonIntro =
       autoplay?: "scrubT" | "orbit" | "sweepPlane" | "drift";
     };
 
+export type LessonPage =
+  | { kind: "prose"; title?: string; text: string }
+  | {
+      kind: "steps";
+      title?: string;
+      steps: { text: string; explain?: string }[];
+    }
+  | {
+      kind: "table";
+      title?: string;
+      headers: string[];
+      rows: string[][];
+    }
+  | {
+      kind: "figure";
+      title?: string;
+      caption: string;
+      figure: FigureId;
+    }
+  | {
+      kind: "showcase";
+      title?: string;
+      caption: string;
+      spec: InteractionSpec;
+      autoplay?: "scrubT" | "orbit" | "sweepPlane" | "drift";
+    }
+  | {
+      kind: "demo";
+      title?: string;
+      goal: string;
+      spec: InteractionSpec;
+    };
+
 export type Lesson = {
   skillId: string;
+  /** ≤12-word question/prompt for path start modal + first impression. */
+  hook?: string;
+  /** Glossary entry ids for post-lesson knowledge cards (cap ~5 in UI). */
+  glossaryIds?: string[];
+  /** Authored paged deck; if absent, synthesized from intro/eli5/…. */
+  pages?: LessonPage[];
   /** Picture-first passive intro before ELI5. Caption ≤12 words. */
   intro?: LessonIntro;
   /** Plain-language explanation (KaTeX ok via $...$). */
@@ -36,6 +75,65 @@ export type Lesson = {
   /** Interactive baby demo — preferred when a widget teaches the idea. */
   demo?: LessonDemo;
 };
+
+/** Build paged deck from legacy fields when `pages` is omitted. */
+export function synthesizeLessonPages(lesson: Lesson): LessonPage[] {
+  if (lesson.pages?.length) return lesson.pages;
+  const pages: LessonPage[] = [];
+  if (lesson.intro) {
+    const intro = lesson.intro;
+    if (intro.kind === "showcase") {
+      pages.push({
+        kind: "showcase",
+        title: "Look",
+        caption: intro.caption,
+        spec: intro.spec,
+        autoplay: intro.autoplay,
+      });
+    } else if (intro.kind === "sequence") {
+      pages.push({
+        kind: "figure",
+        title: "Look",
+        caption: intro.caption,
+        figure: intro.figure,
+      });
+      pages.push({
+        kind: "steps",
+        title: "Walk through",
+        steps: intro.steps.map((s) => ({ text: s.note })),
+      });
+    } else {
+      pages.push({
+        kind: "figure",
+        title: "Look",
+        caption: intro.caption,
+        figure: intro.figure,
+      });
+    }
+  }
+  pages.push({ kind: "prose", title: "The idea", text: lesson.eli5 });
+  if (lesson.analogy) {
+    pages.push({ kind: "prose", title: "Analogy", text: lesson.analogy });
+  }
+  if (lesson.demo) {
+    pages.push({
+      kind: "demo",
+      title: "Try it",
+      goal: lesson.demo.goal,
+      spec: lesson.demo.spec,
+    });
+  }
+  if (lesson.workedExample) {
+    pages.push({
+      kind: "prose",
+      title: "Baby example",
+      text: lesson.workedExample,
+    });
+  }
+  return pages.length
+    ? pages
+    : [{ kind: "prose", title: "The idea", text: lesson.eli5 }];
+}
 
 const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
   diag_derivatives: {
@@ -71,6 +169,8 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u1_coords3d: {
+    hook: "Why does a point need three numbers?",
+    glossaryIds: ["cartesian-3d", "distance-3d", "sphere-equation"],
     intro: {
       kind: "showcase",
       caption: "Three axes meet — a point needs x, y, and z.",
@@ -86,6 +186,53 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
         autoOrbit: true,
       },
     },
+    pages: [
+      {
+        kind: "showcase",
+        title: "Look",
+        caption: "Three axes meet — a point needs x, y, and z.",
+        autoplay: "orbit",
+        spec: {
+          type: "vector3d",
+          vectors: [
+            { id: "i", components: [1.5, 0, 0], fixed: true, label: "i", color: "#c45c26" },
+            { id: "j", components: [0, 1.5, 0], fixed: true, label: "j", color: "#2d6a4f" },
+            { id: "k", components: [0, 0, 1.5], fixed: true, label: "k", color: "#3d5a80" },
+          ],
+          task: { kind: "explore" },
+          autoOrbit: true,
+        },
+      },
+      {
+        kind: "prose",
+        title: "The idea",
+        text: "3D space adds a $z$ axis. A point is $(x,y,z)$.",
+      },
+      {
+        kind: "steps",
+        title: "Distance & spheres",
+        steps: [
+          {
+            text: "Distance: $\\sqrt{\\Delta x^2+\\Delta y^2+\\Delta z^2}$.",
+            explain: "Same Pythagorean idea as 2D — one more square under the root.",
+          },
+          {
+            text: "Sphere: all points at fixed distance $r$ from a center.",
+            explain: "$(x-a)^2+(y-b)^2+(z-c)^2=r^2$.",
+          },
+        ],
+      },
+      {
+        kind: "prose",
+        title: "Analogy",
+        text: "GPS needs latitude, longitude, and altitude — three numbers.",
+      },
+      {
+        kind: "prose",
+        title: "Baby example",
+        text: "$(0,0,0)$ to $(2,3,6)$: $\\sqrt{4+9+36}=7$. Radius $4$ → RHS $=16$.",
+      },
+    ],
     eli5:
       "3D space adds a $z$ axis. Distance between points is $\\sqrt{\\Delta x^2+\\Delta y^2+\\Delta z^2}$. A sphere is all points at fixed distance from a center.",
     analogy: "GPS needs latitude, longitude, and altitude — three numbers.",
@@ -93,6 +240,8 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
       "Distance $(0,0,0)$ to $(2,3,6)$: $\\sqrt{4+9+36}=7$. Sphere radius $4$: $(x-a)^2+(y-b)^2+(z-c)^2=16$.",
   },
   u1_vectors: {
+    hook: "What stays the same when an arrow moves in space?",
+    glossaryIds: ["vector-r3", "magnitude", "unit-vector"],
     intro: {
       kind: "showcase",
       caption: "Arrows in space — tip-to-tail addition still works.",
@@ -108,6 +257,50 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
         autoOrbit: true,
       },
     },
+    pages: [
+      {
+        kind: "showcase",
+        title: "Look",
+        caption: "Arrows in space — tip-to-tail addition still works.",
+        autoplay: "orbit",
+        spec: {
+          type: "vector3d",
+          vectors: [
+            { id: "u", components: [2, 0.5, 0.2], fixed: true, label: "u" },
+            { id: "v", components: [0.5, 1.8, 0.4], fixed: true, label: "v" },
+          ],
+          show: ["parallelogram"],
+          task: { kind: "explore" },
+          autoOrbit: true,
+        },
+      },
+      {
+        kind: "prose",
+        title: "The idea",
+        text: "Vectors add tip-to-tail and scale by stretching. Components add separately.",
+      },
+      {
+        kind: "prose",
+        title: "Unit vector",
+        text: "Same direction, length $1$: $\\hat{\\mathbf{u}}=\\mathbf{u}/\\|\\mathbf{u}\\|$.",
+      },
+      {
+        kind: "demo",
+        title: "Try it",
+        goal: "Fixed u and v. Drag w so its tip lands at u+v.",
+        spec: {
+          type: "vector",
+          grid: { min: -1, max: 5, step: 1 },
+          vectors: [
+            { id: "u", tip: { x: 2, y: 1 }, fixed: true, label: "u" },
+            { id: "v", tip: { x: 1, y: 2 }, fixed: true, label: "v" },
+            { id: "w", tip: { x: 1, y: 1 }, label: "w" },
+          ],
+          task: { kind: "sum", aId: "u", bId: "v", resultId: "w" },
+          show: ["magnitude"],
+        },
+      },
+    ],
     eli5:
       "Vectors in $\\mathbb{R}^3$ still add tip-to-tail and scale by stretching. The unit vector points the same way with length $1$: $\\hat{\\mathbf{u}}=\\mathbf{u}/\\|\\mathbf{u}\\|$.",
     analogy: "A push has strength and direction — that's a vector.",
@@ -127,9 +320,48 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u1_dot: {
+    hook: "When is the shove completely sideways?",
+    glossaryIds: ["dot"],
     eli5:
       "Dot product $\\mathbf{u}\\cdot\\mathbf{v}=\\|u\\|\\|v\\|\\cos\\theta$. Positive = acute angle, zero = right angle, negative = obtuse. Projection measures how much of one vector lies along another.",
     analogy: "How much of a shove goes in a chosen direction.",
+    pages: [
+      {
+        kind: "prose",
+        title: "The idea",
+        text: "$\\mathbf{u}\\cdot\\mathbf{v}=\\|u\\|\\|v\\|\\cos\\theta$. Zero means perpendicular.",
+      },
+      {
+        kind: "table",
+        title: "Sign of the dot",
+        headers: ["Dot", "Angle"],
+        rows: [
+          ["$>0$", "Acute"],
+          ["$=0$", "Right"],
+          ["$<0$", "Obtuse"],
+        ],
+      },
+      {
+        kind: "prose",
+        title: "Analogy",
+        text: "How much of a shove goes in a chosen direction — that's projection.",
+      },
+      {
+        kind: "demo",
+        title: "Try it",
+        goal: "Drag v until it is perpendicular to fixed u — live dot → 0.",
+        spec: {
+          type: "vector",
+          grid: { min: -4, max: 4, step: 1 },
+          vectors: [
+            { id: "u", tip: { x: 3, y: 1 }, fixed: true, label: "u" },
+            { id: "v", tip: { x: 2, y: 2 }, label: "v" },
+          ],
+          task: { kind: "orthogonal", aId: "u", bId: "v" },
+          show: ["dot", "projection"],
+        },
+      },
+    ],
     demo: {
       goal: "Drag v until it is perpendicular to fixed u — the live dot product should hit 0.",
       spec: {
@@ -145,6 +377,8 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u1_cross: {
+    hook: "Which direction is perpendicular to both arrows?",
+    glossaryIds: ["cross", "dot"],
     intro: {
       kind: "showcase",
       caption: "Cross product stands perpendicular to both arrows.",
@@ -160,6 +394,49 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
         autoOrbit: true,
       },
     },
+    pages: [
+      {
+        kind: "showcase",
+        title: "Look",
+        caption: "Cross product stands perpendicular to both arrows.",
+        autoplay: "orbit",
+        spec: {
+          type: "vector3d",
+          vectors: [
+            { id: "u", components: [2, 0, 0], fixed: true, label: "u" },
+            { id: "v", components: [0.5, 1.5, 0], fixed: true, label: "v" },
+          ],
+          show: ["cross", "parallelogram"],
+          task: { kind: "explore" },
+          autoOrbit: true,
+        },
+      },
+      {
+        kind: "prose",
+        title: "The idea",
+        text: "$\\mathbf{u}\\times\\mathbf{v}$ ⊥ both; length = parallelogram area.",
+      },
+      {
+        kind: "prose",
+        title: "Analogy",
+        text: "Right-hand rule: fingers from u to v, thumb points cross.",
+      },
+      {
+        kind: "demo",
+        title: "Try it",
+        goal: "With u=⟨3,0⟩ fixed, drag v so (u×v)_z equals 6.",
+        spec: {
+          type: "vector",
+          grid: { min: -1, max: 5, step: 1 },
+          vectors: [
+            { id: "u", tip: { x: 3, y: 0 }, fixed: true, label: "u" },
+            { id: "v", tip: { x: 1, y: 1 }, label: "v" },
+          ],
+          task: { kind: "matchTip", vectorId: "v", target: { x: 0, y: 2 } },
+          show: ["cross", "magnitude"],
+        },
+      },
+    ],
     eli5:
       "In 3D, $\\mathbf{u}\\times\\mathbf{v}$ is a vector perpendicular to both, length = parallelogram area. In the plane we only see the $z$-component $u_xv_y-u_yv_x$ — the signed area.",
     analogy: "Right-hand rule: fingers from u to v, thumb points cross.",
@@ -178,6 +455,8 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u1_lines_planes: {
+    hook: "What data pins down a line vs a plane?",
+    glossaryIds: ["line-3d", "plane", "normal-vector"],
     intro: {
       kind: "showcase",
       caption: "A normal arrow defines the plane's tilt.",
@@ -194,6 +473,47 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
         autoOrbit: true,
       },
     },
+    pages: [
+      {
+        kind: "showcase",
+        title: "Look",
+        caption: "A normal arrow defines the plane's tilt.",
+        autoplay: "orbit",
+        spec: {
+          type: "vector3d",
+          vectors: [
+            { id: "n", components: [0.8, 0.6, 1.4], fixed: true, label: "n", color: "#c45c26" },
+            { id: "u", components: [1.5, -0.4, 0], fixed: true, label: "in plane" },
+            { id: "v", components: [-0.3, 1.2, 0], fixed: true, label: "in plane" },
+          ],
+          show: ["parallelogram"],
+          task: { kind: "explore" },
+          autoOrbit: true,
+        },
+      },
+      {
+        kind: "steps",
+        title: "Recipes",
+        steps: [
+          {
+            text: "Line: point + direction $\\mathbf{r}(t)=\\mathbf{r}_0+t\\mathbf{d}$.",
+          },
+          {
+            text: "Plane: point + normal $\\mathbf{n}\\cdot(\\mathbf{r}-\\mathbf{r}_0)=0$.",
+          },
+        ],
+      },
+      {
+        kind: "prose",
+        title: "Analogy",
+        text: "Line = laser beam. Plane = flat sheet with an 'up' arrow (normal).",
+      },
+      {
+        kind: "prose",
+        title: "Baby example",
+        text: "Line $\\langle 1,t,t\\rangle$. Plane $x+2y+3z=0$.",
+      },
+    ],
     eli5:
       "A line needs a point and a direction: $\\mathbf{r}(t)=\\mathbf{r}_0+t\\mathbf{d}$. A plane needs a point and a normal: $\\mathbf{n}\\cdot(\\mathbf{r}-\\mathbf{r}_0)=0$.",
     analogy: "Line = laser beam. Plane = infinite flat sheet with a 'up' arrow (normal).",
@@ -201,6 +521,8 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
       "Line through $(1,0,0)$ along $\\langle 0,1,1\\rangle$: $\\langle 1,t,t\\rangle$. Plane through origin with normal $\\langle 1,2,3\\rangle$: $x+2y+3z=0$.",
   },
   u1_quadrics: {
+    hook: "Can you name the surface from its traces?",
+    glossaryIds: ["quadric"],
     intro: {
       kind: "showcase",
       caption: "Orbit a quadric — traces reveal its type.",
@@ -217,6 +539,58 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
         showTraces: true,
       },
     },
+    pages: [
+      {
+        kind: "showcase",
+        title: "Look",
+        caption: "Orbit a quadric — traces reveal its type.",
+        autoplay: "orbit",
+        spec: {
+          type: "surface3d",
+          surface: { kind: "quadric", name: "hyperboloid1" },
+          task: {
+            kind: "identify",
+            answer: "Hyperboloid of one sheet",
+            choices: [
+              "Ellipsoid",
+              "Elliptic paraboloid",
+              "Hyperboloid of one sheet",
+              "Cone",
+            ],
+          },
+          showTraces: true,
+        },
+      },
+      {
+        kind: "table",
+        title: "Quick ID",
+        headers: ["Clue", "Shape"],
+        rows: [
+          ["All squares $+$", "Ellipsoid"],
+          ["A minus among squares", "Hyperboloid"],
+          ["One linear variable", "Paraboloid"],
+        ],
+      },
+      {
+        kind: "demo",
+        title: "Try it",
+        goal: "Orbit, then name the surface.",
+        spec: {
+          type: "surface3d",
+          surface: { kind: "zfn", preset: "paraboloid" },
+          task: {
+            kind: "identify",
+            answer: "Elliptic paraboloid",
+            choices: [
+              "Ellipsoid",
+              "Elliptic paraboloid",
+              "Hyperboloid of one sheet",
+              "Cone",
+            ],
+          },
+        },
+      },
+    ],
     eli5:
       "Quadrics are the 3D cousins of conic sections. All-positive squares → ellipsoid. A minus among squares → hyperboloid. One linear variable → paraboloid. Orbit the shape, then name it.",
     analogy: "Circles/ellipses/hyperbolas extruded or spun into 3D.",
@@ -239,6 +613,8 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
     },
   },
   u1_cyl_sph: {
+    hook: "Which coordinates match the solid's symmetry?",
+    glossaryIds: ["cylindrical-coords", "spherical-coords"],
     intro: {
       kind: "showcase",
       caption: "Same point — cylindrical measuring sticks.",
@@ -250,6 +626,39 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
         task: { kind: "explore" },
       },
     },
+    pages: [
+      {
+        kind: "showcase",
+        title: "Look",
+        caption: "Same point — cylindrical measuring sticks.",
+        autoplay: "orbit",
+        spec: {
+          type: "coordFrame",
+          system: "cylindrical",
+          point: [1, 1, 1.2],
+          task: { kind: "explore" },
+        },
+      },
+      {
+        kind: "table",
+        title: "Two systems",
+        headers: ["System", "Coords"],
+        rows: [
+          ["Cylindrical", "$(r,\\theta,z)$"],
+          ["Spherical", "$(\\rho,\\theta,\\phi)$"],
+        ],
+      },
+      {
+        kind: "prose",
+        title: "Analogy",
+        text: "Cylindrical = lighthouse. Spherical = GPS from Earth's center.",
+      },
+      {
+        kind: "prose",
+        title: "Baby example",
+        text: "$(1,1,\\sqrt{2})$ → $r=\\sqrt{2}$, $\\theta=\\pi/4$; spherical $\\rho=2$.",
+      },
+    ],
     eli5:
       "Cylindrical: $(r,\\theta,z)$ — polar in $xy$ plus height. Spherical: $(\\rho,\\theta,\\phi)$ — distance from origin and two angles. Convert when the solid's symmetry matches.",
     analogy: "Cylindrical = lighthouse coords. Spherical = GPS from Earth's center.",

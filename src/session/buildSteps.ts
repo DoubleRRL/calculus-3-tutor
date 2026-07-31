@@ -1,4 +1,7 @@
-import { lessonForSkill } from "@/content/lessons";
+import {
+  lessonForSkill,
+  synthesizeLessonPages,
+} from "@/content/lessons";
 import type { PersistedState } from "@/lib/store";
 import {
   buildDiagnosticQueue,
@@ -11,62 +14,35 @@ import { EXAM_SIZE } from "@/lib/pedagogy";
 import type { SessionMode } from "@/types/content";
 import type { SessionStep, TeachStep } from "./types";
 
+function shouldForceTeach(
+  skillId: string,
+  state: PersistedState,
+  force?: boolean,
+): boolean {
+  if (force) return true;
+  const bg = state.settings.learnerProfile?.background;
+  if (
+    (bg === "rusty" || bg === "refresher") &&
+    skillId.startsWith("u1_")
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function teachDeck(skillId: string): TeachStep[] {
   const lesson = lessonForSkill(skillId);
   if (!lesson) return [];
-  const steps: TeachStep[] = [];
-
-  if (lesson.intro) {
-    const intro = lesson.intro;
-    steps.push({
+  return [
+    {
       kind: "teach",
-      teach: "intro",
+      teach: "lesson",
       skillId,
-      text: intro.caption,
-      intro,
-    });
-  }
-
-  steps.push({
-    kind: "teach",
-    teach: "eli5",
-    skillId,
-    text: lesson.eli5,
-  });
-
-  if (lesson.analogy) {
-    steps.push({
-      kind: "teach",
-      teach: "analogy",
-      skillId,
-      text: lesson.analogy,
-    });
-  }
-  if (lesson.demo) {
-    steps.push({
-      kind: "teach",
-      teach: "demo",
-      skillId,
-      text: lesson.demo.goal,
-      goal: lesson.demo.goal,
-      spec: lesson.demo.spec,
-    });
-  }
-  if (lesson.workedExample) {
-    steps.push({
-      kind: "teach",
-      teach: "worked",
-      skillId,
-      text: lesson.workedExample,
-    });
-  }
-  steps.push({
-    kind: "teach",
-    teach: "grok",
-    skillId,
-    text: "Ready to try a few? Practice locks this idea in.",
-  });
-  return steps;
+      hook: lesson.hook,
+      pages: synthesizeLessonPages(lesson),
+      glossaryIds: (lesson.glossaryIds ?? []).slice(0, 5),
+    },
+  ];
 }
 
 function problemsFrom(queue: QueueItem[]): SessionStep[] {
@@ -93,11 +69,10 @@ export function buildSessionSteps(
   if (mode === "placement") {
     return problemsFrom(buildDiagnosticQueue());
   }
-  // skill
   const skillId = opts?.skillId;
   if (!skillId) return [];
   const grokked = state.grokked.includes(skillId);
-  const force = opts?.forceTeach;
+  const force = shouldForceTeach(skillId, state, opts?.forceTeach);
   const deck = !grokked || force ? teachDeck(skillId) : [];
   const practice = problemsFrom(buildSkillQueue(skillId, state, 8));
   return [...deck, ...practice];

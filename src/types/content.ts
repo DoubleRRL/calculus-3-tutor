@@ -24,9 +24,24 @@ export type AnswerType =
   | "exact"
   | "numeric"
   | "choice"
+  | "clickFill"
   | "free"
   | "tuple"
   | "interactive";
+
+export type LearnerBackground =
+  | "recent"
+  | "rusty"
+  | "strong3d"
+  | "refresher";
+
+export type ExplainStyle = "analogies" | "formulas" | "tldr";
+
+export type LearnerProfile = {
+  background: LearnerBackground;
+  dailyMinutes: 5 | 15 | 30;
+  explainStyle?: ExplainStyle;
+};
 
 export interface HintLadder {
   nudge: string;
@@ -115,6 +130,9 @@ export interface AppSettings {
   qualityMode: boolean;
   ollamaBaseUrl: string;
   onboardingDone: boolean;
+  /** Short personalizer finished (background / daily time / explain style). */
+  personalizerDone: boolean;
+  learnerProfile: LearnerProfile | null;
   sessionSize: 5 | 12 | 20;
   theme: ThemeMode;
   dailyGoalXp: number;

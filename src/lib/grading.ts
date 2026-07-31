@@ -122,6 +122,20 @@ export function gradeAnswer(item: ProblemItem, raw: string): GradeResult {
     };
   }
 
+  if (item.answerType === "clickFill") {
+    const want = item.answer.split("|").map((s) => normalize(s));
+    const got = given.split("|").map((s) => normalize(s));
+    const ok =
+      want.length === got.length &&
+      want.every((w, i) => w.length > 0 && w === got[i]);
+    return {
+      correct: ok,
+      feedback: ok
+        ? "Correct."
+        : `Not quite. Expected: ${item.answer.split("|").join(" · ")}`,
+    };
+  }
+
   if (item.answerType === "tuple" || (given.includes(",") && item.answer.includes(","))) {
     const ok = gradeTuple(item, given);
     return {

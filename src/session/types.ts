@@ -1,24 +1,15 @@
-import type { InteractionSpec } from "@/types/interactions";
-import type { LessonIntro } from "@/content/lessons";
+import type { LessonPage } from "@/content/lessons";
 import type { ProblemItem } from "@/types/content";
 import type { QueueItem } from "@/lib/scheduler";
 
-export type TeachKind =
-  | "intro"
-  | "eli5"
-  | "analogy"
-  | "demo"
-  | "worked"
-  | "grok";
-
+/** Single teach block: paged lesson + knowledge review (one progress segment). */
 export type TeachStep = {
   kind: "teach";
-  teach: TeachKind;
+  teach: "lesson";
   skillId: string;
-  text: string;
-  goal?: string;
-  spec?: InteractionSpec;
-  intro?: LessonIntro;
+  hook?: string;
+  pages: LessonPage[];
+  glossaryIds: string[];
 };
 
 export type ProblemStep = {

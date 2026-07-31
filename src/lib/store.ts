@@ -1,6 +1,9 @@
 import type {
   AppSettings,
   AttemptRecord,
+  ExplainStyle,
+  LearnerBackground,
+  LearnerProfile,
   ReadinessSnapshot,
   ReviewCard,
   SessionSummary,
@@ -30,10 +33,41 @@ export const DEFAULT_SETTINGS: AppSettings = {
   qualityMode: false,
   ollamaBaseUrl: "http://127.0.0.1:11434",
   onboardingDone: false,
+  personalizerDone: false,
+  learnerProfile: null,
   sessionSize: SESSION_SIZE as 5 | 12 | 20,
   theme: "system",
   dailyGoalXp: DAILY_GOAL_XP_DEFAULT,
 };
+
+function isObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function parseLearnerProfile(raw: unknown): LearnerProfile | null {
+  if (!isObject(raw)) return null;
+  const bg = raw.background;
+  const background: LearnerBackground | null =
+    bg === "recent" || bg === "rusty" || bg === "strong3d" || bg === "refresher"
+      ? bg
+      : null;
+  const mins = Number(raw.dailyMinutes);
+  const dailyMinutes =
+    mins === 5 || mins === 15 || mins === 30 ? mins : null;
+  if (!background || !dailyMinutes) return null;
+  const style = raw.explainStyle;
+  const explainStyle: ExplainStyle | undefined =
+    style === "analogies" || style === "formulas" || style === "tldr"
+      ? style
+      : undefined;
+  return { background, dailyMinutes, explainStyle };
+}
+
+export function sessionSizeFromMinutes(m: 5 | 15 | 30): 5 | 12 | 20 {
+  if (m <= 5) return 5;
+  if (m <= 15) return 12;
+  return 20;
+}
 
 export interface PersistedState {
   settings: AppSettings;
@@ -119,10 +153,6 @@ export function createInitialState(): PersistedState {
   };
 }
 
-function isObject(v: unknown): v is Record<string, unknown> {
-  return typeof v === "object" && v !== null && !Array.isArray(v);
-}
-
 function parseTheme(raw: unknown): AppSettings["theme"] {
   if (raw === "dark" || raw === "light" || raw === "system") return raw;
   return DEFAULT_SETTINGS.theme;
@@ -149,6 +179,7 @@ export function parsePersisted(raw: unknown): PersistedState | null {
         ? Math.max(30, Number(raw.dailyGoal) * 50)
         : DAILY_GOAL_XP_DEFAULT;
 
+  const learnerProfile = parseLearnerProfile(raw.settings.learnerProfile);
   const settings: AppSettings = {
     ...DEFAULT_SETTINGS,
     coachModel: String(raw.settings.coachModel ?? DEFAULT_SETTINGS.coachModel),
@@ -164,6 +195,13 @@ export function parsePersisted(raw: unknown): PersistedState | null {
     onboardingDone: Boolean(
       raw.settings.onboardingDone ?? DEFAULT_SETTINGS.onboardingDone,
     ),
+    // Existing saves that finished welcome skip the new personalizer.
+    personalizerDone: Boolean(
+      raw.settings.personalizerDone ??
+        learnerProfile ??
+        raw.settings.onboardingDone,
+    ),
+    learnerProfile,
     sessionSize,
     theme: parseTheme(raw.settings.theme),
     dailyGoalXp,

@@ -2,6 +2,7 @@ import { HashRouter, Navigate, Route, Routes, useParams } from "react-router-dom
 import { AppProvider } from "@/state/AppContext";
 import { AppShell } from "@/components/shell/AppShell";
 import { PathPage } from "@/pages/Path";
+import { PersonalizerPage } from "@/pages/Personalizer";
 import { SkillSheetPage } from "@/pages/SkillSheet";
 import { ExamPage } from "@/pages/Exam";
 import { SettingsPage } from "@/pages/Settings";
@@ -19,6 +20,7 @@ export default function App() {
           <Route element={<AppShell />}>
             <Route index element={<PathPage />} />
             <Route path="path" element={<Navigate to="/" replace />} />
+            <Route path="personalize" element={<PersonalizerPage />} />
             <Route path="skill/:skillId" element={<SkillSheetPage />} />
             <Route path="exam" element={<ExamPage />} />
             <Route path="settings" element={<SettingsPage />} />

@@ -100,6 +100,46 @@
     "difficulty": 2
   },
   {
+    "id": "u1_c_clickfill1",
+    "skillId": "u1_coords3d",
+    "kind": "drill",
+    "prompt": "A point in space needs ___ numbers; a sphere is all points at a fixed ___ from its center.",
+    "answerType": "clickFill",
+    "answer": "three|distance",
+    "choices": ["three", "two", "distance", "angle"],
+    "hints": {
+      "nudge": "Think $x$, $y$, $z$, then radius as a length.",
+      "technique": "three · distance",
+      "nextStep": "three · distance",
+      "fullSolution": "Three coordinates; fixed distance (radius) from the center."
+    },
+    "misconceptionTags": [
+      "DIST_2D_ONLY"
+    ],
+    "rubric": "three|distance",
+    "difficulty": 1
+  },
+  {
+    "id": "u1_c_choice1",
+    "skillId": "u1_coords3d",
+    "kind": "drill",
+    "prompt": "A sphere is the set of all points at a fixed ___ from a center.",
+    "answerType": "choice",
+    "answer": "distance",
+    "choices": ["distance", "angle", "area", "volume"],
+    "hints": {
+      "nudge": "Radius is a length.",
+      "technique": "Fixed distance $r$ from the center.",
+      "nextStep": "distance",
+      "fullSolution": "A sphere is all points at fixed distance from the center."
+    },
+    "misconceptionTags": [
+      "SPHERE_RADIUS"
+    ],
+    "rubric": "distance",
+    "difficulty": 1
+  },
+  {
     "id": "u1_v_learn",
     "skillId": "u1_vectors",
     "kind": "learn",
@@ -159,6 +199,26 @@
       "MAGNITUDE"
     ],
     "rubric": "3",
+    "difficulty": 1
+  },
+  {
+    "id": "u1_v_clickfill1",
+    "skillId": "u1_vectors",
+    "kind": "drill",
+    "prompt": "A unit vector has the same ___ and length ___.",
+    "answerType": "clickFill",
+    "answer": "direction|1",
+    "choices": ["direction", "magnitude", "1", "0", "origin"],
+    "hints": {
+      "nudge": "Normalize keeps direction; length becomes one.",
+      "technique": "$\\hat{u}=u/\\|u\\|$",
+      "nextStep": "direction · 1",
+      "fullSolution": "Same direction, length 1."
+    },
+    "misconceptionTags": [
+      "UNIT_VECTOR"
+    ],
+    "rubric": "direction|1",
     "difficulty": 1
   },
   {

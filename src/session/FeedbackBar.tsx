@@ -12,11 +12,13 @@ export function FeedbackBar({
   feedback,
   xpEarned,
   onContinue,
+  onDiscuss,
 }: {
   correct: boolean;
   feedback: string;
   xpEarned: number;
   onContinue: () => void;
+  onDiscuss?: () => void;
 }) {
   const reduced = useReducedMotion();
   return (
@@ -54,13 +56,20 @@ export function FeedbackBar({
         <div className="text-[13px] text-[var(--ink-2)] mb-3">
           <MathText text={feedback} />
         </div>
-        <Button
-          variant={correct ? "success" : "primary"}
-          className="w-full"
-          onClick={onContinue}
-        >
-          Continue
-        </Button>
+        <div className="flex gap-2">
+          {onDiscuss && (
+            <Button variant="ghost" className="shrink-0" onClick={onDiscuss}>
+              Discuss
+            </Button>
+          )}
+          <Button
+            variant={correct ? "success" : "primary"}
+            className="flex-1"
+            onClick={onContinue}
+          >
+            Continue
+          </Button>
+        </div>
       </div>
     </motion.div>
   );

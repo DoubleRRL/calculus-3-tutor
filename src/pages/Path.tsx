@@ -1,8 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { useApp } from "@/state/AppContext";
 import { UNITS, SKILLS } from "@/content";
-import { Button, Card, Icon } from "@/ui";
+import { lessonForSkill } from "@/content/lessons";
+import { Button, Card, Icon, Sheet } from "@/ui";
 import { nextMilestone, resumeSkill } from "@/lib/store";
 import {
   motion,
@@ -17,6 +19,7 @@ export function PathPage() {
   const { state, updateSettings, setResume } = useApp();
   const nav = useNavigate();
   const reduced = useReducedMotion();
+  const [startSkillId, setStartSkillId] = useState<string | null>(null);
 
   if (!state.settings.onboardingDone) {
     return (
@@ -31,15 +34,13 @@ export function PathPage() {
         </p>
         <h1 className="text-[24px] font-medium text-[var(--ink-1)]">CalcTutor</h1>
         <p className="mt-3 text-[14px] text-[var(--ink-2)] max-w-md leading-relaxed">
-          Learn topics in order — short teach deck, then practice. Pick up where
+          Short ~3‑minute lessons, knowledge cards, then practice. Pick up where
           you left off anytime.
         </p>
         <div className="mt-6 flex flex-col sm:flex-row gap-2">
           <Button
             onClick={() => {
-              updateSettings({ onboardingDone: true });
-              setResume("u1_coords3d");
-              nav("/s/skill/u1_coords3d");
+              nav("/personalize");
             }}
           >
             Start learning
@@ -47,7 +48,7 @@ export function PathPage() {
           <Button
             variant="ghost"
             onClick={() => {
-              updateSettings({ onboardingDone: true });
+              updateSettings({ onboardingDone: true, personalizerDone: true });
               nav("/s/placement");
             }}
           >
@@ -58,12 +59,25 @@ export function PathPage() {
     );
   }
 
+  if (!state.settings.personalizerDone) {
+    return <Navigate to="/personalize" replace />;
+  }
+
   const resume = resumeSkill(state);
   const activeId = resume?.id;
   const units = UNITS.filter((u) => u.id !== "diagnostic" && u.id !== "exam").sort(
     (a, b) => a.order - b.order,
   );
   const grokked = resume ? state.grokked.includes(resume.id) : false;
+  const startSkill = startSkillId
+    ? SKILLS.find((s) => s.id === startSkillId)
+    : null;
+  const startLesson = startSkillId ? lessonForSkill(startSkillId) : undefined;
+  const startHook =
+    startLesson?.hook ??
+    startLesson?.intro?.caption ??
+    startSkill?.objective ??
+    "";
 
   return (
     <div className="space-y-8">
@@ -150,14 +164,17 @@ export function PathPage() {
           (s) => (state.crowns[s.id] ?? 0) >= 5 || state.skills[s.id]?.mastered,
         ).length;
         return (
-          <section key={unit.id}>
+          <section
+            key={unit.id}
+            className="rounded-[var(--r-card)] border border-[var(--line)] bg-[var(--card)]/40 px-3 py-4 sm:px-4"
+          >
             <div className="mb-3">
               <div className="flex items-baseline justify-between gap-2">
                 <h2 className="text-[14px] font-medium text-[var(--ink-1)]">
                   {unit.title}
                 </h2>
                 <span className="text-[12px] text-[var(--ink-3)] tabular-nums">
-                  {crowned}/{skills.length}
+                  {crowned}/{skills.length} lessons
                 </span>
               </div>
               <p className="text-[12px] text-[var(--ink-3)] mt-0.5">{unit.blurb}</p>
@@ -216,7 +233,7 @@ export function PathPage() {
                       }`}
                     />
                     {locked ? (
-                      <div className="flex items-center gap-3 rounded-[var(--r-card)] border border-[var(--line)] bg-[var(--card)] px-3 py-3 opacity-60">
+                      <div className="flex items-center gap-3 rounded-[var(--r-card)] border border-[var(--line)] bg-[var(--bg)] px-3 py-3 opacity-60">
                         <Icon icon={Lock} size={14} className="text-[var(--ink-3)]" />
                         <div>
                           <p className="text-[14px] text-[var(--ink-2)]">{s.title}</p>
@@ -224,12 +241,13 @@ export function PathPage() {
                         </div>
                       </div>
                     ) : (
-                      <Link
-                        to={`/skill/${s.id}`}
-                        className={`flex items-center justify-between gap-3 rounded-[var(--r-card)] border px-3 py-3 transition-colors ${
+                      <button
+                        type="button"
+                        onClick={() => setStartSkillId(s.id)}
+                        className={`w-full flex items-center justify-between gap-3 rounded-[var(--r-card)] border px-3 py-3 transition-colors text-left ${
                           active
                             ? "border-[var(--accent)] bg-[var(--accent-weak)]"
-                            : "border-[var(--line)] bg-[var(--card)] hover:border-[var(--line-2)]"
+                            : "border-[var(--line)] bg-[var(--bg)] hover:border-[var(--line-2)]"
                         }`}
                       >
                         <div className="min-w-0">
@@ -260,7 +278,7 @@ export function PathPage() {
                         ) : (
                           <span className="text-[12px] text-[var(--ink-2)]">Learn</span>
                         )}
-                      </Link>
+                      </button>
                     )}
                   </motion.li>
                 );
@@ -269,6 +287,37 @@ export function PathPage() {
           </section>
         );
       })}
+
+      <Sheet
+        open={Boolean(startSkill)}
+        onClose={() => setStartSkillId(null)}
+        title={startSkill?.title}
+      >
+        {startSkill && (
+          <div className="space-y-4">
+            <p className="text-[15px] text-[var(--ink-1)] leading-snug">
+              {startHook}
+            </p>
+            <Button
+              className="w-full"
+              onClick={() => {
+                setResume(startSkill.id);
+                setStartSkillId(null);
+                nav(`/s/skill/${startSkill.id}`);
+              }}
+            >
+              Start 3‑minute lesson
+            </Button>
+            <Link
+              to={`/skill/${startSkill.id}`}
+              onClick={() => setStartSkillId(null)}
+              className="block text-center text-[13px] text-[var(--ink-2)] hover:text-[var(--ink-1)]"
+            >
+              Topic details
+            </Link>
+          </div>
+        )}
+      </Sheet>
     </div>
   );
 }
