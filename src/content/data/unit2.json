@@ -44,7 +44,13 @@
       "technique": "$\\int 1\\,dt=t$, $\\int 2t\\,dt=t^2$, $\\int 0\\,dt=0$",
       "nextStep": "$\\langle t, t^2, 0\\rangle$",
       "fullSolution": "$\\langle t, t^2, 0\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u2_vf_drill1",
@@ -67,7 +73,13 @@
       "technique": "Evaluate at $t=0$: $e^0=1$",
       "nextStep": "$\\langle 1,1,0\\rangle$",
       "fullSolution": "$\\mathbf{r}'(0)=\\langle 1,1,0\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u2_vf_mastery",
@@ -197,7 +209,13 @@
       "technique": "$\\mathbf{r}'=\\langle 1,2t,3t^2\\rangle$, $\\mathbf{r}''=\\langle 0,2,6t\\rangle$",
       "nextStep": "At $t=0$: $\\langle 0,2,0\\rangle$",
       "fullSolution": "$\\mathbf{a}(0)=\\langle 0,2,0\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u2_m_mastery",
@@ -220,7 +238,13 @@
       "technique": "Divide by $\\|\\mathbf{r}'\\|=1$",
       "nextStep": "$\\mathbf{T}=\\langle 1,0,0\\rangle$",
       "fullSolution": "$\\mathbf{T}=\\langle 1,0,0\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u2_vf_mix1",
@@ -243,7 +267,12 @@
       "technique": "$\\mathbf{r}'=\\langle 2t, e^t\\rangle$",
       "nextStep": "At 0: $\\langle 0,1\\rangle$",
       "fullSolution": "$\\langle 0,1\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b"
+    ],
+    "tupleSkeleton": "⟨a, b⟩"
   },
   {
     "id": "u2_al_guided",
@@ -304,7 +333,12 @@
       "technique": "$\\mathbf{v}=\\langle 2t,1\\rangle$, then $\\mathbf{a}=\\langle 2,0\\rangle$",
       "nextStep": "2,0",
       "fullSolution": "$\\langle 2,0\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b"
+    ],
+    "tupleSkeleton": "⟨a, b⟩"
   },
   {
     "id": "u2_vf_drill2",
@@ -326,7 +360,12 @@
       "technique": "$\\langle e^t,1\\rangle$ at 0",
       "nextStep": "1,1",
       "fullSolution": "$\\langle 1,1\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b"
+    ],
+    "tupleSkeleton": "⟨a, b⟩"
   },
   {
     "id": "u2_al_drill2",

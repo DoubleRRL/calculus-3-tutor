@@ -20,7 +20,12 @@
       "technique": "$-y=0$, $x=1$",
       "nextStep": "$\\langle 0,1\\rangle$",
       "fullSolution": "$\\mathbf{F}(1,0)=\\langle 0,1\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b"
+    ],
+    "tupleSkeleton": "⟨a, b⟩"
   },
   {
     "id": "u5_f_drill1",
@@ -43,7 +48,12 @@
       "technique": "$x=2$, $y=3$",
       "nextStep": "$(2,3)$",
       "fullSolution": "$\\langle 2,3\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b"
+    ],
+    "tupleSkeleton": "⟨a, b⟩"
   },
   {
     "id": "u5_f_mastery",
@@ -302,7 +312,13 @@
       "technique": "$Q_x=1$, $P_y=-1$, so $Q_x-P_y=2$",
       "nextStep": "$\\langle 0,0,2\\rangle$",
       "fullSolution": "$\\mathrm{curl}\\mathbf{F}=\\langle 0,0,2\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u5_cd_mastery",
@@ -955,7 +971,13 @@
       "technique": "⟨0, −1, 0⟩",
       "nextStep": "0,-1,0",
       "fullSolution": "⟨0,-1,0⟩"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u5_div_guided",

@@ -288,7 +288,12 @@
       "technique": "$f_x=2x$, $f_y=2y$",
       "nextStep": "$(2,0)$",
       "fullSolution": "$\\nabla f(1,0)=\\langle 2,0\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b"
+    ],
+    "tupleSkeleton": "⟨a, b⟩"
   },
   {
     "id": "u3_g_drill1",
@@ -354,7 +359,12 @@
       "technique": "$x=0$ and $y=0$",
       "nextStep": "$(0,0)$",
       "fullSolution": "Only critical point is $(0,0)$"
-    }
+    },
+    "tupleLabels": [
+      "x",
+      "y"
+    ],
+    "tupleSkeleton": "(x, y)"
   },
   {
     "id": "u3_e_drill1",
@@ -425,7 +435,12 @@
       "technique": "$\\nabla g=\\langle 2x,2y\\rangle$",
       "nextStep": "2x,2y",
       "fullSolution": "$\\nabla g=\\langle 2x,2y\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b"
+    ],
+    "tupleSkeleton": "⟨a, b⟩"
   },
   {
     "id": "u3_l_drill1",
@@ -448,7 +463,12 @@
       "technique": "Farthest right point on the unit circle.",
       "nextStep": "$(1,0)$",
       "fullSolution": "$(1,0)$"
-    }
+    },
+    "tupleLabels": [
+      "x",
+      "y"
+    ],
+    "tupleSkeleton": "(x, y)"
   },
   {
     "id": "u3_l_mastery",
@@ -555,7 +575,12 @@
       "technique": "At (1,2): $\\langle 2,-1\\rangle$",
       "nextStep": "2,-1",
       "fullSolution": "$\\langle 2,-1\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b"
+    ],
+    "tupleSkeleton": "⟨a, b⟩"
   },
   {
     "id": "u3_fn_guided",
@@ -783,7 +808,12 @@
       "technique": "At (2,3): ⟨3,2⟩",
       "nextStep": "3,2",
       "fullSolution": "⟨3,2⟩"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b"
+    ],
+    "tupleSkeleton": "⟨a, b⟩"
   },
   {
     "id": "u3_ch_drill2",

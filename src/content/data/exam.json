@@ -20,7 +20,13 @@
       "technique": "Use the determinant formula for the cross product.",
       "nextStep": "$\\langle 0,0,1\\rangle$",
       "fullSolution": "$\\langle 0,0,1\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "exam_2",
@@ -43,7 +49,12 @@
       "technique": "At $(2,3)$: $\\langle 3,2\\rangle$",
       "nextStep": "3,2",
       "fullSolution": "$\\nabla f(2,3)=\\langle 3,2\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b"
+    ],
+    "tupleSkeleton": "⟨a, b⟩"
   },
   {
     "id": "exam_3",
@@ -213,7 +224,13 @@
       "technique": "Read off $\\langle 3,-1,2\\rangle$",
       "nextStep": "3,-1,2",
       "fullSolution": "$\\mathbf{n}=\\langle 3,-1,2\\rangle$"
-    }
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "exam_10",

@@ -135,6 +135,11 @@
       "POLAR_CONVERT"
     ],
     "rubric": "$(1, \\sqrt{3})$",
-    "difficulty": 2
+    "difficulty": 2,
+    "tupleLabels": [
+      "x",
+      "y"
+    ],
+    "tupleSkeleton": "(x, y)"
   }
 ]

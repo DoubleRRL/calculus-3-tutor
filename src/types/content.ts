@@ -62,6 +62,10 @@ export interface ProblemItem {
   choices?: string[];
   /** For tuple: if true, component order does not matter. Default false (ordered). */
   tupleUnordered?: boolean;
+  /** Labels for tuple input slots (e.g. ["a","b"]). Length should match answer components. */
+  tupleLabels?: string[];
+  /** Optional format skeleton shown above fields, e.g. "⟨0, a, b⟩". */
+  tupleSkeleton?: string;
   /** Visual/conceptual interaction; required when answerType is "interactive". */
   interaction?: InteractionSpec;
   hints: HintLadder;

@@ -10,6 +10,7 @@ import { FeedbackBar } from "./FeedbackBar";
 import { SessionComplete } from "./SessionComplete";
 import { LessonDeck, type LessonPhase } from "./LessonDeck";
 import { ClickFill, countBlanks, decodeClickFill } from "./ClickFill";
+import { TupleInput } from "./TupleInput";
 import { MathText } from "@/components/MathText";
 import { InteractionHost } from "@/components/interactions/InteractionHost";
 import { HintLadderPanel } from "@/components/HintLadder";
@@ -749,6 +750,16 @@ export function SessionPage() {
                     </button>
                   ))}
                 </div>
+              ) : problem!.answerType === "tuple" ? (
+                <TupleInput
+                  answerCanonical={problem!.answer}
+                  labels={problem!.tupleLabels}
+                  skeleton={problem!.tupleSkeleton}
+                  value={answer}
+                  onChange={setAnswer}
+                  locked={locked}
+                  correct={correct}
+                />
               ) : (
                 <input
                   value={answer}

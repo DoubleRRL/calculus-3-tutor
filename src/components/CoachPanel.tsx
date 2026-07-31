@@ -207,10 +207,10 @@ export function CoachPanel({
             <div
               key={i}
               ref={i === lastUserIndex ? lastUserRef : undefined}
-              className={`text-[13px] ${
+              className={`text-[13px] flex flex-col ${
                 isUser
-                  ? "ml-4 flex flex-col items-end"
-                  : "text-[var(--ink-1)]"
+                  ? "ml-4 items-end"
+                  : "items-start text-[var(--ink-1)]"
               }`}
             >
               <span className="text-[10px] uppercase mb-0.5 opacity-60 text-[var(--ink-3)]">
@@ -221,7 +221,9 @@ export function CoachPanel({
                   <MathText text={m.content} />
                 </div>
               ) : (
-                <MathText text={m.content} />
+                <div className="max-w-full">
+                  <MathText text={m.content} />
+                </div>
               )}
             </div>
           );

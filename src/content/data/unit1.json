@@ -78,7 +78,13 @@
       "COMPLETE_SQUARE"
     ],
     "rubric": "(3,-1,0)",
-    "difficulty": 2
+    "difficulty": 2,
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u1_c_mastery",
@@ -106,7 +112,12 @@
     "prompt": "A point in space needs ___ numbers; a sphere is all points at a fixed ___ from its center.",
     "answerType": "clickFill",
     "answer": "three|distance",
-    "choices": ["three", "two", "distance", "angle"],
+    "choices": [
+      "three",
+      "two",
+      "distance",
+      "angle"
+    ],
     "hints": {
       "nudge": "Think $x$, $y$, $z$, then radius as a length.",
       "technique": "three · distance",
@@ -126,7 +137,12 @@
     "prompt": "A sphere is the set of all points at a fixed ___ from a center.",
     "answerType": "choice",
     "answer": "distance",
-    "choices": ["distance", "angle", "area", "volume"],
+    "choices": [
+      "distance",
+      "angle",
+      "area",
+      "volume"
+    ],
     "hints": {
       "nudge": "Radius is a length.",
       "technique": "Fixed distance $r$ from the center.",
@@ -168,7 +184,9 @@
     "accept": [
       "0.6,0.8",
       "3/5,4/5",
-      "0.6, 0.8"
+      "0.6, 0.8",
+      "0,3/5,4/5",
+      "0,0.6,0.8"
     ],
     "hints": {
       "nudge": "Divide by the magnitude.",
@@ -180,7 +198,12 @@
       "UNIT_VECTOR"
     ],
     "rubric": "3/5, 4/5",
-    "difficulty": 1
+    "difficulty": 1,
+    "tupleLabels": [
+      "a",
+      "b"
+    ],
+    "tupleSkeleton": "⟨0, a, b⟩"
   },
   {
     "id": "u1_v_drill1",
@@ -208,7 +231,13 @@
     "prompt": "A unit vector has the same ___ and length ___.",
     "answerType": "clickFill",
     "answer": "direction|1",
-    "choices": ["direction", "magnitude", "1", "0", "origin"],
+    "choices": [
+      "direction",
+      "magnitude",
+      "1",
+      "0",
+      "origin"
+    ],
     "hints": {
       "nudge": "Normalize keeps direction; length becomes one.",
       "technique": "$\\hat{u}=u/\\|u\\|$",
@@ -242,7 +271,13 @@
       "VECTOR_ARITH"
     ],
     "rubric": "(2,1,1)",
-    "difficulty": 1
+    "difficulty": 1,
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u1_v_mastery",
@@ -265,7 +300,13 @@
       "UNIT_VECTOR"
     ],
     "rubric": "(2/3,-1/3,2/3)",
-    "difficulty": 2
+    "difficulty": 2,
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u1_d_learn",
@@ -392,7 +433,13 @@
       "CROSS_SIGN"
     ],
     "rubric": "(0,0,1)",
-    "difficulty": 1
+    "difficulty": 1,
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u1_x_guided",
@@ -438,7 +485,13 @@
       "CROSS_SIGN"
     ],
     "rubric": "(0,3,-2)",
-    "difficulty": 2
+    "difficulty": 2,
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u1_x_drill2",
@@ -480,7 +533,13 @@
       "CROSS_SIGN"
     ],
     "rubric": "(0,0,2)",
-    "difficulty": 2
+    "difficulty": 2,
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u1_lp_learn",
@@ -523,7 +582,13 @@
       "PLANE_NORMAL"
     ],
     "rubric": "(2,-1,4)",
-    "difficulty": 1
+    "difficulty": 1,
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
   },
   {
     "id": "u1_lp_drill1",

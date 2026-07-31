@@ -1,13 +1,30 @@
 import type { ProblemItem } from "@/types/content";
 import { gradeInteraction } from "@/lib/interactions";
 
+/** Strip a single outer vector/tuple wrapper: (...), [...], ⟨...⟩, <...>. */
+function stripOuterWrapper(s: string): string {
+  const t = s.trim();
+  const pairs: [string, string][] = [
+    ["(", ")"],
+    ["[", "]"],
+    ["⟨", "⟩"],
+    ["<", ">"],
+  ];
+  for (const [open, close] of pairs) {
+    if (t.startsWith(open) && t.endsWith(close) && t.length > open.length + close.length) {
+      return t.slice(open.length, t.length - close.length).trim();
+    }
+  }
+  return t;
+}
+
 function normalize(s: string): string {
   return s
     .trim()
     .toLowerCase()
     .replace(/\\\s*/g, "")
     .replace(/\s+/g, "")
-    .replace(/\{|\}/g, "")
+    .replace(/[{}()[\]⟨⟩<>]/g, "")
     .replace(/⋅/g, "*")
     .replace(/×/g, "*")
     .replace(/√/g, "sqrt")
@@ -18,7 +35,10 @@ function normalize(s: string): string {
 
 /** Parse simple a/b fractions and plain numbers. */
 function toNumber(s: string): number | null {
-  const t = s.trim().replace(/,/g, "");
+  const t = stripOuterWrapper(s)
+    .trim()
+    .replace(/[()[\]⟨⟩<>]/g, "")
+    .replace(/,/g, "");
   if (/^-?\d+(\.\d+)?$/.test(t)) return Number(t);
   const frac = t.match(/^(-?\d+)\s*\/\s*(-?\d+)$/);
   if (frac) {
@@ -42,11 +62,18 @@ function partsEqual(a: string, b: string): boolean {
   return normalize(a) === normalize(b) || numericClose(a, b, 0.03);
 }
 
+function splitTupleParts(raw: string): string[] {
+  return stripOuterWrapper(raw)
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
 function gradeTuple(item: ProblemItem, given: string): boolean {
   const candidates = [item.answer, ...(item.accept ?? [])];
-  const gp = given.split(",").map((x) => x.trim()).filter(Boolean);
+  const gp = splitTupleParts(given);
   for (const c of candidates) {
-    const cp = c.split(",").map((x) => x.trim()).filter(Boolean);
+    const cp = splitTupleParts(c);
     if (gp.length !== cp.length) continue;
     if (item.tupleUnordered) {
       const remaining = [...cp];

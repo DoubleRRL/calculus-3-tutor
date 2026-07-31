@@ -99,6 +99,45 @@ ${ctx.item.hints.fullSolution}
 RUBRIC: ${ctx.item.rubric}`;
 }
 
+function answerFormatNote(item: ProblemItem): string {
+  const type = item.answerType;
+  const lines = [`ANSWER FORMAT: type=${type}`];
+  if (type === "tuple") {
+    const parts = item.answer
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const arity = parts.length;
+    const labels =
+      item.tupleLabels?.length === arity
+        ? item.tupleLabels.join(", ")
+        : Array.from({ length: arity }, (_, i) => String(i + 1)).join(", ");
+    lines.push(`arity=${arity}`);
+    lines.push(`labels=${labels}`);
+    if (item.tupleSkeleton) lines.push(`skeleton=${item.tupleSkeleton}`);
+    lines.push(
+      item.tupleUnordered
+        ? "How graded: comma-separated components; order does not matter."
+        : "How graded: comma-separated components in label order (app shows one field per component).",
+    );
+  } else if (type === "choice" || type === "clickFill") {
+    lines.push(
+      "How graded: student picks from the shown choices (do not invent other answer shapes).",
+    );
+  } else if (type === "numeric" || type === "exact") {
+    lines.push(
+      "How graded: a single numeric/exact expression matching the app fields.",
+    );
+  } else if (type === "interactive") {
+    lines.push(
+      "How graded: via the on-screen interaction state, not free-form prose.",
+    );
+  } else {
+    lines.push("How graded: free-text matched against the canonical answer.");
+  }
+  return lines.join("\n");
+}
+
 function buildUserPayload(ctx: CoachContext, question: string): string {
   if (ctx.lessonIntro) {
     return `/no_think
@@ -119,6 +158,8 @@ ${question}`;
 PROBLEM:
 ${ctx.item.prompt}
 ${interactionNote}
+${answerFormatNote(ctx.item)}
+
 STUDENT ATTEMPT / SCRATCH:
 ${ctx.attempt || "(empty)"}
 
