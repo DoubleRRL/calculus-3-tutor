@@ -38,6 +38,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   sessionSize: SESSION_SIZE as 5 | 12 | 20,
   theme: "system",
   dailyGoalXp: DAILY_GOAL_XP_DEFAULT,
+  coachFollowStream: true,
 };
 
 function isObject(v: unknown): v is Record<string, unknown> {
@@ -180,12 +181,24 @@ export function parsePersisted(raw: unknown): PersistedState | null {
         : DAILY_GOAL_XP_DEFAULT;
 
   const learnerProfile = parseLearnerProfile(raw.settings.learnerProfile);
+  // Soft-migrate conversational factory pair → faster Socratic defaults.
+  let coachModel = String(
+    raw.settings.coachModel ?? DEFAULT_SETTINGS.coachModel,
+  );
+  let qualityModel = String(
+    raw.settings.qualityModel ?? DEFAULT_SETTINGS.qualityModel,
+  );
+  if (
+    (coachModel === "phi4" || coachModel === "phi4:latest") &&
+    (qualityModel === "qwen2.5:latest" || qualityModel === "qwen2.5")
+  ) {
+    coachModel = DEFAULT_SETTINGS.coachModel;
+    qualityModel = DEFAULT_SETTINGS.qualityModel;
+  }
   const settings: AppSettings = {
     ...DEFAULT_SETTINGS,
-    coachModel: String(raw.settings.coachModel ?? DEFAULT_SETTINGS.coachModel),
-    qualityModel: String(
-      raw.settings.qualityModel ?? DEFAULT_SETTINGS.qualityModel,
-    ),
+    coachModel,
+    qualityModel,
     qualityMode: Boolean(
       raw.settings.qualityMode ?? DEFAULT_SETTINGS.qualityMode,
     ),
@@ -205,6 +218,10 @@ export function parsePersisted(raw: unknown): PersistedState | null {
     sessionSize,
     theme: parseTheme(raw.settings.theme),
     dailyGoalXp,
+    coachFollowStream:
+      raw.settings.coachFollowStream === undefined
+        ? DEFAULT_SETTINGS.coachFollowStream
+        : Boolean(raw.settings.coachFollowStream),
   };
 
   const skills = { ...base.skills };

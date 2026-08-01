@@ -1,11 +1,22 @@
 import { useMemo } from "react";
 import katex from "katex";
 
+/** Normalize LLM math delimiters to $ / $$ for the splitter below. */
+export function normalizeMathDelimiters(text: string): string {
+  let s = text;
+  s = s.replace(
+    /```(?:math|latex)\s*([\s\S]*?)```/gi,
+    (_m, body: string) => `$$${body.trim()}$$`,
+  );
+  s = s.replace(/\\\[([\s\S]*?)\\\]/g, (_m, body: string) => `$$${body.trim()}$$`);
+  s = s.replace(/\\\(([\s\S]*?)\\\)/g, (_m, body: string) => `$${body.trim()}$`);
+  return s;
+}
+
 function renderMixed(text: string): string {
-  // Split on $...$ and $$...$$
   const parts: string[] = [];
   let i = 0;
-  const s = text;
+  const s = normalizeMathDelimiters(text);
   while (i < s.length) {
     if (s[i] === "$") {
       const display = s[i + 1] === "$";

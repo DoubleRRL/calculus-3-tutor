@@ -1,7 +1,8 @@
 import type { AppSettings, CoachMessage, ProblemItem } from "@/types/content";
 import { describeInteractionState } from "@/lib/interactions";
 
-const DEFAULT_TIMEOUT_MS = 45_000;
+const DEFAULT_TIMEOUT_MS = 120_000;
+const HISTORY_CAP = 6;
 
 export async function ollamaReachable(baseUrl: string): Promise<boolean> {
   try {
@@ -58,51 +59,51 @@ function explainStyleNote(settings: AppSettings): string {
 function buildSystemPrompt(ctx: CoachContext, settings: AppSettings): string {
   const styleLine = explainStyleNote(settings);
   if (ctx.lessonIntro) {
-    return `You are CalcTutor's Socratic coach for Calculus 3, helping with a lesson INTRO (ELI5).
+    return `You are CalcTutor's Socratic coach for a Calculus 3 lesson INTRO (ELI5).
 
 Rules:
-- Explain the intro in plain language; rephrase denser bits when asked.
-- 1-4 short sentences. Prefer analogies and questions.
+- Next useful nudge only (1-4 short sentences). Prefer a question or one clear rephrase.
 - Help with the interactive demo goal if present.
-- Do NOT give practice-problem answers or spoil upcoming drills.
-- Use LaTeX ($...$) when helpful. Answer directly; no long chain-of-thought.
+- Do NOT spoil practice-problem answers.
+- Math: use ONLY $...$ or $$...$$ — never \\(...\\) or \\[...\\]. Keep formulas simple (avoid complex environments).
+- No long chain-of-thought.
 ${styleLine ? `- ${styleLine}` : ""}
 
-Skill: ${ctx.skillTitle}
-Objective: ${ctx.skillObjective}
+Skill: ${ctx.skillTitle} — ${ctx.skillObjective}
 
-LESSON INTRO (what the student is reading):
+INTRO:
 ${ctx.lessonIntro}`;
   }
 
-  return `You are CalcTutor's Socratic coach for Calculus 3.
-You help the student progress WITHOUT spoiling the full solution unless they explicitly ask to reveal.
+  const h = ctx.item.hints;
+  return `You are CalcTutor's Socratic coach for Calculus 3. Help them think — do not do the problem for them.
 
 Rules:
-- Give the NEXT useful nudge only (1-4 short sentences).
-- Prefer questions and strategy over final answers.
-- Never invent alternate "correct" answers that contradict the canonical solution.
-- If they ask for the full answer, refuse once and offer the next hint step instead.
-- Use plain language + LaTeX ($...$) when helpful.
-- You may reference misconception tags when relevant.
-- Do not use long chain-of-thought; answer directly.
+- Give the NEXT useful nudge only (1-4 short sentences). Prefer one strategy step or one question.
+- Do not re-ask something they already answered.
+- If stuck (idk / where to start): share AT MOST one fact from Nudge or Technique below, then ask them to try the next tiny step. Do NOT dump the full solution, full determinant expansion, or a worked walkthrough.
+- Escalate toward the answer only if they insist twice or are clearly one step away.
+- Never invent numbers or answers not in the problem, attempt, or ALLOWED FACTS. Angles: acos/cos⁻¹ in degrees (not cosh).
+- Math: use ONLY $...$ or $$...$$ — never \\(...\\) or \\[...\\]. Prefer simple inline formulas over matrices/environments.
+- No long chain-of-thought.
 ${styleLine ? `- ${styleLine}` : ""}
 
-Skill: ${ctx.skillTitle}
-Objective: ${ctx.skillObjective}
-Hint level already used (0-4): ${ctx.hintLevel}
-Misconception tags: ${ctx.item.misconceptionTags.join(", ") || "none"}
+Skill: ${ctx.skillTitle} — ${ctx.skillObjective}
+Hint level: ${ctx.hintLevel}/4 · Tags: ${ctx.item.misconceptionTags.join(", ") || "none"}
 
-CANONICAL SOLUTION (secret — guide toward this, do not dump it):
-${ctx.item.hints.fullSolution}
+ALLOWED FACTS (guide with these; do not paste the whole ladder):
+- Nudge: ${h.nudge}
+- Technique: ${h.technique}
+- Next: ${h.nextStep}
+
+CANONICAL (secret — guide toward; do not dump):
+${h.fullSolution}
 
 RUBRIC: ${ctx.item.rubric}`;
 }
 
 function answerFormatNote(item: ProblemItem): string {
-  const type = item.answerType;
-  const lines = [`ANSWER FORMAT: type=${type}`];
-  if (type === "tuple") {
+  if (item.answerType === "tuple") {
     const parts = item.answer
       .split(",")
       .map((s) => s.trim())
@@ -112,30 +113,10 @@ function answerFormatNote(item: ProblemItem): string {
       item.tupleLabels?.length === arity
         ? item.tupleLabels.join(", ")
         : Array.from({ length: arity }, (_, i) => String(i + 1)).join(", ");
-    lines.push(`arity=${arity}`);
-    lines.push(`labels=${labels}`);
-    if (item.tupleSkeleton) lines.push(`skeleton=${item.tupleSkeleton}`);
-    lines.push(
-      item.tupleUnordered
-        ? "How graded: comma-separated components; order does not matter."
-        : "How graded: comma-separated components in label order (app shows one field per component).",
-    );
-  } else if (type === "choice" || type === "clickFill") {
-    lines.push(
-      "How graded: student picks from the shown choices (do not invent other answer shapes).",
-    );
-  } else if (type === "numeric" || type === "exact") {
-    lines.push(
-      "How graded: a single numeric/exact expression matching the app fields.",
-    );
-  } else if (type === "interactive") {
-    lines.push(
-      "How graded: via the on-screen interaction state, not free-form prose.",
-    );
-  } else {
-    lines.push("How graded: free-text matched against the canonical answer.");
+    const sk = item.tupleSkeleton ? ` skeleton=${item.tupleSkeleton}` : "";
+    return `ANSWER FORMAT: tuple arity=${arity} labels=${labels}${sk}`;
   }
-  return lines.join("\n");
+  return `ANSWER FORMAT: ${item.answerType}`;
 }
 
 function buildUserPayload(ctx: CoachContext, question: string): string {
@@ -179,7 +160,7 @@ function chatBody(
     keep_alive: "30m",
     think: false,
     options: {
-      temperature: 0.3,
+      temperature: 0.35,
       num_predict: 256,
     },
   };
@@ -256,14 +237,19 @@ export async function askCoach(
   },
 ): Promise<string> {
   const model = activeCoachModel(settings);
+  const recent = history.slice(-HISTORY_CAP);
   const messages = [
     { role: "system", content: buildSystemPrompt(ctx, settings) },
-    ...history.map((m) => ({ role: m.role, content: m.content })),
+    ...recent.map((m) => ({ role: m.role, content: m.content })),
     { role: "user", content: buildUserPayload(ctx, question) },
   ];
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  let timedOut = false;
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, DEFAULT_TIMEOUT_MS);
   const onOuterAbort = () => controller.abort();
   opts?.signal?.addEventListener("abort", onOuterAbort);
 
@@ -290,7 +276,12 @@ export async function askCoach(
     return data.message?.content?.trim() || "(No response from model.)";
   } catch (e) {
     if (e instanceof DOMException && e.name === "AbortError") {
-      throw new Error("Coach timed out or was cancelled.");
+      if (timedOut) {
+        throw new Error(
+          "Model still loading or too slow — wait a few seconds and try again.",
+        );
+      }
+      throw new Error("Coach request was cancelled.");
     }
     throw e;
   } finally {

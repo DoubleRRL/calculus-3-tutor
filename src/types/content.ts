@@ -140,6 +140,8 @@ export interface AppSettings {
   sessionSize: 5 | 12 | 20;
   theme: ThemeMode;
   dailyGoalXp: number;
+  /** Keep chat scrolled to the growing coach reply while streaming. */
+  coachFollowStream: boolean;
 }
 
 export type SessionMode = "today" | "skill" | "review" | "exam" | "placement";

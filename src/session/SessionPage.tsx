@@ -16,6 +16,7 @@ import { InteractionHost } from "@/components/interactions/InteractionHost";
 import { HintLadderPanel } from "@/components/HintLadder";
 import { LESSON_COACH_CHIPS } from "@/components/CoachPanel";
 import { FloatingCoach } from "@/components/FloatingCoach";
+import { FloatingScratchCalc } from "@/components/FloatingScratchCalc";
 import { Button, Sheet } from "@/ui";
 import { gradeAnswer } from "@/lib/grading";
 import { askCoach, warmCoach } from "@/lib/ollama";
@@ -81,6 +82,7 @@ export function SessionPage() {
   const [coachOpen, setCoachOpen] = useState(false);
   const [coachSheet, setCoachSheet] = useState(false);
   const [coachPulse, setCoachPulse] = useState(false);
+  const [calcOpen, setCalcOpen] = useState(false);
   const [quitOpen, setQuitOpen] = useState(false);
   const [gen, setGen] = useState(0);
   const [teachXpAwarded, setTeachXpAwarded] = useState(false);
@@ -409,6 +411,24 @@ export function SessionPage() {
       { role: "user", content: q },
       { role: "assistant", content: "" },
     ]);
+    let pending = "";
+    let flushTimer: ReturnType<typeof setTimeout> | null = null;
+    const flushTokens = () => {
+      if (!pending) return;
+      const chunk = pending;
+      pending = "";
+      setCoachMsgs((m) => {
+        const copy = [...m];
+        const last = copy[copy.length - 1];
+        if (last?.role === "assistant") {
+          copy[copy.length - 1] = {
+            role: "assistant",
+            content: last.content + chunk,
+          };
+        }
+        return copy;
+      });
+    };
     try {
       const lessonIntro =
         step && isTeach(step)
@@ -457,20 +477,21 @@ export function SessionPage() {
         {
           signal: ac.signal,
           onToken: (chunk) => {
-            setCoachMsgs((m) => {
-              const copy = [...m];
-              const last = copy[copy.length - 1];
-              if (last?.role === "assistant") {
-                copy[copy.length - 1] = {
-                  role: "assistant",
-                  content: last.content + chunk,
-                };
-              }
-              return copy;
-            });
+            pending += chunk;
+            if (flushTimer == null) {
+              flushTimer = setTimeout(() => {
+                flushTimer = null;
+                flushTokens();
+              }, 50);
+            }
           },
         },
       );
+      if (flushTimer != null) {
+        clearTimeout(flushTimer);
+        flushTimer = null;
+      }
+      flushTokens();
       setCoachMsgs((m) => {
         const copy = [...m];
         const last = copy[copy.length - 1];
@@ -480,6 +501,7 @@ export function SessionPage() {
         return copy;
       });
     } catch (e) {
+      if (flushTimer != null) clearTimeout(flushTimer);
       setCoachMsgs((m) => {
         const copy = [...m];
         const msg = `Coach unavailable: ${e instanceof Error ? e.message : String(e)}`;
@@ -658,6 +680,21 @@ export function SessionPage() {
                     : "Scoped to this problem · Socratic · local model"
                 }
                 variant={coachSheet ? "sheet" : "float"}
+              />
+            )}
+            {problem && !isTeach(step) && (
+              <FloatingScratchCalc
+                open={calcOpen}
+                onOpenChange={setCalcOpen}
+                onUseResult={(v) => {
+                  setAnswer(v);
+                  setCalcOpen(false);
+                }}
+                tabBottomOffsetPx={coachOn ? 48 : 0}
+                panelRightOffsetPx={
+                  coachOn && coachOpen && !coachSheet ? 340 : 12
+                }
+                hideDockTab={coachOpen && !coachSheet}
               />
             )}
           </>

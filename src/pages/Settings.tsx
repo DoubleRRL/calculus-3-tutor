@@ -23,7 +23,7 @@ export function SettingsPage() {
       <div>
         <h1 className="text-[24px] font-medium text-[var(--ink-1)]">Settings</h1>
         <p className="text-[13px] text-[var(--ink-3)] mt-1">
-          Local Ollama · qwen3:8b daily · phi4 quality
+          Local Ollama · qwen3:8b coach · phi4 quality
         </p>
       </div>
 
@@ -74,6 +74,16 @@ export function SettingsPage() {
             onChange={(e) => updateSettings({ qualityMode: e.target.checked })}
           />
           Quality mode
+        </label>
+        <label className="flex items-center gap-2 text-[14px] mb-3">
+          <input
+            type="checkbox"
+            checked={state.settings.coachFollowStream}
+            onChange={(e) =>
+              updateSettings({ coachFollowStream: e.target.checked })
+            }
+          />
+          Follow coach replies as they stream
         </label>
         <label className="block mb-2">
           <span className="text-[12px] text-[var(--ink-3)]">Coach model</span>
