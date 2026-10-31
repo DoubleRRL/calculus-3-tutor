@@ -4,6 +4,7 @@ import { ALL_ITEMS, itemsForSkill, itemsOfKind } from "@/content";
 import type { PersistedState } from "./store";
 import { isDue } from "./fsrs";
 import {
+  CHECKPOINT_SIZE,
   DIAGNOSTIC_SESSION_SIZE,
   EXAM_SIZE,
   SESSION_MIX,
@@ -171,6 +172,82 @@ export function buildExamQueue(count = EXAM_SIZE): QueueItem[] {
     item,
     reason: "exam" as const,
   }));
+}
+
+function shuffle<T>(arr: T[]): T[] {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+/**
+ * Cumulative recall check ("checkpoint"): interleaves items ONLY from
+ * skills the learner has engaged with. Prioritizes FSRS-due skills
+ * (retrieval at the edge of forgetting), then stalest-seen, and always
+ * keeps the current focus skill in rotation. Coach/hints are off
+ * upstream; scored like an exam but recorded separately.
+ */
+export function buildCheckpointQueue(
+  state: PersistedState,
+  target = CHECKPOINT_SIZE,
+): QueueItem[] {
+  const queue: QueueItem[] = [];
+  const used = new Set<string>();
+  const now = Date.now();
+
+  const eligible = SKILLS.filter((s) => {
+    if (s.unitId === "diagnostic") return false;
+    const sp = state.skills[s.id];
+    return Boolean(sp?.unlocked && sp.seen > 0);
+  });
+  if (eligible.length === 0) return queue;
+
+  const due = eligible.filter((s) => {
+    const r = state.reviews[s.id];
+    return r && r.reps > 0 && isDue(r, now);
+  });
+  const rest = eligible
+    .filter((s) => !due.includes(s))
+    .sort(
+      (a, b) =>
+        (state.skills[a.id]?.lastSeenAt ?? 0) -
+        (state.skills[b.id]?.lastSeenAt ?? 0),
+    );
+  const ordered = [...shuffle(due), ...rest];
+  const focus = SKILLS.find((s) => s.id === state.resumeSkillId);
+  if (focus && !ordered.includes(focus)) ordered.push(focus);
+
+  // Prefer exam-bank items so checkpoints feel like exam questions.
+  function pickForSkill(skillId: string): boolean {
+    const pools: ProblemItem["kind"][] = ["exam", "mix", "mastery", "drill"];
+    for (const kind of pools) {
+      const unused = itemsOfKind(skillId, kind).filter((i) => !used.has(i.id));
+      if (unused.length) {
+        const item = pickRandom(unused)!;
+        used.add(item.id);
+        queue.push({ item, reason: "exam" });
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Round-robin across skills so units interleave; cap 2 per skill.
+  const perSkill = new Map<string, number>();
+  let progress = true;
+  while (queue.length < target && progress) {
+    progress = false;
+    for (const s of ordered) {
+      if (queue.length >= target) break;
+      if ((perSkill.get(s.id) ?? 0) >= 2) continue;
+      if (pickForSkill(s.id)) {
+        perSkill.set(s.id, (perSkill.get(s.id) ?? 0) + 1);
+        progress = true;
+      } else {
+        perSkill.set(s.id, 2); // bank exhausted for this skill
+      }
+    }
+  }
+
+  return queue;
 }
 
 /**

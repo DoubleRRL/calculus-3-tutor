@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/state/AppContext";
 import { listModels, ollamaReachable } from "@/lib/ollama";
+import { parsePersisted } from "@/lib/store";
 import { Button, Card } from "@/ui";
 import { SESSION_SIZES } from "@/lib/pedagogy";
 import type { ThemeMode } from "@/types/content";
 
 export function SettingsPage() {
-  const { state, updateSettings, reset } = useApp();
+  const { state, updateSettings, reset, replaceState } = useApp();
   const [reachable, setReachable] = useState<boolean | null>(null);
   const [models, setModels] = useState<string[]>([]);
+  const [dataMsg, setDataMsg] = useState<string | null>(null);
+  const importRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     void (async () => {
@@ -70,14 +73,6 @@ export function SettingsPage() {
         <label className="flex items-center gap-2 text-[14px] mb-3">
           <input
             type="checkbox"
-            checked={state.settings.qualityMode}
-            onChange={(e) => updateSettings({ qualityMode: e.target.checked })}
-          />
-          Quality mode
-        </label>
-        <label className="flex items-center gap-2 text-[14px] mb-3">
-          <input
-            type="checkbox"
             checked={state.settings.coachFollowStream}
             onChange={(e) =>
               updateSettings({ coachFollowStream: e.target.checked })
@@ -86,35 +81,123 @@ export function SettingsPage() {
           Follow coach replies as they stream
         </label>
         <label className="block mb-2">
-          <span className="text-[12px] text-[var(--ink-3)]">Coach model</span>
+          <span className="text-[12px] text-[var(--ink-3)]">Tutor model</span>
           <ModelSelect
-            value={state.settings.coachModel}
+            value={state.settings.tutorModel}
             models={models}
-            onChange={(v) => updateSettings({ coachModel: v })}
+            onChange={(v) => updateSettings({ tutorModel: v })}
           />
+          <span className="mt-1 block text-[11px] text-[var(--ink-3)]">
+            Used for everything. Chat nudges stream; the end-of-session review
+            runs long-form on the same model.
+          </span>
         </label>
-        <label className="block">
-          <span className="text-[12px] text-[var(--ink-3)]">Quality model</span>
-          <ModelSelect
-            value={state.settings.qualityModel}
-            models={models}
-            onChange={(v) => updateSettings({ qualityModel: v })}
-          />
-        </label>
+        <details className="mb-2">
+          <summary className="cursor-pointer text-[12px] text-[var(--ink-3)]">
+            Advanced
+          </summary>
+          <label className="mt-2 block">
+            <span className="text-[12px] text-[var(--ink-3)]">
+              Review model (optional)
+            </span>
+            <select
+              value={state.settings.analysisModel}
+              onChange={(e) =>
+                updateSettings({ analysisModel: e.target.value })
+              }
+              className="mt-1 w-full bg-[var(--bg)] border border-[var(--line)] rounded-[var(--r-input)] px-3 py-2 text-[14px] outline-none focus:border-[var(--ink-1)]"
+            >
+              <option value="">Same as tutor model</option>
+              {models.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+            <span className="mt-1 block text-[11px] text-[var(--ink-3)]">
+              Only needed if a different model reads long transcripts better.
+            </span>
+          </label>
+        </details>
       </Section>
 
       <Section title="Data">
-        <Button
-          variant="danger"
-          className="w-full"
-          onClick={() => {
-            if (window.confirm("Reset all progress? This cannot be undone.")) {
-              reset();
-            }
-          }}
-        >
-          Reset progress
-        </Button>
+        <p className="text-[12px] text-[var(--ink-3)] mb-3">
+          Progress is saved on this device. Export a backup before reinstalling.
+        </p>
+        <div className="flex flex-col gap-2">
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={() => {
+              const blob = new Blob([JSON.stringify(state, null, 2)], {
+                type: "application/json",
+              });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "calctutor-progress.json";
+              a.click();
+              URL.revokeObjectURL(url);
+              setDataMsg("Backup downloaded.");
+            }}
+          >
+            Export progress
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={() => importRef.current?.click()}
+          >
+            Import progress
+          </Button>
+          <input
+            ref={importRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (!file) return;
+              void file.text().then((text) => {
+                try {
+                  const parsed = parsePersisted(JSON.parse(text) as unknown);
+                  if (!parsed) {
+                    setDataMsg("That file isn’t a valid CalcTutor backup.");
+                    return;
+                  }
+                  if (
+                    !window.confirm(
+                      "Replace current progress with this backup?",
+                    )
+                  ) {
+                    return;
+                  }
+                  replaceState(parsed);
+                  setDataMsg("Progress restored from backup.");
+                } catch {
+                  setDataMsg("Couldn’t read that file.");
+                }
+              });
+            }}
+          />
+          {dataMsg && (
+            <p className="text-[12px] text-[var(--ink-2)]">{dataMsg}</p>
+          )}
+          <Button
+            variant="danger"
+            className="w-full"
+            onClick={() => {
+              if (window.confirm("Reset all progress? This cannot be undone.")) {
+                reset();
+                setDataMsg(null);
+              }
+            }}
+          >
+            Reset progress
+          </Button>
+        </div>
       </Section>
     </div>
   );

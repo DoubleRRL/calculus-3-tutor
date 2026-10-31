@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { evaluateExpression, type AngleMode } from "@/lib/calc/evaluate";
 import {
   parseVector,
@@ -13,6 +13,29 @@ import {
 type Mode = "expr" | "vectors";
 type HistItem = { label: string; display: string };
 
+const EXPR_CHIPS: { label: string; insert: string }[] = [
+  { label: "π", insert: "pi" },
+  { label: "e", insert: "e" },
+  { label: "√", insert: "sqrt(" },
+  { label: "sin", insert: "sin(" },
+  { label: "cos", insert: "cos(" },
+  { label: "tan", insert: "tan(" },
+  { label: "(", insert: "(" },
+  { label: ")", insert: ")" },
+  { label: "^", insert: "^" },
+];
+
+function insertAtCaret(
+  value: string,
+  insert: string,
+  el: HTMLInputElement | null,
+): { next: string; caret: number } {
+  const start = el?.selectionStart ?? value.length;
+  const end = el?.selectionEnd ?? value.length;
+  const next = value.slice(0, start) + insert + value.slice(end);
+  return { next, caret: start + insert.length };
+}
+
 export function ScratchCalc({
   onUseResult,
 }: {
@@ -20,13 +43,15 @@ export function ScratchCalc({
   onUseResult: (value: string) => void;
 }) {
   const [mode, setMode] = useState<Mode>("expr");
-  const [angleMode, setAngleMode] = useState<AngleMode>("deg");
+  const [angleMode, setAngleMode] = useState<AngleMode>("rad");
   const [expr, setExpr] = useState("");
   const [va, setVa] = useState("1,0,0");
   const [vb, setVb] = useState("1,1,0");
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [piDegWarn, setPiDegWarn] = useState(false);
   const [history, setHistory] = useState<HistItem[]>([]);
+  const exprRef = useRef<HTMLInputElement>(null);
 
   function pushResult(label: string, display: string) {
     setResult(display);
@@ -39,9 +64,22 @@ export function ScratchCalc({
     if (!r.ok) {
       setError(r.error);
       setResult(null);
+      setPiDegWarn(false);
       return;
     }
+    setPiDegWarn(angleMode === "deg" && /\bpi\b/i.test(expr));
     pushResult(expr.trim(), r.display);
+  }
+
+  function onChip(insert: string) {
+    const { next, caret } = insertAtCaret(expr, insert, exprRef.current);
+    setExpr(next);
+    requestAnimationFrame(() => {
+      const el = exprRef.current;
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(caret, caret);
+    });
   }
 
   function needVecs(): { a: Vec; b: Vec } | null {
@@ -155,7 +193,7 @@ export function ScratchCalc({
               type="button"
               className={`${chip} ${angleMode === "deg" ? chipOn : chipOff}`}
               onClick={() => setAngleMode("deg")}
-              title="Trig in degrees (default)"
+              title="Trig in degrees — only if the problem uses °"
             >
               Deg
             </button>
@@ -163,7 +201,7 @@ export function ScratchCalc({
               type="button"
               className={`${chip} ${angleMode === "rad" ? chipOn : chipOff}`}
               onClick={() => setAngleMode("rad")}
-              title="Trig in radians"
+              title="Trig in radians — default for Calc 3"
             >
               Rad
             </button>
@@ -179,14 +217,27 @@ export function ScratchCalc({
             runExpr();
           }}
         >
-          <p className="text-[11px] text-[var(--ink-3)]">
-            Trig uses {angleMode === "deg" ? "degrees" : "radians"}. Try{" "}
-            <code className="text-[var(--ink-2)]">acos(1/sqrt(2))</code>
+          <p className="text-[11px] text-[var(--ink-3)] leading-snug">
+            Radians for Calc 3 trig &amp; coordinates. Degrees only if the
+            problem says °.
           </p>
+          <div className="flex flex-wrap gap-1">
+            {EXPR_CHIPS.map((c) => (
+              <button
+                key={c.label}
+                type="button"
+                className={`${chip} ${chipOff}`}
+                onClick={() => onChip(c.insert)}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
           <input
+            ref={exprRef}
             value={expr}
             onChange={(e) => setExpr(e.target.value)}
-            placeholder="e.g. acos(1/sqrt(2))"
+            placeholder="e.g. 3*sqrt(pi) or cos(3*pi/2)"
             className="w-full bg-[var(--bg-sub)] border border-[var(--line)] rounded-[var(--r-input)] px-3 py-2 text-[13px] tabular-nums outline-none focus:border-[var(--ink-1)]"
             autoComplete="off"
             spellCheck={false}
@@ -253,17 +304,24 @@ export function ScratchCalc({
         {error ? (
           <p className="text-[12px] text-[var(--error)]">{error}</p>
         ) : result != null ? (
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[16px] font-medium tabular-nums text-[var(--ink-1)] truncate">
-              {result}
-            </p>
-            <button
-              type="button"
-              onClick={() => onUseResult(result)}
-              className="shrink-0 text-[11px] font-medium text-[var(--ink-1)] underline underline-offset-2"
-            >
-              Use in answer
-            </button>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[16px] font-medium tabular-nums text-[var(--ink-1)] truncate">
+                {result}
+              </p>
+              <button
+                type="button"
+                onClick={() => onUseResult(result)}
+                className="shrink-0 text-[11px] font-medium text-[var(--ink-1)] underline underline-offset-2"
+              >
+                Use in answer
+              </button>
+            </div>
+            {piDegWarn && (
+              <p className="text-[11px] text-[var(--ink-3)] leading-snug">
+                π with Deg treats π as ~3.14° — switch to Rad for Calc 3.
+              </p>
+            )}
           </div>
         ) : (
           <p className="text-[12px] text-[var(--ink-3)]">Result appears here</p>
@@ -280,6 +338,7 @@ export function ScratchCalc({
                 onClick={() => {
                   setResult(h.display);
                   setError(null);
+                  setPiDegWarn(false);
                 }}
               >
                 <span className="opacity-70">{h.label}</span>

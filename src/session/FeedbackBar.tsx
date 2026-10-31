@@ -1,11 +1,32 @@
 import { MathText } from "@/components/MathText";
 import { Button } from "@/ui";
-import {
-  motion,
-  springs,
-  springOrInstant,
-  useReducedMotion,
-} from "@/lib/motion";
+import { motion, tweens, useReducedMotion } from "@/lib/motion";
+
+/** Drawn checkmark — purposeful success feedback, ~250ms. */
+function SuccessCheck() {
+  const reduced = useReducedMotion();
+  return (
+    <svg
+      viewBox="0 0 18 18"
+      className="w-[18px] h-[18px] shrink-0"
+      aria-hidden
+    >
+      <motion.path
+        d="M3 9.5 L7.5 14 L15 4.5"
+        fill="none"
+        stroke="var(--success)"
+        strokeWidth={2.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        pathLength={1}
+        strokeDasharray={1}
+        initial={reduced ? false : { strokeDashoffset: 1 }}
+        animate={{ strokeDashoffset: 0 }}
+        transition={{ duration: 0.25, delay: 0.05, ease: "easeOut" }}
+      />
+    </svg>
+  );
+}
 
 export function FeedbackBar({
   correct,
@@ -29,25 +50,29 @@ export function FeedbackBar({
           ? "bg-[var(--success-weak)] border-[var(--success)]/20"
           : "bg-[var(--error-weak)] border-[var(--error)]/20"
       }`}
-      initial={reduced ? false : { y: 24, opacity: 0 }}
+      initial={reduced ? false : { y: 14, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={springOrInstant(reduced, springs.ui)}
+      transition={reduced ? { duration: 0 } : tweens.fast}
     >
       <div className="max-w-xl mx-auto">
-        <div className="flex items-baseline justify-between gap-3 mb-2">
+        <div
+          aria-live="polite"
+          className="flex items-center justify-between gap-3 mb-2"
+        >
           <p
-            className={`text-[14px] font-medium ${
+            className={`flex items-center gap-1.5 text-[14px] font-medium ${
               correct ? "text-[var(--success)]" : "text-[var(--error)]"
             }`}
           >
+            {correct && <SuccessCheck />}
             {correct ? "Correct" : "Not quite"}
           </p>
           {correct && xpEarned > 0 && (
             <motion.span
-              className="text-[13px] font-medium text-[var(--success)]"
+              className="text-[13px] font-medium text-[var(--success)] tabular-nums"
               initial={reduced ? false : { scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={springOrInstant(reduced, springs.snappy)}
+              transition={{ duration: 0.18, ease: "easeOut" }}
             >
               +{xpEarned} XP
             </motion.span>

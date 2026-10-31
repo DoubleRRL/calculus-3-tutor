@@ -264,7 +264,7 @@
     "hints": {
       "nudge": "Scale then add component-wise.",
       "technique": "$\\langle 2,-2,0\\rangle+\\langle 0,3,1\\rangle$",
-      "nextStep": "$\\langle 2,1,1\\rangle$",
+      "nextStep": "Add the three components.",
       "fullSolution": "$\\langle 2,1,1\\rangle$"
     },
     "misconceptionTags": [
@@ -293,7 +293,7 @@
     "hints": {
       "nudge": "Magnitude is 3.",
       "technique": "Divide each component by 3.",
-      "nextStep": "$\\langle 2/3, -1/3, 2/3\\rangle$",
+      "nextStep": "Scale $\\langle 2,-1,2\\rangle$ by that magnitude, component by component.",
       "fullSolution": "$\\langle 2/3,-1/3,2/3\\rangle$"
     },
     "misconceptionTags": [
@@ -341,8 +341,8 @@
     ],
     "hints": {
       "nudge": "Dot product zero means angle is $\\pi/2$.",
-      "technique": "That is the definition of orthogonality.",
-      "nextStep": "orthogonal",
+      "technique": "$\\cos\\theta=(\\mathbf{a}\\cdot\\mathbf{b})/(\\|\\mathbf{a}\\|\\|\\mathbf{b}\\|)$.",
+      "nextStep": "$\\cos\\theta=0$ puts the angle at $\\pi/2$.",
       "fullSolution": "orthogonal"
     },
     "misconceptionTags": [
@@ -425,8 +425,8 @@
     ],
     "hints": {
       "nudge": "Use the determinant formula for cross product.",
-      "technique": "Result should be $\\mathbf{k}$.",
-      "nextStep": "$\\langle 0,0,1\\rangle$",
+      "technique": "The $\\mathbf{k}$ slot takes the $2\\times2$ minor of the first two columns.",
+      "nextStep": "Expand the determinant, one component at a time.",
       "fullSolution": "$\\langle 0,0,1\\rangle$"
     },
     "misconceptionTags": [
@@ -455,7 +455,7 @@
     "hints": {
       "nudge": "This is a standard geometric meaning of cross product.",
       "technique": "Magnitude = area.",
-      "nextStep": "true",
+      "nextStep": "$\\|\\mathbf{a}\\|\\|\\mathbf{b}\\|\\sin\\theta$ is base times height.",
       "fullSolution": "true"
     },
     "misconceptionTags": [
@@ -477,8 +477,8 @@
     ],
     "hints": {
       "nudge": "$\\mathbf{i}(2\\cdot0-3\\cdot0)-\\mathbf{j}(1\\cdot0-3\\cdot1)+\\mathbf{k}(1\\cdot0-2\\cdot1)$",
-      "technique": "Simplify carefully.",
-      "nextStep": "$\\langle 0,3,-2\\rangle$",
+      "technique": "Each slot takes the $2\\times2$ minor from the other two columns.",
+      "nextStep": "The $\\mathbf{i}$ slot vanishes; simplify the $\\mathbf{j}$ and $\\mathbf{k}$ minors.",
       "fullSolution": "$\\langle 0, 3, -2\\rangle$"
     },
     "misconceptionTags": [
@@ -524,9 +524,9 @@
       "(0,0,2)"
     ],
     "hints": {
-      "nudge": "Determinant in $\\mathbf{k}$ component: $2\\cdot1-0\\cdot1=2$.",
-      "technique": "i and j components vanish.",
-      "nextStep": "$\\langle 0,0,2\\rangle$",
+      "nudge": "Expand the determinant; only one slot has a nonzero minor.",
+      "technique": "Each slot takes the minor from the other two columns.",
+      "nextStep": "Compute that one minor: $2\\cdot1-0\\cdot1$.",
       "fullSolution": "$\\langle 0,0,2\\rangle$"
     },
     "misconceptionTags": [
@@ -627,8 +627,8 @@
     ],
     "hints": {
       "nudge": "Plug into the plane equation.",
-      "technique": "$1+1+1=3$",
-      "nextStep": "yes",
+      "technique": "A point lies on the plane when the plane equation holds at it.",
+      "nextStep": "Sum the three coordinates and compare with the right side.",
       "fullSolution": "yes"
     },
     "misconceptionTags": [
@@ -670,8 +670,8 @@
     ],
     "hints": {
       "nudge": "Equal positive coefficients, RHS positive.",
-      "technique": "Unit sphere.",
-      "nextStep": "sphere",
+      "technique": "All three squared terms share one positive coefficient.",
+      "nextStep": "Three equal positive terms equal a positive constant — name the family.",
       "fullSolution": "sphere"
     },
     "misconceptionTags": [
@@ -694,8 +694,8 @@
     ],
     "hints": {
       "nudge": "Circular cross-sections, opens along z.",
-      "technique": "Elliptic/circular paraboloid.",
-      "nextStep": "paraboloid",
+      "technique": "Circular cross-sections; the family opens along an axis.",
+      "nextStep": "Only one squared term, opening along $z$ — name the family.",
       "fullSolution": "paraboloid"
     },
     "misconceptionTags": [
@@ -717,9 +717,9 @@
       "hyperboloid"
     ],
     "hints": {
-      "nudge": "RHS zero with mixed signs → cone.",
-      "technique": "Elliptic cone.",
-      "nextStep": "cone",
+      "nudge": "RHS zero with mixed signs — which quadric does that give?",
+      "technique": "Mixed signs leave an unclosed surface; RHS $0$ puts it through the origin.",
+      "nextStep": "RHS $0$ with mixed signs leaves two sheets meeting at one vertex point.",
       "fullSolution": "cone"
     },
     "misconceptionTags": [
@@ -742,8 +742,8 @@
     ],
     "hints": {
       "nudge": "All positive, sum = 1.",
-      "technique": "Ellipsoid.",
-      "nextStep": "ellipsoid",
+      "technique": "Each squared term divided by its own positive constant.",
+      "nextStep": "The three constants are positive and the right side is $1$ — name the family.",
       "fullSolution": "ellipsoid"
     },
     "misconceptionTags": [
@@ -861,9 +861,9 @@
     "rubric": "0",
     "hints": {
       "nudge": "Orthogonal standard basis.",
-      "technique": "0",
-      "nextStep": "0",
-      "fullSolution": "0"
+      "technique": "$\\mathbf{i},\\mathbf{j},\\mathbf{k}$ are mutually orthogonal.",
+      "nextStep": "Multiply matching components and add.",
+      "fullSolution": "$0\\cdot1+0\\cdot0+0\\cdot0=0$"
     }
   },
   {
@@ -885,8 +885,8 @@
     "rubric": "k",
     "hints": {
       "nudge": "Right-hand rule.",
-      "technique": "i×j=k",
-      "nextStep": "k",
+      "technique": "$\\mathbf{j}\\times\\mathbf{i}=-\\mathbf{i}\\times\\mathbf{j}$.",
+      "nextStep": "Curl the fingers of your right hand from $\\mathbf{i}$ to $\\mathbf{j}$.",
       "fullSolution": "k"
     }
   }

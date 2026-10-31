@@ -6,3 +6,4 @@ export { Ring } from "./Ring";
 export { Icon } from "./Icon";
 export { Sheet } from "./Sheet";
 export { Toast, useToast } from "./Toast";
+export { RollingNumber } from "./RollingNumber";

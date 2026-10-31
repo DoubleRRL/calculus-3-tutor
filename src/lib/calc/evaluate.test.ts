@@ -34,4 +34,22 @@ describe("evaluateExpression", () => {
       expect(Math.abs(r.value - Math.PI / 4)).toBeLessThan(1e-9);
     }
   });
+
+  it("explains unknown t instead of mathjs unit errors", async () => {
+    const r = await evaluateExpression("sin(t)^2", "rad");
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.error.toLowerCase()).toContain("isn't a number");
+      expect(r.error.toLowerCase()).not.toContain("cot");
+    }
+  });
+
+  it("explains bare sin without dumping types", async () => {
+    const r = await evaluateExpression("(-sin)^2", "rad");
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.error.toLowerCase()).not.toContain("unaryminus");
+      expect(r.error.toLowerCase()).not.toContain("expected:");
+    }
+  });
 });

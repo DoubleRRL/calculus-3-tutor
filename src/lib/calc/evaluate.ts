@@ -75,6 +75,28 @@ export async function evaluateExpression(
     return { ok: true, value: n, display: formatNumber(n) };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Invalid expression";
-    return { ok: false, error: msg.split("\n")[0] ?? msg };
+    return { ok: false, error: friendlyEvalError(raw, msg) };
   }
+}
+
+function friendlyEvalError(expr: string, msg: string): string {
+  const oneLine = (msg.split("\n")[0] ?? msg).trim();
+  if (
+    /unaryMinus/i.test(oneLine) ||
+    /unexpected type of argument/i.test(oneLine)
+  ) {
+    return "sin needs an argument, e.g. sin(1).";
+  }
+  if (
+    /unit in function/i.test(oneLine) ||
+    /undefined symbol/i.test(oneLine) ||
+    /is not defined/i.test(oneLine)
+  ) {
+    const v = /\bt\b/.test(expr) ? "t" : /\bx\b/.test(expr) ? "x" : "that letter";
+    return `${v} isn't a number. Try sin(1), or simplify on paper.`;
+  }
+  if (oneLine.length > 90 || /expected:/i.test(oneLine)) {
+    return "Couldn't evaluate that. Use numbers (try t=1) or simplify on paper.";
+  }
+  return oneLine || "Invalid expression";
 }

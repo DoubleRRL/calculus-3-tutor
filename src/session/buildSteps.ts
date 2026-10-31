@@ -4,13 +4,14 @@ import {
 } from "@/content/lessons";
 import type { PersistedState } from "@/lib/store";
 import {
+  buildCheckpointQueue,
   buildDiagnosticQueue,
   buildExamQueue,
   buildSkillQueue,
   buildTodayQueue,
   type QueueItem,
 } from "@/lib/scheduler";
-import { EXAM_SIZE } from "@/lib/pedagogy";
+import { CHECKPOINT_SIZE, EXAM_SIZE } from "@/lib/pedagogy";
 import type { SessionMode } from "@/types/content";
 import type { SessionStep, TeachStep } from "./types";
 
@@ -66,6 +67,9 @@ export function buildSessionSteps(
   if (mode === "exam") {
     return problemsFrom(buildExamQueue(EXAM_SIZE));
   }
+  if (mode === "checkpoint") {
+    return problemsFrom(buildCheckpointQueue(state, CHECKPOINT_SIZE));
+  }
   if (mode === "placement") {
     return problemsFrom(buildDiagnosticQueue());
   }
@@ -74,6 +78,8 @@ export function buildSessionSteps(
   const grokked = state.grokked.includes(skillId);
   const force = shouldForceTeach(skillId, state, opts?.forceTeach);
   const deck = !grokked || force ? teachDeck(skillId) : [];
-  const practice = problemsFrom(buildSkillQueue(skillId, state, 8));
+  const practice = problemsFrom(
+    buildSkillQueue(skillId, state, state.settings.sessionSize),
+  );
   return [...deck, ...practice];
 }

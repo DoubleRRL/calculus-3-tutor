@@ -5,7 +5,8 @@ import { useApp } from "@/state/AppContext";
 import { UNITS, SKILLS } from "@/content";
 import { lessonForSkill } from "@/content/lessons";
 import { Button, Card, Icon, Sheet } from "@/ui";
-import { nextMilestone, resumeSkill } from "@/lib/store";
+import { nextMilestone, resumeSkill, checkpointNudge } from "@/lib/store";
+import { UnitArt } from "@/content/art"; // ART: unit header chips (remove with src/content/art)
 import {
   motion,
   Stagger,
@@ -64,6 +65,7 @@ export function PathPage() {
   }
 
   const resume = resumeSkill(state);
+  const nudge = checkpointNudge(state);
   const activeId = resume?.id;
   const units = UNITS.filter((u) => u.id !== "diagnostic" && u.id !== "exam").sort(
     (a, b) => a.order - b.order,
@@ -156,6 +158,23 @@ export function PathPage() {
         </Card>
       )}
 
+      {nudge.show && (
+        <Card className="space-y-2">
+          <p className="text-[14px] font-medium text-[var(--ink-1)]">
+            Checkpoint ready
+          </p>
+          <p className="text-[13px] text-[var(--ink-2)] leading-snug">
+            {nudge.dueCount > 0
+              ? `${nudge.dueCount} topic${nudge.dueCount === 1 ? "" : "s"} due for recall`
+              : `${nudge.sessionsSince} sessions since your last check`}
+            {" · "}10 mixed items across {nudge.coveredSkills} covered topics.
+          </p>
+          <Button className="w-full" onClick={() => nav("/s/checkpoint")}>
+            Run checkpoint
+          </Button>
+        </Card>
+      )}
+
       {units.map((unit) => {
         const skills = SKILLS.filter((s) => s.unitId === unit.id).sort(
           (a, b) => a.order - b.order,
@@ -169,13 +188,17 @@ export function PathPage() {
             className="rounded-[var(--r-card)] border border-[var(--line)] bg-[var(--card)]/40 px-3 py-4 sm:px-4"
           >
             <div className="mb-3">
-              <div className="flex items-baseline justify-between gap-2">
+              <div className="flex items-center justify-between gap-2">
                 <h2 className="text-[14px] font-medium text-[var(--ink-1)]">
                   {unit.title}
                 </h2>
-                <span className="text-[12px] text-[var(--ink-3)] tabular-nums">
-                  {crowned}/{skills.length} lessons
-                </span>
+                <div className="flex items-center gap-2.5">
+                  {/* ART: unit header chip */}
+                  <UnitArt unitId={unit.id} className="w-14 h-10 shrink-0" />
+                  <span className="text-[12px] text-[var(--ink-3)] tabular-nums">
+                    {crowned}/{skills.length} lessons
+                  </span>
+                </div>
               </div>
               <p className="text-[12px] text-[var(--ink-3)] mt-0.5">{unit.blurb}</p>
               <div className="mt-2 h-1 rounded-full bg-[var(--line)] overflow-hidden">

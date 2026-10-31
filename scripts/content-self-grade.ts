@@ -6,11 +6,30 @@ import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gradeAnswer } from "../src/lib/grading.ts";
+import { hintCanonicalDrift, promptAskMismatch } from "../src/lib/coachAlign.ts";
 import { BANNED_HINT_PHRASES } from "../src/content/item.ts";
 import type { ProblemItem } from "../src/types/content.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dataDir = join(root, "src/content/data");
+
+/** Loose compare for rung collapse: ignore spacing, braces, delimiters, case. */
+function rungKey(s: string): string {
+  return String(s ?? "")
+    .toLowerCase()
+    .replace(/\$\$?/g, "")
+    .replace(/[{}()[\]\\]/g, "")
+    .replace(/\s+/g, "")
+    .replace(/\\,|\\;|\\!|\\quad|\\qquad/g, "");
+}
+
+/** Answer tokens that would give the graded value away if echoed. */
+function leakKey(s: string): string {
+  return String(s ?? "")
+    .toLowerCase()
+    .replace(/[\s${}]/g, "")
+    .replace(/\\langle|\\rangle|\\left|\\right/g, "");
+}
 
 const files = readdirSync(dataDir).filter((f) => f.endsWith(".json"));
 let total = 0;
@@ -33,6 +52,21 @@ for (const f of files) {
         failures.push(`${it.id}: empty hint ${key}`);
       }
     }
+    // Rung collapse: nextStep identical to fullSolution means escalating from
+    // rung 3 to rung 4 gives the learner literally the same text.
+    const nk = rungKey(hints.nextStep);
+    if (nk && nk === rungKey(hints.fullSolution)) {
+      failures.push(
+        `${it.id}: collapsed rung — nextStep === fullSolution ("${hints.nextStep}")`,
+      );
+    }
+    // Nudge leak: the nudge must be a smaller question, not the answer.
+    const answerKey = leakKey(it.answer);
+    if (answerKey.length >= 2 && leakKey(hints.nudge).includes(answerKey)) {
+      failures.push(
+        `${it.id}: nudge leaks answer ${it.answer} ("${hints.nudge}")`,
+      );
+    }
     const blob = Object.values(hints).join("\n");
     for (const phrase of BANNED_HINT_PHRASES) {
       if (blob.includes(phrase)) {
@@ -51,6 +85,14 @@ for (const f of files) {
       if (!gradeAnswer(it, a).correct) {
         failures.push(`${it.id}: accept "${a}" failed self-grade`);
       }
+    }
+    const drift = hintCanonicalDrift(it);
+    if (drift) {
+      failures.push(`${it.id}: ${drift}`);
+    }
+    const ask = promptAskMismatch(it);
+    if (ask) {
+      failures.push(`${it.id}: ${ask}`);
     }
   }
 }

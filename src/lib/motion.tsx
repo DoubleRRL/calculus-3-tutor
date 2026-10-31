@@ -16,6 +16,11 @@ export const springs = {
   snappy: { type: "spring", stiffness: 420, damping: 32 } as const,
 };
 
+/** High-frequency UI (answer → feedback → next): near-instant, ≤150ms. */
+export const tweens = {
+  fast: { duration: 0.14, ease: [0.2, 0.8, 0.2, 1] } as const,
+};
+
 export function springOrInstant(
   reduced: boolean | null,
   spring: Transition = springs.ui,

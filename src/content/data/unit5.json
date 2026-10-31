@@ -73,9 +73,9 @@
     ],
     "rubric": "right",
     "hints": {
-      "nudge": "First component is horizontal; positive means rightward.",
+      "nudge": "The first component alone sets the direction — horizontal or vertical?",
       "technique": "$\\langle 1,0\\rangle$ is the unit vector $\\mathbf{i}$",
-      "nextStep": "right",
+      "nextStep": "Read the sign of the nonzero component.",
       "fullSolution": "right"
     }
   },
@@ -111,10 +111,10 @@
     ],
     "rubric": "5",
     "hints": {
-      "nudge": "$\\int_C 1\\,ds$ is arc length.",
-      "technique": "Distance $\\sqrt{3^2+4^2}$",
-      "nextStep": "5",
-      "fullSolution": "5"
+      "nudge": "The integrand is $1$ — what geometric quantity does that leave?",
+      "technique": "$\\int_C 1\\,ds$ equals the arc length $L$.",
+      "nextStep": "Compute the distance from $(0,0)$ to $(3,4)$.",
+      "fullSolution": "$5$"
     }
   },
   {
@@ -135,8 +135,8 @@
     "rubric": "vector",
     "hints": {
       "nudge": "Work is $\\int \\mathbf{F}\\cdot d\\mathbf{r}$",
-      "technique": "That is the vector-field line integral.",
-      "nextStep": "vector",
+      "technique": "$\\int_C\\mathbf{F}\\cdot d\\mathbf{r}$ sums vectors; $\\int_C f\\,ds$ sums scalars.",
+      "nextStep": "Compare the integrand with $\\int_C\\mathbf{F}\\cdot d\\mathbf{r}$.",
       "fullSolution": "vector"
     }
   },
@@ -201,7 +201,7 @@
     "hints": {
       "nudge": "Fundamental theorem for line integrals.",
       "technique": "$\\int_A^B \\nabla f\\cdot d\\mathbf{r}=f(B)-f(A)$",
-      "nextStep": "endpoints",
+      "nextStep": "Substitute the endpoint values into $f(B)-f(A)$.",
       "fullSolution": "endpoints"
     }
   },
@@ -266,9 +266,9 @@
     ],
     "rubric": "Stokes",
     "hints": {
-      "nudge": "Stokes relates circulation to curl flux in 3D.",
-      "technique": "Restrict Stokes to a flat region in the $xy$-plane → Green.",
-      "nextStep": "Stokes",
+      "nudge": "Which 3D theorem turns circulation around a boundary curve into a curl flux?",
+      "technique": "$\\oint_{\\partial S}\\mathbf{F}\\cdot d\\mathbf{r}=\\iint_S\\mathrm{curl}\\,\\mathbf{F}\\cdot d\\mathbf{S}$ for a surface $S$ in $\\mathbb{R}^3$.",
+      "nextStep": "Specialize that identity to a flat region in the $xy$-plane.",
       "fullSolution": "Stokes"
     }
   },
@@ -285,10 +285,10 @@
     ],
     "rubric": "3",
     "hints": {
-      "nudge": "$\\mathrm{div}\\mathbf{F}=P_x+Q_y+R_z$",
-      "technique": "$1+1+1$",
-      "nextStep": "3",
-      "fullSolution": "3"
+      "nudge": "Differentiate each component with respect to its own variable.",
+      "technique": "$\\mathrm{div}\\,\\mathbf{F}=P_x+Q_y+R_z$",
+      "nextStep": "Form $P_x+Q_y+R_z$.",
+      "fullSolution": "$1+1+1=3$"
     }
   },
   {
@@ -340,7 +340,7 @@
     "hints": {
       "nudge": "Vector calculus identity: divergence of a curl vanishes.",
       "technique": "Mixed partials cancel.",
-      "nextStep": "0",
+      "nextStep": "Write $\\nabla\\times\\mathbf{F}$ in components, then take $\\mathrm{div}$ of it.",
       "fullSolution": "0"
     }
   },
@@ -383,7 +383,7 @@
     "hints": {
       "nudge": "Reversing the normal multiplies flux by $-1$.",
       "technique": "Domain and degree stay the same; sign flips.",
-      "nextStep": "sign",
+      "nextStep": "Compare $\\mathbf{n}$ with $-\\mathbf{n}$ inside $\\mathbf{F}\\cdot\\mathbf{n}\\,dS$.",
       "fullSolution": "sign"
     }
   },
@@ -406,8 +406,8 @@
     "rubric": "surface area",
     "hints": {
       "nudge": "Integrating 1 with respect to surface measure.",
-      "technique": "That is the definition of surface area.",
-      "nextStep": "surface area",
+      "technique": "A scalar surface integral sums integrand times $dS$.",
+      "nextStep": "Read the integrand of $\\iint_S 1\\,dS$.",
       "fullSolution": "surface area"
     }
   },
@@ -431,7 +431,7 @@
     "hints": {
       "nudge": "Right-hand side is a flux integral of $\\mathrm{curl}\\mathbf{F}$.",
       "technique": "Circulation ↔ flux of curl",
-      "nextStep": "flux of curl",
+      "nextStep": "Read the right-hand side: which vector field is integrated over $S$?",
       "fullSolution": "flux of curl"
     }
   },
@@ -453,9 +453,9 @@
     ],
     "rubric": "orientation",
     "hints": {
-      "nudge": "Boundary orientation must match the surface normal (right-hand rule).",
+      "nudge": "The boundary curve and the surface normal must agree by the right-hand rule — what has to be consistent?",
       "technique": "Wrong orientation flips the sign.",
-      "nextStep": "orientation",
+      "nextStep": "Apply the right-hand rule to the boundary traversal.",
       "fullSolution": "orientation"
     }
   },
@@ -474,8 +474,8 @@
     "hints": {
       "nudge": "Right-hand side becomes $\\iint_S \\mathbf{0}\\cdot d\\mathbf{S}$",
       "technique": "That integral is 0.",
-      "nextStep": "0",
-      "fullSolution": "0"
+      "nextStep": "Substitute $\\nabla\\times\\mathbf{F}=\\mathbf{0}$ into the surface integral.",
+      "fullSolution": "$0$"
     }
   },
   {
@@ -521,8 +521,8 @@
     "rubric": "triple",
     "hints": {
       "nudge": "Right-hand side is $\\iiint_E \\mathrm{div}\\mathbf{F}\\,dV$",
-      "technique": "That is a triple integral over the solid.",
-      "nextStep": "triple",
+      "technique": "$\\int$, $\\iint$, $\\iiint$ integrate over a curve, a surface, a solid.",
+      "nextStep": "Count the dimensions of the region $E$ on the right-hand side.",
       "fullSolution": "triple"
     }
   },
@@ -544,9 +544,9 @@
     ],
     "rubric": "Divergence",
     "hints": {
-      "nudge": "Closed surface flux is the Divergence theorem's job.",
+      "nudge": "Closed surface plus an easy $\\mathrm{div}$ — which theorem turns flux into a volume integral?",
       "technique": "Stokes is for circulation; Green is planar.",
-      "nextStep": "Divergence",
+      "nextStep": "Line the left side up with $\\iint_{\\partial E}\\mathbf{F}\\cdot d\\mathbf{S}$.",
       "fullSolution": "Divergence"
     }
   },
@@ -569,8 +569,8 @@
     "rubric": "Green",
     "hints": {
       "nudge": "Planar closed curve ↔ double integral over interior.",
-      "technique": "That is exactly Green.",
-      "nextStep": "Green",
+      "technique": "$\\oint_{\\partial D}P\\,dx+Q\\,dy=\\iint_D(Q_x-P_y)\\,dA$",
+      "nextStep": "Check the curve is planar, then choose among the three theorems.",
       "fullSolution": "Green"
     }
   },
@@ -592,9 +592,9 @@
     ],
     "rubric": "Stokes",
     "hints": {
-      "nudge": "3D surface with boundary → Stokes.",
+      "nudge": "Does the bounded surface carry a boundary curve — and is it flat or curved?",
       "technique": "Green is the flat special case; Divergence needs a closed surface.",
-      "nextStep": "Stokes",
+      "nextStep": "Test whether the surface is open with a boundary or closed.",
       "fullSolution": "Stokes"
     }
   },
@@ -616,9 +616,9 @@
     ],
     "rubric": "Divergence",
     "hints": {
-      "nudge": "Closed surface flux → Divergence theorem.",
+      "nudge": "Is the surface closed, so that no boundary curve is needed?",
       "technique": "Stokes would need a boundary curve, not a closed surface alone.",
-      "nextStep": "Divergence",
+      "nextStep": "Count the boundary curves the given surface carries.",
       "fullSolution": "Divergence"
     }
   },
@@ -641,8 +641,8 @@
     "rubric": "Divergence",
     "hints": {
       "nudge": "Sphere is a closed surface; check if div is easy.",
-      "technique": "If div is simple, Divergence beats direct flux.",
-      "nextStep": "Divergence",
+      "technique": "An easy $\\mathrm{div}$ makes the volume integral cheaper than direct flux.",
+      "nextStep": "Evaluate $\\mathrm{div}\\,\\mathbf{F}$ on the sphere's interior.",
       "fullSolution": "Divergence"
     }
   },
@@ -664,9 +664,9 @@
     ],
     "rubric": "Green",
     "hints": {
-      "nudge": "2D field on a planar boundary → Green.",
-      "technique": "Stokes works but Green is the direct tool.",
-      "nextStep": "Green",
+      "nudge": "The field has two components and the region is flat — which planar theorem matches?",
+      "technique": "Both apply; the planar form has integrand $Q_x-P_y$.",
+      "nextStep": "Match the boundary line integral to the form with $Q_x-P_y$.",
       "fullSolution": "Green"
     }
   },
@@ -691,7 +691,7 @@
     "hints": {
       "nudge": "3D boundary curve.",
       "technique": "Not planar Green; not closed-surface Divergence.",
-      "nextStep": "Stokes",
+      "nextStep": "Check that the spanning surface is open, not closed.",
       "fullSolution": "Stokes"
     }
   },
@@ -716,7 +716,7 @@
     "hints": {
       "nudge": "Consistent orientation required.",
       "technique": "Fingers along boundary, thumb = normal.",
-      "nextStep": "normal to surface with boundary orientation",
+      "nextStep": "Curl the fingers of your right hand along the boundary and watch the thumb.",
       "fullSolution": "normal to surface with boundary orientation"
     }
   },
@@ -762,8 +762,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Definition.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "$\\mathbf{F}:D\\subseteq\\mathbb{R}^2\\to\\mathbb{R}^2$",
+      "nextStep": "Read the definition: one vector per domain point.",
       "fullSolution": "true"
     }
   },
@@ -785,8 +785,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Classic swirl field.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "$\\langle -y,x\\rangle=\\mathbf{j}\\times\\langle x,y\\rangle$",
+      "nextStep": "Compare the field with $\\mathbf{j}\\times\\langle x,y\\rangle$.",
       "fullSolution": "true"
     }
   },
@@ -808,8 +808,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Definition via r(t).",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "$\\int_C\\mathbf{F}\\cdot d\\mathbf{r}=\\int_a^b\\mathbf{F}(\\mathbf{r}(t))\\cdot\\mathbf{r}'(t)\\,dt$",
+      "nextStep": "Write $\\mathbf{r}(t)$ for $C$, then substitute into the integrand.",
       "fullSolution": "true"
     }
   },
@@ -831,8 +831,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Path independence.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "$\\int_A^B\\nabla f\\cdot d\\mathbf{r}=f(B)-f(A)$",
+      "nextStep": "Test whether the domain is simply connected and $\\nabla\\times\\mathbf{F}=\\mathbf{0}$ there.",
       "fullSolution": "true"
     }
   },
@@ -854,8 +854,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Flux notation.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "$\\mathbf{F}\\cdot d\\mathbf{S}=\\mathbf{F}\\cdot\\mathbf{n}\\,dS$",
+      "nextStep": "Separate the vector from the oriented area element.",
       "fullSolution": "true"
     }
   },
@@ -877,8 +877,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Normal field choice.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "$\\mathbf{n}=\\pm(\\mathbf{r}_u\\times\\mathbf{r}_v)$",
+      "nextStep": "Pick one of $\\pm(\\mathbf{r}_u\\times\\mathbf{r}_v)$ and hold it over all of $S$.",
       "fullSolution": "true"
     }
   },
@@ -900,8 +900,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Standard hypotheses.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "$C$ traversed counterclockwise, with $P,Q$ continuously differentiable on $D$",
+      "nextStep": "Check both hypotheses: counterclockwise traversal and continuous $P,Q$.",
       "fullSolution": "true"
     }
   },
@@ -923,8 +923,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Standard form.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "$Q_x-P_y$ is the 2D curl",
+      "nextStep": "Differentiate $Q$ in $x$ and $P$ in $y$, then subtract.",
       "fullSolution": "true"
     }
   },
@@ -946,8 +946,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Type of each operator.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "$\\mathrm{div}$ contracts to a scalar; $\\nabla\\times$ keeps a free index",
+      "nextStep": "Count the outputs of each operator on $\\langle P,Q,R\\rangle$.",
       "fullSolution": "true"
     }
   },
@@ -997,8 +997,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Statement of the theorem.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "$\\iint_{\\partial E}\\mathbf{F}\\cdot d\\mathbf{S}=\\iiint_E\\mathrm{div}\\,\\mathbf{F}\\,dV$",
+      "nextStep": "Check the surface is closed and encloses $E$.",
       "fullSolution": "true"
     }
   },
@@ -1015,10 +1015,10 @@
     ],
     "rubric": "3",
     "hints": {
-      "nudge": "1+1+1",
-      "technique": "3",
-      "nextStep": "3",
-      "fullSolution": "3"
+      "nudge": "Differentiate each component with respect to its own variable.",
+      "technique": "$\\mathrm{div}\\,\\mathbf{F}=P_x+Q_y+R_z$",
+      "nextStep": "Add the three partial derivatives.",
+      "fullSolution": "$1+1+1=3$"
     }
   },
   {
@@ -1039,8 +1039,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Standard criterion in simply connected sets.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "$\\nabla\\times\\mathbf{F}=\\mathbf{0}$ everywhere in a simply connected $D$ forces $\\mathbf{F}=\\nabla f$",
+      "nextStep": "Apply the criterion, then check the domain has no holes.",
       "fullSolution": "true"
     }
   },
@@ -1061,9 +1061,9 @@
     ],
     "rubric": "xy",
     "hints": {
-      "nudge": "∫ y dx = xy + g(y)",
-      "technique": "Then fy = x + g' = x ⇒ g'=0",
-      "nextStep": "xy",
+      "nudge": "Integrate the first component with respect to $x$, then check $f_y$.",
+      "technique": "$f_y=x+g'(y)=x\\Rightarrow g'=0$",
+      "nextStep": "Match $g'(y)=0$, so $g$ is a constant.",
       "fullSolution": "f=xy"
     }
   },
@@ -1085,8 +1085,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Statement of Stokes.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "Line integral of $\\mathbf{F}$ around $\\partial S$ equals flux of $\\nabla\\times\\mathbf{F}$",
+      "nextStep": "Match each term of the claimed identity to the theorem.",
       "fullSolution": "true"
     }
   },
@@ -1109,8 +1109,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Special case of Stokes.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "On a flat patch $(\\nabla\\times\\mathbf{F})\\cdot\\mathbf{k}=Q_x-P_y$",
+      "nextStep": "Restrict $\\nabla\\times\\mathbf{F}$ to $\\mathbf{k}$ and compare with Green's integrand.",
       "fullSolution": "true"
     }
   },
@@ -1132,8 +1132,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Closed surface + solid.",
-      "technique": "Divergence",
-      "nextStep": "true",
+      "technique": "Closed $\\partial E$ enclosing a solid $E$ converts flux to a volume integral",
+      "nextStep": "Check the surface is closed before naming a theorem.",
       "fullSolution": "true"
     }
   },
@@ -1155,8 +1155,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "2D closed curve.",
-      "technique": "Green",
-      "nextStep": "true",
+      "technique": "Planar region $D$ with boundary curve $\\partial D$",
+      "nextStep": "Check that both the region and the curve are planar.",
       "fullSolution": "true"
     }
   }

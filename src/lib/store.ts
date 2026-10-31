@@ -9,9 +9,13 @@ import type {
   SessionSummary,
   SkillProgress,
 } from "@/types/content";
+import type { ItemTrace, SessionDiagnosis } from "@/types/tutor";
 import { SKILLS, UNITS } from "@/content/skills";
 import { newCard, type FsrsState } from "./fsrs";
 import {
+  CHECKPOINT_DUE_NUDGE,
+  CHECKPOINT_MIN_SKILLS,
+  CHECKPOINT_SESSIONS_NUDGE,
   DAILY_GOAL_DEFAULT,
   MASTERY,
   READINESS_WEIGHTS,
@@ -25,12 +29,12 @@ import {
 } from "./gamify";
 
 const STORAGE_KEY_V1 = "calctutor.v1";
-const STORAGE_KEY = "calctutor.v2";
+const STORAGE_KEY_V2 = "calctutor.v2";
+const STORAGE_KEY = "calctutor.v3";
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  coachModel: "qwen3:8b",
-  qualityModel: "phi4",
-  qualityMode: false,
+  tutorModel: "qwen3:8b",
+  analysisModel: "",
   ollamaBaseUrl: "http://127.0.0.1:11434",
   onboardingDone: false,
   personalizerDone: false,
@@ -43,6 +47,13 @@ export const DEFAULT_SETTINGS: AppSettings = {
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+/** Coerce a possibly-missing persisted string to a clean string. */
+function strOrEmpty(v: unknown): string {
+  if (typeof v === "string") return v;
+  if (v === undefined || v === null) return "";
+  return String(v);
 }
 
 function parseLearnerProfile(raw: unknown): LearnerProfile | null {
@@ -75,7 +86,21 @@ export interface PersistedState {
   skills: Record<string, SkillProgress>;
   reviews: Record<string, ReviewCard>;
   attempts: AttemptRecord[];
+  /**
+   * Per-item engagement evidence (ladder mode, coach turns, board/clay
+   * artifacts). The raw input to the post-session diagnosis.
+   */
+  traces: ItemTrace[];
+  /** Most recent post-session diagnosis, or null before the first session. */
+  diagnosis: SessionDiagnosis | null;
+  /**
+   * Day key the current plan was built for. A plan older than the day it was
+   * made is recomputed rather than trusted.
+   */
+  planDay: string | null;
   examScores: number[];
+  /** Weighted % for cumulative checkpoint sessions (last 10). */
+  checkpointScores: number[];
   streak: number;
   lastActiveDay: string | null;
   longestStreak: number;
@@ -88,7 +113,7 @@ export interface PersistedState {
   crowns: Record<string, number>;
   badges: string[];
   sessionHistory: SessionSummary[];
-  schemaVersion: 2;
+  schemaVersion: 3;
   /** Transient display helpers kept for migration compat (derived). */
   goalMetToday: boolean;
   /** Last skill the learner was working on — resume target. */
@@ -136,7 +161,11 @@ export function createInitialState(): PersistedState {
     skills,
     reviews,
     attempts: [],
+    traces: [],
+    diagnosis: null,
+    planDay: null,
     examScores: [],
+    checkpointScores: [],
     streak: 0,
     lastActiveDay: null,
     longestStreak: 0,
@@ -148,7 +177,7 @@ export function createInitialState(): PersistedState {
     crowns,
     badges: [],
     sessionHistory: [],
-    schemaVersion: 2,
+    schemaVersion: 3,
     goalMetToday: false,
     resumeSkillId: null,
   };
@@ -159,6 +188,23 @@ function parseTheme(raw: unknown): AppSettings["theme"] {
   return DEFAULT_SETTINGS.theme;
 }
 
+/** Keep the evidence trail bounded — it grows per problem, not per session. */
+const TRACE_CAP = 500;
+
+function parseTraces(raw: unknown): ItemTrace[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((t): t is ItemTrace => isObject(t) && typeof t.itemId === "string")
+    .slice(-TRACE_CAP);
+}
+
+function parseDiagnosis(raw: unknown): SessionDiagnosis | null {
+  if (!isObject(raw)) return null;
+  if (typeof raw.at !== "number") return null;
+  if (!Array.isArray(raw.gaps) || !Array.isArray(raw.plan)) return null;
+  return raw as unknown as SessionDiagnosis;
+}
+
 /** Minimal structural validate + merge new skills / engagement fields. */
 export function parsePersisted(raw: unknown): PersistedState | null {
   if (!isObject(raw)) return null;
@@ -166,7 +212,6 @@ export function parsePersisted(raw: unknown): PersistedState | null {
     return null;
   }
   if (!Array.isArray(raw.attempts) || !Array.isArray(raw.examScores)) return null;
-
   const base = createInitialState();
   const sizeRaw = Number(raw.settings.sessionSize ?? DEFAULT_SETTINGS.sessionSize);
   const sessionSize = ([5, 12, 20] as const).includes(sizeRaw as 5 | 12 | 20)
@@ -181,27 +226,34 @@ export function parsePersisted(raw: unknown): PersistedState | null {
         : DAILY_GOAL_XP_DEFAULT;
 
   const learnerProfile = parseLearnerProfile(raw.settings.learnerProfile);
-  // Soft-migrate conversational factory pair → faster Socratic defaults.
-  let coachModel = String(
-    raw.settings.coachModel ?? DEFAULT_SETTINGS.coachModel,
-  );
-  let qualityModel = String(
-    raw.settings.qualityModel ?? DEFAULT_SETTINGS.qualityModel,
-  );
+
+  // v2 shipped a coach/quality model pair with a manual toggle. v3 has one
+  // model and per-task sampling. Whichever one the learner was actually using
+  // becomes tutorModel, so the collapse preserves their choice.
+  const v3Model = strOrEmpty(raw.settings.tutorModel);
+  const v2Coach = strOrEmpty(raw.settings.coachModel);
+  const v2Quality = strOrEmpty(raw.settings.qualityModel);
+  const usedQuality = Boolean(raw.settings.qualityMode);
+  let tutorModel =
+    v3Model ||
+    (usedQuality ? v2Quality || v2Coach : v2Coach || v2Quality) ||
+    DEFAULT_SETTINGS.tutorModel;
+  // Historic bad pairing from the v1 default swap — do not resurrect it.
   if (
-    (coachModel === "phi4" || coachModel === "phi4:latest") &&
-    (qualityModel === "qwen2.5:latest" || qualityModel === "qwen2.5")
+    (tutorModel === "phi4" || tutorModel === "phi4:latest") &&
+    (v2Coach === "qwen2.5:latest" || v2Coach === "qwen2.5")
   ) {
-    coachModel = DEFAULT_SETTINGS.coachModel;
-    qualityModel = DEFAULT_SETTINGS.qualityModel;
+    tutorModel = DEFAULT_SETTINGS.tutorModel;
   }
+  const analysisModel =
+    typeof raw.settings.analysisModel === "string"
+      ? raw.settings.analysisModel
+      : DEFAULT_SETTINGS.analysisModel;
+
   const settings: AppSettings = {
     ...DEFAULT_SETTINGS,
-    coachModel,
-    qualityModel,
-    qualityMode: Boolean(
-      raw.settings.qualityMode ?? DEFAULT_SETTINGS.qualityMode,
-    ),
+    tutorModel,
+    analysisModel,
     ollamaBaseUrl: String(
       raw.settings.ollamaBaseUrl ?? DEFAULT_SETTINGS.ollamaBaseUrl,
     ),
@@ -276,7 +328,15 @@ export function parsePersisted(raw: unknown): PersistedState | null {
     skills,
     reviews,
     attempts: raw.attempts as AttemptRecord[],
+    traces: parseTraces(raw.traces),
+    diagnosis: parseDiagnosis(raw.diagnosis),
+    planDay: typeof raw.planDay === "string" ? raw.planDay : null,
     examScores: (raw.examScores as number[]).filter((n) => typeof n === "number"),
+    checkpointScores: Array.isArray(raw.checkpointScores)
+      ? (raw.checkpointScores as unknown[]).filter(
+          (n): n is number => typeof n === "number",
+        )
+      : [],
     streak,
     lastActiveDay,
     longestStreak:
@@ -298,7 +358,7 @@ export function parsePersisted(raw: unknown): PersistedState | null {
     sessionHistory: Array.isArray(raw.sessionHistory)
       ? (raw.sessionHistory as SessionSummary[]).slice(-50)
       : [],
-    schemaVersion: 2,
+    schemaVersion: 3,
     goalMetToday: lastGoalMetDay === today,
     resumeSkillId:
       typeof raw.resumeSkillId === "string" ? raw.resumeSkillId : null,
@@ -309,13 +369,15 @@ export function parsePersisted(raw: unknown): PersistedState | null {
 
 export function loadState(): PersistedState {
   try {
-    const v2 = localStorage.getItem(STORAGE_KEY);
-    if (v2) {
-      return parsePersisted(JSON.parse(v2) as unknown) ?? createInitialState();
+    const v3 = localStorage.getItem(STORAGE_KEY);
+    if (v3) {
+      return parsePersisted(JSON.parse(v3) as unknown) ?? createInitialState();
     }
-    const v1 = localStorage.getItem(STORAGE_KEY_V1);
-    if (v1) {
-      const migrated = parsePersisted(JSON.parse(v1) as unknown) ?? createInitialState();
+    // v1 and v2 share the same shape; parsePersisted upgrades both to v3.
+    for (const key of [STORAGE_KEY_V2, STORAGE_KEY_V1]) {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const migrated = parsePersisted(JSON.parse(raw) as unknown) ?? createInitialState();
       saveState(migrated);
       return migrated;
     }
@@ -333,6 +395,36 @@ export function resetState(): PersistedState {
   const s = createInitialState();
   saveState(s);
   return s;
+}
+
+export const BADGE_DEFS = [
+  { id: "first-lesson", label: "First lesson" },
+  { id: "first-mastery", label: "First topic mastered" },
+  { id: "unit-complete", label: "Unit complete" },
+  { id: "combo-5", label: "5-combo" },
+  { id: "exam-attempt", label: "Exam sim" },
+  { id: "first-checkpoint", label: "First checkpoint" },
+] as const;
+
+export type BadgeId = (typeof BADGE_DEFS)[number]["id"];
+
+function grantBadge(state: PersistedState, id: BadgeId): void {
+  if (state.badges.includes(id)) return;
+  state.badges = [...state.badges, id];
+}
+
+function maybeGrantUnitComplete(state: PersistedState): void {
+  for (const unit of UNITS) {
+    if (unit.id === "diagnostic" || unit.id === "exam") continue;
+    const skills = SKILLS.filter((s) => s.unitId === unit.id);
+    if (
+      skills.length > 0 &&
+      skills.every((s) => state.skills[s.id]?.mastered)
+    ) {
+      grantBadge(state, "unit-complete");
+      return;
+    }
+  }
 }
 
 /** Recompute unlock flags from the current prerequisite graph (never re-locks). */
@@ -441,6 +533,11 @@ export function applyAttempt(
     next.skills[attempt.skillId]!.stage,
   );
 
+  if (next.skills[attempt.skillId]?.mastered) {
+    grantBadge(next, "first-mastery");
+    maybeGrantUnitComplete(next);
+  }
+
   unlockDependents(next);
   return next;
 }
@@ -497,8 +594,70 @@ export function recordSessionComplete(
 
   if (summary) {
     next.sessionHistory = [...next.sessionHistory, summary].slice(-50);
+    if (summary.bestCombo >= 5) grantBadge(next, "combo-5");
   }
   return next;
+}
+
+export function recordExamScore(
+  state: PersistedState,
+  pct: number,
+): PersistedState {
+  const next = structuredClone(state);
+  next.examScores = [...next.examScores, pct].slice(-10);
+  grantBadge(next, "exam-attempt");
+  return next;
+}
+
+export function recordCheckpointScore(
+  state: PersistedState,
+  pct: number,
+): PersistedState {
+  const next = structuredClone(state);
+  next.checkpointScores = [...next.checkpointScores, pct].slice(-10);
+  grantBadge(next, "first-checkpoint");
+  return next;
+}
+
+export type CheckpointNudge = {
+  show: boolean;
+  dueCount: number;
+  sessionsSince: number;
+  coveredSkills: number;
+};
+
+/**
+ * When spaced retrieval says it's time for a cumulative check:
+ * enough engaged skills AND (due reviews piling up OR a couple of
+ * sessions since the last checkpoint).
+ */
+export function checkpointNudge(state: PersistedState): CheckpointNudge {
+  const now = Date.now();
+  const seen = SKILLS.filter((s) => {
+    if (s.unitId === "diagnostic") return false;
+    const sp = state.skills[s.id];
+    return Boolean(sp?.unlocked && sp.seen > 0);
+  });
+  const dueCount = seen.filter((s) => {
+    const r = state.reviews[s.id];
+    return r && r.reps > 0 && r.dueAt <= now;
+  }).length;
+
+  let sessionsSince = state.sessionHistory.length;
+  for (let i = state.sessionHistory.length - 1; i >= 0; i -= 1) {
+    if (state.sessionHistory[i]?.mode === "checkpoint") {
+      sessionsSince = state.sessionHistory.length - 1 - i;
+      break;
+    }
+  }
+
+  const enoughSkills = seen.length >= CHECKPOINT_MIN_SKILLS;
+  const show =
+    enoughSkills &&
+    (dueCount >= CHECKPOINT_DUE_NUDGE ||
+      sessionsSince >= CHECKPOINT_SESSIONS_NUDGE);
+
+  return { show, dueCount, sessionsSince, coveredSkills: seen.length };
 }
 
 export function markSkillGroked(
@@ -506,7 +665,9 @@ export function markSkillGroked(
   skillId: string,
 ): PersistedState {
   if (state.grokked.includes(skillId)) return state;
-  return { ...state, grokked: [...state.grokked, skillId] };
+  const next = { ...state, grokked: [...state.grokked, skillId] };
+  grantBadge(next, "first-lesson");
+  return next;
 }
 
 export function applyDayRollover(state: PersistedState): PersistedState {

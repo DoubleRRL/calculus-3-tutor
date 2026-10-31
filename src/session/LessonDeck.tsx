@@ -4,6 +4,7 @@ import { MathText } from "@/components/MathText";
 import { InteractionHost } from "@/components/interactions/InteractionHost";
 import { IntroFigureHost } from "@/components/IntroFigureHost";
 import { KnowledgeReview } from "./KnowledgeReview";
+import { SkillArt } from "@/content/art"; // ART: lesson intro (remove with src/content/art)
 import {
   AnimatePresence,
   motion,
@@ -66,6 +67,10 @@ export function LessonDeck({
           exit={reduced ? undefined : { opacity: 0 }}
           transition={springOrInstant(reduced, springs.soft)}
         >
+          {pageIndex === 0 && phase === "pages" && (
+            <SkillArt skillId={skillId} className="h-36" /> /* ART: lesson intro */
+          )}
+
           {page.title && (
             <p className="text-[12px] text-[var(--ink-3)] uppercase tracking-wide">
               {page.title}

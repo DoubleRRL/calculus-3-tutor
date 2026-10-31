@@ -11,7 +11,34 @@ type Props = {
   value: string;
   onChange: (serialized: string) => void;
   disabled?: boolean;
+  mode?: "task" | "showcase";
 };
+
+type QuadricName = Extract<
+  Surface3dInteraction["surface"],
+  { kind: "quadric" }
+>["name"];
+
+const CHOICE_TO_QUADRIC: Record<string, QuadricName> = {
+  Ellipsoid: "ellipsoid",
+  "Elliptic paraboloid": "paraboloid",
+  "Hyperboloid of one sheet": "hyperboloid1",
+  Cone: "cone",
+  Saddle: "saddle",
+  "Hyperbolic paraboloid": "saddle",
+};
+
+function quadricNameForView(
+  spec: Surface3dInteraction,
+  choice: string,
+  mode: "task" | "showcase",
+): QuadricName | null {
+  if (spec.surface.kind !== "quadric") return null;
+  if (mode === "showcase" && spec.task.kind === "identify" && choice) {
+    return CHOICE_TO_QUADRIC[choice] ?? spec.surface.name;
+  }
+  return spec.surface.name;
+}
 
 function zFn(
   preset: "paraboloid" | "saddle" | "gaussian",
@@ -307,26 +334,28 @@ function Scene({
   spec,
   probe,
   onProbe,
+  quadricName,
 }: {
   spec: Surface3dInteraction;
   probe: [number, number];
   onProbe: (uv: [number, number]) => void;
+  quadricName: QuadricName | null;
 }) {
   return (
     <>
       <ambientLight intensity={0.7} />
       <directionalLight position={[4, 6, 2]} intensity={0.9} />
-      {spec.surface.kind === "quadric" ? (
+      {quadricName ? (
         <>
-          <QuadricMesh name={spec.surface.name} />
-          {spec.showTraces && spec.surface.name === "paraboloid" && (
+          <QuadricMesh name={quadricName} />
+          {spec.showTraces && quadricName === "paraboloid" && (
             <TraceCurves preset="paraboloid" />
           )}
-          {spec.showTraces && spec.surface.name === "saddle" && (
+          {spec.showTraces && quadricName === "saddle" && (
             <TraceCurves preset="saddle" />
           )}
         </>
-      ) : (
+      ) : spec.surface.kind === "zfn" ? (
         <ZSurface
           preset={spec.surface.preset}
           probe={probe}
@@ -334,6 +363,8 @@ function Scene({
           showTraces={spec.showTraces}
           showRim={spec.showRim || spec.task.kind === "stokesCompare"}
         />
+      ) : (
+        <QuadricMesh name={spec.surface.name} />
       )}
       <OrbitControls makeDefault enableDamping dampingFactor={0.12} />
       <gridHelper args={[6, 12, "#8a8278", "#ddd8ce"]} position={[0, -0.01, 0]} />
@@ -365,6 +396,7 @@ export function Surface3D({
   value,
   onChange,
   disabled,
+  mode = "task",
 }: Props) {
   const state = parseState(spec, value);
   const probe: [number, number] =
@@ -400,6 +432,9 @@ export function Surface3D({
     return `$\\text{probe }= (${probe[0].toFixed(2)},\\,${probe[1].toFixed(2)})$`;
   }, [spec.task, state, probe, circ, curlFlux]);
 
+  const choice = state.kind === "identify" ? state.choice : "";
+  const quadricName = quadricNameForView(spec, choice, mode);
+
   return (
     <div>
       {spec.task.kind === "stokesCompare" && (
@@ -417,7 +452,12 @@ export function Surface3D({
           }
         >
           <Canvas camera={{ position: [3.2, 2.4, 3.2], fov: 45 }}>
-            <Scene spec={spec} probe={probe} onProbe={setProbe} />
+            <Scene
+              spec={spec}
+              probe={probe}
+              onProbe={setProbe}
+              quadricName={quadricName}
+            />
           </Canvas>
         </Suspense>
       </div>

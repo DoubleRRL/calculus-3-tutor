@@ -7,8 +7,12 @@ import {
   nextMilestone,
   nextSequentialSkill,
   peekNextSkill,
+  BADGE_DEFS,
 } from "@/lib/store";
 import { skillById } from "@/content";
+import { checkpointNudge } from "@/lib/store";
+import { UnitArt } from "@/content/art"; // ART: mastery moment (remove with src/content/art)
+import type { SessionMode } from "@/types/content";
 import {
   motion,
   springs,
@@ -22,7 +26,9 @@ export function SessionComplete({
   total,
   bestCombo,
   examPct,
+  sessionMode,
   skillId,
+  newBadges = [],
   onAgain,
 }: {
   xp: number;
@@ -30,7 +36,9 @@ export function SessionComplete({
   total: number;
   bestCombo: number;
   examPct: number | null;
+  sessionMode?: SessionMode;
   skillId?: string;
+  newBadges?: string[];
   onAgain: () => void;
 }) {
   const nav = useNavigate();
@@ -38,6 +46,10 @@ export function SessionComplete({
   const reduced = useReducedMotion();
   const [shownXp, setShownXp] = useState(reduced ? xp : 0);
   const [toastOpen, setToastOpen] = useState(false);
+  const nudge =
+    sessionMode === "exam" || sessionMode === "checkpoint"
+      ? null
+      : checkpointNudge(state);
 
   const current = skillId ? skillById(skillId) : undefined;
   const progress = skillId ? masteryProgress(state, skillId) : null;
@@ -45,6 +57,18 @@ export function SessionComplete({
   const sequential = nextSequentialSkill(state, skillId);
   const peekNext = peekNextSkill(skillId);
   const gateBlocked = Boolean(skillId && !mastered && examPct == null);
+  const gateMessage = progress
+    ? `Unlock the next topic with ${progress.need} clean corrects in a row (no hint reveal). You’re at ${Math.min(progress.streak, progress.need)}/${progress.need}.`
+    : "";
+  const badgeLine = newBadges
+    .map((id) => BADGE_DEFS.find((b) => b.id === id)?.label)
+    .filter(Boolean)
+    .join(" · ");
+  const toastMessage = badgeLine
+    ? `Milestone: ${badgeLine}`
+    : gateBlocked
+      ? gateMessage
+      : "";
 
   useEffect(() => {
     if (reduced) {
@@ -65,12 +89,8 @@ export function SessionComplete({
   }, [xp, reduced]);
 
   useEffect(() => {
-    if (gateBlocked) setToastOpen(true);
-  }, [gateBlocked]);
-
-  const gateMessage = progress
-    ? `Unlock the next topic with ${progress.need} clean corrects in a row (no hint reveal). You’re at ${Math.min(progress.streak, progress.need)}/${progress.need}.`
-    : "";
+    if (toastMessage) setToastOpen(true);
+  }, [toastMessage]);
 
   function goNextTopic() {
     if (!sequential) {
@@ -100,7 +120,11 @@ export function SessionComplete({
           transition={springOrInstant(reduced, springs.soft)}
         >
           <h2 className="text-[24px] font-medium text-[var(--ink-1)]">
-            {examPct != null ? "Exam complete" : "Session complete"}
+            {examPct != null
+              ? sessionMode === "checkpoint"
+                ? "Checkpoint complete"
+                : "Exam complete"
+              : "Session complete"}
           </h2>
           <p className="mt-3 text-[24px] font-medium tabular-nums text-[var(--ink-1)]">
             +{shownXp} XP
@@ -125,7 +149,10 @@ export function SessionComplete({
                 <Row label="Best combo" value={String(bestCombo)} />
               )}
               {examPct != null && (
-                <Row label="Exam score" value={`${examPct}%`} />
+                <Row
+                  label={sessionMode === "checkpoint" ? "Checkpoint" : "Exam score"}
+                  value={`${examPct}%`}
+                />
               )}
               <Row label="Next" value={nextMilestone(state)} />
             </div>
@@ -143,6 +170,25 @@ export function SessionComplete({
             className="rounded-[var(--r-card)] border border-[var(--accent)]/30 bg-[var(--accent-weak)] px-4 py-3 text-[13px] text-[var(--ink-1)] leading-snug"
           >
             {gateMessage}
+          </motion.div>
+        )}
+
+        {nudge?.show && (
+          <motion.div
+            initial={reduced ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              ...springOrInstant(reduced, springs.soft),
+              delay: reduced ? 0 : 0.1,
+            }}
+            className="rounded-[var(--r-card)] border border-[var(--line)] bg-[var(--card)]/60 px-4 py-3 text-[13px] text-[var(--ink-2)] leading-snug"
+          >
+            <p className="text-[var(--ink-1)] font-medium">
+              Recall check ready
+            </p>
+            {nudge.dueCount > 0
+              ? `${nudge.dueCount} topic${nudge.dueCount === 1 ? "" : "s"} due for retrieval — a 10-item mixed checkpoint locks them in.`
+              : `A quick mixed check keeps ${nudge.coveredSkills} covered topics fresh.`}
           </motion.div>
         )}
 
@@ -188,6 +234,21 @@ export function SessionComplete({
             </Button>
           )}
 
+        {mastered && current && examPct == null && (
+          /* ART: mastery moment */
+          <UnitArt unitId={current.unitId} still className="mx-auto w-44" />
+        )}
+
+        {nudge?.show && (
+            <Button
+              variant="ghost"
+              className="w-full"
+              onClick={() => nav("/s/checkpoint")}
+            >
+              Run 10-item checkpoint
+            </Button>
+          )}
+
           <Button variant="ghost" className="w-full" onClick={onAgain}>
             Practice this again
           </Button>
@@ -203,8 +264,8 @@ export function SessionComplete({
       </div>
 
       <Toast
-        message={gateMessage}
-        open={toastOpen && gateBlocked}
+        message={toastMessage}
+        open={toastOpen && Boolean(toastMessage)}
         onDone={() => setToastOpen(false)}
       />
     </div>

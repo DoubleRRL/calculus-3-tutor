@@ -29,6 +29,13 @@ const PAIRS: Record<string, string> = {
   "{": "}",
 };
 
+/** Shown after a completed reply — keeps the thread moving. */
+const FOLLOW_UP_CHIPS = [
+  "Why does that work?",
+  "Another example",
+  "One step further",
+];
+
 const NEAR_BOTTOM_PX = 48;
 
 function countUserMessages(messages: CoachMessage[]): number {
@@ -243,13 +250,28 @@ export function CoachPanel({
   const showJump =
     followStream && !stickToBottom && (busy || messages.length > 0);
 
+  const lastMsg = messages[messages.length - 1];
+  const showFollowUps =
+    !busy &&
+    messages.length > 0 &&
+    lastMsg?.role === "assistant" &&
+    Boolean(lastMsg.content.trim());
+
   return (
     <div className={`flex flex-col min-h-0 h-full overflow-hidden ${className}`}>
-      <p className="shrink-0 text-[10px] uppercase tracking-wider text-[var(--ink-3)] mb-2">
-        {caption}
-      </p>
+      <div className="shrink-0 flex items-center justify-between gap-2 mb-2">
+        <p className="text-[10px] uppercase tracking-wider text-[var(--ink-3)]">
+          {caption}
+        </p>
+        <span
+          className="text-[10px] uppercase tracking-wider text-[var(--ink-3)] border border-[var(--line)] rounded-full px-1.5 py-0.5 shrink-0"
+          title="Local Ollama model"
+        >
+          {state.settings.tutorModel}
+        </span>
+      </div>
       <div className="shrink-0 flex flex-wrap gap-2 mb-3">
-        {chips.map((c) => (
+        {(showFollowUps ? FOLLOW_UP_CHIPS : chips).map((c) => (
           <button
             key={c}
             type="button"
@@ -265,6 +287,8 @@ export function CoachPanel({
         <div
           ref={listRef}
           onScroll={onListScroll}
+          aria-live="polite"
+          aria-label="Coach conversation"
           className="h-full overflow-y-auto space-y-2"
         >
           {messages.map((m, i) => {
@@ -291,11 +315,14 @@ export function CoachPanel({
                     <MathText text={m.content} />
                   </div>
                 ) : waiting ? (
-                  <CoachOrb phase="working" />
+                  <div className="flex items-center gap-2">
+                    <CoachOrb phase="working" />
+                    <span className="text-[12px] text-shimmer">Thinking…</span>
+                  </div>
                 ) : composing ? (
                   <div className="max-w-full space-y-2">
-                    <CoachOrb phase="composing" />
                     <div className="whitespace-pre-wrap">{m.content}</div>
+                    <CoachOrb phase="composing" />
                   </div>
                 ) : (
                   <div className="max-w-full">

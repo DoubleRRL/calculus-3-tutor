@@ -16,9 +16,9 @@
     ],
     "rubric": "(0,0,1)",
     "hints": {
-      "nudge": "$\\mathbf{i}\\times\\mathbf{j}=\\mathbf{k}$",
+      "nudge": "Two standard basis vectors — which basis vector comes out of the cross product?",
       "technique": "Use the determinant formula for the cross product.",
-      "nextStep": "$\\langle 0,0,1\\rangle$",
+      "nextStep": "Expand the determinant and read off the $i$, $j$, $k$ coefficients.",
       "fullSolution": "$\\langle 0,0,1\\rangle$"
     },
     "tupleLabels": [
@@ -76,7 +76,7 @@
     "hints": {
       "nudge": "A true limit must match on every path.",
       "technique": "Disagreement between paths is a disproof.",
-      "nextStep": "DNE",
+      "nextStep": "Apply the path test: one pair of disagreeing paths settles the limit.",
       "fullSolution": "DNE"
     }
   },
@@ -123,9 +123,9 @@
     ],
     "rubric": "r",
     "hints": {
-      "nudge": "$dx\\,dy = r\\,dr\\,d\\theta$",
+      "nudge": "Polar coordinates hide a length factor around the axis — what is it?",
       "technique": "The Jacobian factor is $r$, not $r^2$ (that's spherical).",
-      "nextStep": "r",
+      "nextStep": "Build the Jacobian from $x=r\\cos\\theta$, $y=r\\sin\\theta$ and take its determinant.",
       "fullSolution": "r"
     }
   },
@@ -172,9 +172,9 @@
     ],
     "rubric": "Divergence",
     "hints": {
-      "nudge": "Closed surface + flux → Divergence theorem.",
+      "nudge": "Closed surface plus flux — which single theorem settles this?",
       "technique": "Stokes needs a boundary curve; Green is planar.",
-      "nextStep": "Divergence",
+      "nextStep": "Ask which theorem trades flux on a closed surface for a volume integral.",
       "fullSolution": "Divergence"
     }
   },
@@ -197,9 +197,9 @@
     ],
     "rubric": "curl F",
     "hints": {
-      "nudge": "Right-hand side of Stokes is $\\iint_S (\\mathrm{curl}\\mathbf{F})\\cdot d\\mathbf{S}$",
+      "nudge": "Stokes equates a line integral around the boundary to a surface integral of what?",
       "technique": "Circulation ↔ flux of curl",
-      "nextStep": "curl F",
+      "nextStep": "Match both sides of the theorem: boundary line integral against surface flux.",
       "fullSolution": "curl F"
     }
   },
@@ -251,9 +251,9 @@
     ],
     "rubric": "$\\rho^2\\sin\\phi$",
     "hints": {
-      "nudge": "$dV=\\rho^2\\sin\\phi\\,d\\rho\\,d\\phi\\,d\\theta$",
-      "technique": "$r$ is the cylindrical factor; spherical uses $\\rho^2\\sin\\phi$",
-      "nextStep": "$\\rho^2\\sin\\phi$",
+      "nudge": "Cylindrical carries $r\\,dr$; spherical replaces it with what?",
+      "technique": "The radial variable supplies its own power, the polar angle supplies a sine.",
+      "nextStep": "Name the factor the radial variable contributes and the factor the polar angle contributes.",
       "fullSolution": "$\\rho^2\\sin\\phi$"
     }
   },
@@ -272,9 +272,9 @@
     "rubric": "12",
     "hints": {
       "nudge": "$f_y=2xy$",
-      "technique": "2(2)(3)=12",
-      "nextStep": "12",
-      "fullSolution": "12"
+      "technique": "Hold $x$ fixed; $y$ is the differentiating variable.",
+      "nextStep": "Differentiate with respect to $y$, then substitute $(2,3)$.",
+      "fullSolution": "$f_y(2,3)=12$"
     }
   },
   {
@@ -292,9 +292,9 @@
     "rubric": "24",
     "hints": {
       "nudge": "Product of sides.",
-      "technique": "2·3·4",
-      "nextStep": "24",
-      "fullSolution": "24"
+      "technique": "Volume of a box = length × width × height.",
+      "nextStep": "Multiply the three side lengths.",
+      "fullSolution": "$V=2\\cdot3\\cdot4=24$"
     }
   },
   {
@@ -316,10 +316,10 @@
     ],
     "rubric": "double",
     "hints": {
-      "nudge": "Green: line ↔ double.",
-      "technique": "Planar region.",
-      "nextStep": "double",
-      "fullSolution": "double"
+      "nudge": "A planar closed line integral becomes an integral over the region it encloses — of what order?",
+      "technique": "The line integral wraps a region $D$ in the plane.",
+      "nextStep": "Replace the boundary curve by the region $D$ and count its dimensions.",
+      "fullSolution": "A double integral over $D$."
     }
   },
   {
@@ -337,9 +337,9 @@
     "rubric": "6",
     "hints": {
       "nudge": "2x+2y+2z",
-      "technique": "At (1,1,1): 6",
-      "nextStep": "6",
-      "fullSolution": "6"
+      "technique": "Sum the three partial derivatives.",
+      "nextStep": "Take a partial with respect to each coordinate, then plug in $(1,1,1)$.",
+      "fullSolution": "$\\mathrm{div}\\,\\mathbf{F}(1,1,1)=6$"
     }
   },
   {
@@ -357,9 +357,9 @@
     "rubric": "2",
     "hints": {
       "nudge": "Det of [[1,1],[1,-1]]",
-      "technique": "|-2|=2",
-      "nextStep": "2",
-      "fullSolution": "2"
+      "technique": "The Jacobian is the absolute value of the coefficient determinant.",
+      "nextStep": "Take the determinant, then its absolute value.",
+      "fullSolution": "$|J|=2$"
     }
   },
   {
@@ -382,9 +382,9 @@
     "rubric": "$\\sqrt{3}$",
     "hints": {
       "nudge": "$\\mathbf{r}'=\\langle 1,1,1\\rangle$",
-      "technique": "$\\sqrt{3}$",
-      "nextStep": "$\\sqrt{3}$",
-      "fullSolution": "$\\sqrt{3}$"
+      "technique": "Arc length is the integral of the speed $\\|\\mathbf{r}'\\|$.",
+      "nextStep": "Take the magnitude of $\\mathbf{r}'$ and integrate it over the interval.",
+      "fullSolution": "$L=\\sqrt{3}$"
     }
   },
   {
@@ -401,10 +401,10 @@
     ],
     "rubric": "0",
     "hints": {
-      "nudge": "Flux=∭div F",
-      "technique": "0",
-      "nextStep": "0",
-      "fullSolution": "0"
+      "nudge": "The divergence vanishes everywhere in $E$ — what does the theorem do to the flux?",
+      "technique": "Outward flux of $\\partial E$ is the volume integral of the divergence over $E$.",
+      "nextStep": "Rewrite the surface integral as a volume integral over $E$.",
+      "fullSolution": "Flux $=0$"
     }
   },
   {
@@ -426,10 +426,10 @@
     ],
     "rubric": "max",
     "hints": {
-      "nudge": "Local max case.",
-      "technique": "Opposite of min.",
-      "nextStep": "max",
-      "fullSolution": "max"
+      "nudge": "$f_{xx}<0$ curves downward — peak or trough?",
+      "technique": "Second derivative test: $D>0$ with $f_{xx}<0$.",
+      "nextStep": "Read $f_{xx}$ together with $D$ and pick the matching label.",
+      "fullSolution": "A local maximum."
     }
   },
   {
@@ -447,9 +447,9 @@
     "rubric": "0",
     "hints": {
       "nudge": "2-2+0",
-      "technique": "0",
-      "nextStep": "0",
-      "fullSolution": "0"
+      "technique": "Dot product = matching components multiplied, then summed.",
+      "nextStep": "Multiply the three matching pairs, then add them.",
+      "fullSolution": "$\\mathbf{u}\\cdot\\mathbf{v}=0$"
     }
   },
   {
@@ -471,10 +471,673 @@
     ],
     "rubric": "Divergence",
     "hints": {
-      "nudge": "Closed surface + volume.",
-      "technique": "Divergence theorem",
-      "nextStep": "Divergence",
-      "fullSolution": "Divergence"
+      "nudge": "Closed surface with no boundary curve — which theorem fits?",
+      "technique": "Outward flux on a closed surface becomes a volume integral of the divergence.",
+      "nextStep": "Match the surface to the theorem that converts flux into a volume integral.",
+      "fullSolution": "The divergence theorem."
+    }
+  },
+  {
+    "id": "exam_21",
+    "skillId": "u1_coords3d",
+    "kind": "exam",
+    "prompt": "Distance from $(1,-2,3)$ to $(3,2,-1)$?",
+    "answerType": "numeric",
+    "answer": "6",
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "DISTANCE"
+    ],
+    "rubric": "6",
+    "hints": {
+      "nudge": "Differences are $\\langle 2,4,-4\\rangle$.",
+      "technique": "$\\sqrt{4+16+16}=\\sqrt{36}$",
+      "nextStep": "$6$",
+      "fullSolution": "Distance $=6$"
+    }
+  },
+  {
+    "id": "exam_22",
+    "skillId": "u1_coords3d",
+    "kind": "exam",
+    "prompt": "Sphere centered $(2,-1,0)$ through $(0,0,0)$: radius $r$?",
+    "answerType": "exact",
+    "answer": "\\sqrt{5}",
+    "accept": [
+      "sqrt(5)",
+      "√5",
+      "\\sqrt{5}"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.1,
+    "misconceptionTags": [
+      "SPHERE_RADIUS"
+    ],
+    "rubric": "$\\sqrt{5}$",
+    "hints": {
+      "nudge": "Radius = distance center to point.",
+      "technique": "$\\sqrt{2^2+(-1)^2}=\\sqrt{5}$",
+      "nextStep": "$\\sqrt{5}$",
+      "fullSolution": "$r=\\sqrt{5}$"
+    }
+  },
+  {
+    "id": "exam_23",
+    "skillId": "u1_vectors",
+    "kind": "exam",
+    "prompt": "Unit vector along $\\langle 2,-1,2\\rangle$ as $a,b,c$?",
+    "answerType": "tuple",
+    "answer": "2/3,-1/3,2/3",
+    "accept": [
+      "2/3,-1/3,2/3"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.1,
+    "misconceptionTags": [
+      "UNIT_VECTOR"
+    ],
+    "rubric": "$(2/3,-1/3,2/3)$",
+    "hints": {
+      "nudge": "Magnitude is $\\sqrt{4+1+4}=3$.",
+      "technique": "Divide each component by 3.",
+      "nextStep": "Divide each component by the magnitude.",
+      "fullSolution": "$\\langle 2/3,-1/3,2/3\\rangle$"
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
+  },
+  {
+    "id": "exam_24",
+    "skillId": "u1_vectors",
+    "kind": "exam",
+    "prompt": "$\\langle 3,-2,1\\rangle+2\\langle -1,1,4\\rangle$ as $a,b,c$?",
+    "answerType": "tuple",
+    "answer": "1,0,9",
+    "accept": [
+      "1,0,9"
+    ],
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "VECTOR_ARITH"
+    ],
+    "rubric": "(1,0,9)",
+    "hints": {
+      "nudge": "What must happen to the scalar 2 before the vectors can be added?",
+      "technique": "$\\langle 3-2,-2+2,1+8\\rangle$",
+      "nextStep": "Scale the second vector first, then add component-wise.",
+      "fullSolution": "$\\langle 1,0,9\\rangle$"
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
+  },
+  {
+    "id": "exam_25",
+    "skillId": "u1_quadrics",
+    "kind": "exam",
+    "prompt": "$z^2=x^2+y^2$ is a… (cone / elliptic paraboloid / hyperboloid)",
+    "answerType": "choice",
+    "answer": "cone",
+    "choices": [
+      "cone",
+      "elliptic paraboloid",
+      "hyperboloid of one sheet"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "QUADRIC_ID"
+    ],
+    "rubric": "cone",
+    "hints": {
+      "nudge": "Both variables squared, degree 2, no linear $z$ term.",
+      "technique": "Horizontal traces are circles of radius $|k|$; apex at origin.",
+      "nextStep": "Compare the degree of $z$ with the degrees of $x$ and $y$.",
+      "fullSolution": "A cone with apex at the origin."
+    }
+  },
+  {
+    "id": "exam_26",
+    "skillId": "u1_quadrics",
+    "kind": "exam",
+    "prompt": "$z=x^2+y^2$ is a… (cone / elliptic paraboloid / hyperboloid)",
+    "answerType": "choice",
+    "answer": "elliptic paraboloid",
+    "choices": [
+      "cone",
+      "elliptic paraboloid",
+      "hyperboloid of one sheet"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "QUADRIC_ID"
+    ],
+    "rubric": "elliptic paraboloid",
+    "hints": {
+      "nudge": "$z$ is linear, $x,y$ squared.",
+      "technique": "One squared side, one linear side ⇒ paraboloid.",
+      "nextStep": "Read off which side is squared and which side is linear.",
+      "fullSolution": "An elliptic paraboloid."
+    }
+  },
+  {
+    "id": "exam_27",
+    "skillId": "u1_cyl_sph",
+    "kind": "exam",
+    "prompt": "Cylindrical $r$ of the point $(1,1,2)$?",
+    "answerType": "exact",
+    "answer": "\\sqrt{2}",
+    "accept": [
+      "sqrt(2)",
+      "√2",
+      "\\sqrt{2}"
+    ],
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "CYL_SPH_CONVERT"
+    ],
+    "rubric": "$\\sqrt{2}$",
+    "hints": {
+      "nudge": "$r=\\sqrt{x^2+y^2}$, ignore $z$.",
+      "technique": "$\\sqrt{1+1}$",
+      "nextStep": "$\\sqrt{2}$",
+      "fullSolution": "$r=\\sqrt{2}$"
+    }
+  },
+  {
+    "id": "exam_28",
+    "skillId": "u1_cyl_sph",
+    "kind": "exam",
+    "prompt": "Spherical $\\rho$ of the point $(0,3,4)$?",
+    "answerType": "numeric",
+    "answer": "5",
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "CYL_SPH_CONVERT"
+    ],
+    "rubric": "5",
+    "hints": {
+      "nudge": "$\\rho=\\sqrt{x^2+y^2+z^2}$.",
+      "technique": "$\\sqrt{0+9+16}$",
+      "nextStep": "$5$",
+      "fullSolution": "$\\rho=5$"
+    }
+  },
+  {
+    "id": "exam_29",
+    "skillId": "u2_vector_fn",
+    "kind": "exam",
+    "prompt": "$\\mathbf{r}(t)=\\langle t,t^2,t^3\\rangle$. $\\mathbf{r}'(1)$ as $a,b,c$?",
+    "answerType": "tuple",
+    "answer": "1,2,3",
+    "accept": [
+      "1,2,3"
+    ],
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "VECTOR_DERIV"
+    ],
+    "rubric": "(1,2,3)",
+    "hints": {
+      "nudge": "Differentiate component-wise.",
+      "technique": "$\\mathbf{r}'=\\langle 1,2t,3t^2\\rangle$, then $t=1$.",
+      "nextStep": "$\\langle 1,2,3\\rangle$",
+      "fullSolution": "$\\mathbf{r}'(1)=\\langle 1,2,3\\rangle$"
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
+  },
+  {
+    "id": "exam_30",
+    "skillId": "u2_vector_fn",
+    "kind": "exam",
+    "prompt": "$\\int_0^1 \\langle t,2t,3t\\rangle\\,dt$ as $a,b,c$?",
+    "answerType": "tuple",
+    "answer": "1/2,1,3/2",
+    "accept": [
+      "1/2,1,3/2"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "VECTOR_INTEGRAL"
+    ],
+    "rubric": "(1/2,1,3/2)",
+    "hints": {
+      "nudge": "Integrate component-wise.",
+      "technique": "$\\int t^n\\,dt$ gives an antiderivative in $t$; evaluate at each limit.",
+      "nextStep": "Write the antiderivative of each component, then evaluate at the two limits.",
+      "fullSolution": "$\\langle 1/2,1,3/2\\rangle$"
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
+  },
+  {
+    "id": "exam_31",
+    "skillId": "u2_motion",
+    "kind": "exam",
+    "prompt": "$\\mathbf{r}(t)=\\langle t^2,t,2t\\rangle$. Velocity $\\mathbf{v}(1)$ as $a,b,c$?",
+    "answerType": "tuple",
+    "answer": "2,1,2",
+    "accept": [
+      "2,1,2"
+    ],
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "VELOCITY_ACCEL"
+    ],
+    "rubric": "(2,1,2)",
+    "hints": {
+      "nudge": "$\\mathbf{v}=\\mathbf{r}'$.",
+      "technique": "$\\langle 2t,1,2\\rangle$ at $t=1$.",
+      "nextStep": "$\\langle 2,1,2\\rangle$",
+      "fullSolution": "$\\mathbf{v}(1)=\\langle 2,1,2\\rangle$"
+    },
+    "tupleLabels": [
+      "a",
+      "b",
+      "c"
+    ],
+    "tupleSkeleton": "⟨a, b, c⟩"
+  },
+  {
+    "id": "exam_32",
+    "skillId": "u2_motion",
+    "kind": "exam",
+    "prompt": "Speed $|\\mathbf{v}|$ for $\\mathbf{r}(t)=\\langle \\cos t,\\sin t,t\\rangle$ (any $t$)?",
+    "answerType": "exact",
+    "answer": "\\sqrt{2}",
+    "accept": [
+      "sqrt(2)",
+      "√2",
+      "\\sqrt{2}"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "SPEED_VS_VELOCITY"
+    ],
+    "rubric": "$\\sqrt{2}$",
+    "hints": {
+      "nudge": "$\\mathbf{v}=\\langle -\\sin t,\\cos t,1\\rangle$.",
+      "technique": "$\\sin^2t+\\cos^2t+1=2$",
+      "nextStep": "$\\sqrt{2}$",
+      "fullSolution": "Speed $=\\sqrt{2}$"
+    }
+  },
+  {
+    "id": "exam_33",
+    "skillId": "u2_curvature",
+    "kind": "exam",
+    "prompt": "Curvature $\\kappa$ of $\\langle\\cos t,\\sin t,0\\rangle$?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 2,
+    "examWeight": 1.3,
+    "misconceptionTags": [
+      "CURVATURE"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "It is the unit circle: $\\kappa=1/R$.",
+      "technique": "$R=1$",
+      "nextStep": "$1$",
+      "fullSolution": "$\\kappa=1$"
+    }
+  },
+  {
+    "id": "exam_34",
+    "skillId": "u2_curvature",
+    "kind": "exam",
+    "prompt": "Curvature $\\kappa$ of the line $\\langle t,2t,3t\\rangle$?",
+    "answerType": "numeric",
+    "answer": "0",
+    "difficulty": 1,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "CURVATURE"
+    ],
+    "rubric": "0",
+    "hints": {
+      "nudge": "Straight lines never turn.",
+      "technique": "$T$ is constant ⇒ $dT/ds=0$.",
+      "nextStep": "$0$",
+      "fullSolution": "$\\kappa=0$"
+    }
+  },
+  {
+    "id": "exam_35",
+    "skillId": "u3_functions",
+    "kind": "exam",
+    "prompt": "Domain of $f(x,y)=\\sqrt{9-x^2-y^2}$?",
+    "answerType": "choice",
+    "answer": "Disk x²+y² ≤ 9",
+    "choices": [
+      "Disk x²+y² ≤ 9",
+      "All of ℝ²",
+      "Plane z = 9"
+    ],
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "DOMAIN"
+    ],
+    "rubric": "Disk x²+y² ≤ 9",
+    "hints": {
+      "nudge": "Radicand must be ≥ 0.",
+      "technique": "$9-x^2-y^2\\ge0$",
+      "nextStep": "Rearrange that inequality into a condition on $x$ and $y$ only.",
+      "fullSolution": "Disk $x^2+y^2\\le 9$"
+    }
+  },
+  {
+    "id": "exam_36",
+    "skillId": "u3_functions",
+    "kind": "exam",
+    "prompt": "Level curves of $f(x,y)=x^2+y^2$ are…",
+    "answerType": "choice",
+    "answer": "circles",
+    "choices": [
+      "circles",
+      "lines",
+      "parabolas"
+    ],
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "LEVEL_CURVES"
+    ],
+    "rubric": "circles",
+    "hints": {
+      "nudge": "Set $x^2+y^2=c$.",
+      "technique": "Each level set $f=c$ has radius $\\sqrt{c}$ about the origin.",
+      "nextStep": "Write $f(x,y)=c$ and read off the shape of the solution set.",
+      "fullSolution": "Circles centered at the origin."
+    }
+  },
+  {
+    "id": "exam_37",
+    "skillId": "u3_chain",
+    "kind": "exam",
+    "prompt": "$z=x^2y$, $x=\\cos t$, $y=\\sin t$. $dz/dt$ at $t=\\pi/2$?",
+    "answerType": "numeric",
+    "answer": "0",
+    "difficulty": 3,
+    "examWeight": 1.4,
+    "misconceptionTags": [
+      "CHAIN_TREE"
+    ],
+    "rubric": "0",
+    "hints": {
+      "nudge": "$z_t=z_x x'+z_y y'$.",
+      "technique": "$z=\\cos^2t\\,\\sin t$; every term carries $\\cos t$, which is $0$ at $\\pi/2$.",
+      "nextStep": "$0$",
+      "fullSolution": "$dz/dt=0$"
+    }
+  },
+  {
+    "id": "exam_38",
+    "skillId": "u3_chain",
+    "kind": "exam",
+    "prompt": "$z=(u+v)^2+(u+v)uv$. $\\partial z/\\partial u$ at $(u,v)=(1,2)$?",
+    "answerType": "numeric",
+    "answer": "14",
+    "difficulty": 3,
+    "examWeight": 1.4,
+    "misconceptionTags": [
+      "CHAIN_TREE"
+    ],
+    "rubric": "14",
+    "hints": {
+      "nudge": "Differentiate both terms in $u$, holding $v$ fixed.",
+      "technique": "$z_u=2(u+v)+uv+(u+v)v$",
+      "nextStep": "$6+2+6=14$",
+      "fullSolution": "$z_u(1,2)=14$"
+    }
+  },
+  {
+    "id": "exam_39",
+    "skillId": "u3_lagrange",
+    "kind": "exam",
+    "prompt": "Max of $xy$ subject to $x+y=4$ ($x,y>0$)?",
+    "answerType": "numeric",
+    "answer": "4",
+    "difficulty": 3,
+    "examWeight": 1.5,
+    "misconceptionTags": [
+      "LAGRANGE"
+    ],
+    "rubric": "4",
+    "hints": {
+      "nudge": "$\\nabla f=\\lambda\\nabla g$: $y=\\lambda$, $x=\\lambda$.",
+      "technique": "$x=y=2$ from the constraint.",
+      "nextStep": "$xy=4$",
+      "fullSolution": "Max value $=4$"
+    }
+  },
+  {
+    "id": "exam_40",
+    "skillId": "u3_lagrange",
+    "kind": "exam",
+    "prompt": "Min of $x^2+y^2$ subject to $x+y=2$?",
+    "answerType": "numeric",
+    "answer": "2",
+    "difficulty": 2,
+    "examWeight": 1.4,
+    "misconceptionTags": [
+      "LAGRANGE"
+    ],
+    "rubric": "2",
+    "hints": {
+      "nudge": "Closest point of the line to the origin.",
+      "technique": "$x=y=1$.",
+      "nextStep": "$1+1=2$",
+      "fullSolution": "Min value $=2$"
+    }
+  },
+  {
+    "id": "exam_41",
+    "skillId": "u4_double_rect",
+    "kind": "exam",
+    "prompt": "$\\iint_{[0,2]\\times[0,1]} xy\\,dA$?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 2,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "FUBINI"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "Separable: $(\\int_0^2 x\\,dx)(\\int_0^1 y\\,dy)$.",
+      "technique": "$2\\cdot\\frac12$",
+      "nextStep": "$1$",
+      "fullSolution": "Value $=1$"
+    }
+  },
+  {
+    "id": "exam_42",
+    "skillId": "u4_double_rect",
+    "kind": "exam",
+    "prompt": "$\\iint_{[0,2]\\times[0,1]} (x+y^2)\\,dA$?",
+    "answerType": "numeric",
+    "answer": "8/3",
+    "accept": [
+      "8/3",
+      "2.67",
+      "2.667"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.3,
+    "misconceptionTags": [
+      "FUBINI"
+    ],
+    "rubric": "$8/3$",
+    "hints": {
+      "nudge": "Inner: $\\int_0^1(x+y^2)dy=x+\\frac13$.",
+      "technique": "$\\int_0^2 (x+\\frac13)dx=2+\\frac23$",
+      "nextStep": "$8/3$",
+      "fullSolution": "Value $=8/3$"
+    }
+  },
+  {
+    "id": "exam_43",
+    "skillId": "u5_fields",
+    "kind": "exam",
+    "prompt": "$\\mathbf{F}=\\langle x,y\\rangle$ points ___ from the origin (inward/outward).",
+    "answerType": "choice",
+    "answer": "outward",
+    "choices": [
+      "outward",
+      "inward"
+    ],
+    "difficulty": 1,
+    "examWeight": 1,
+    "misconceptionTags": [
+      "FIELD_READ"
+    ],
+    "rubric": "outward",
+    "hints": {
+      "nudge": "At $(x,y)$ the arrow equals the position vector.",
+      "technique": "Parallel to $\\langle x,y\\rangle$ ⇒ radial.",
+      "nextStep": "Compare the arrow with the vector pointing from the origin to the point.",
+      "fullSolution": "Outward, along the radial direction."
+    }
+  },
+  {
+    "id": "exam_44",
+    "skillId": "u5_fields",
+    "kind": "exam",
+    "prompt": "$\\mathbf{F}=\\langle -y,x\\rangle$ at $(1,0)$ points… (+x / +y / −y)",
+    "answerType": "choice",
+    "answer": "+y",
+    "choices": [
+      "+x",
+      "+y",
+      "-y"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.1,
+    "misconceptionTags": [
+      "FIELD_READ"
+    ],
+    "rubric": "+y",
+    "hints": {
+      "nudge": "Plug in: $\\langle -0,1\\rangle$.",
+      "technique": "Rotation field is tangent to circles.",
+      "nextStep": "Substitute the point into the field, then compare with the coordinate directions.",
+      "fullSolution": "The $+y$ direction."
+    }
+  },
+  {
+    "id": "exam_45",
+    "skillId": "u5_line",
+    "kind": "exam",
+    "prompt": "$\\int_C \\mathbf{F}\\cdot d\\mathbf{r}$, $\\mathbf{F}=\\langle y,x\\rangle$, straight path $(0,0)\\to(1,1)$?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 2,
+    "examWeight": 1.3,
+    "misconceptionTags": [
+      "LINE_INTEGRAL"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "Path: $\\mathbf{r}(t)=\\langle t,t\\rangle$.",
+      "technique": "Integrand $\\langle t,t\\rangle\\cdot\\langle 1,1\\rangle=2t$.",
+      "nextStep": "$\\int_0^1 2t\\,dt=1$",
+      "fullSolution": "Value $=1$"
+    }
+  },
+  {
+    "id": "exam_46",
+    "skillId": "u5_line",
+    "kind": "exam",
+    "prompt": "$\\int_C (x+y)\\,ds$, segment $(0,0)\\to(1,0)$?",
+    "answerType": "numeric",
+    "answer": "1/2",
+    "accept": [
+      "1/2",
+      "0.5"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.2,
+    "misconceptionTags": [
+      "SCALAR_LINE_INT"
+    ],
+    "rubric": "$1/2$",
+    "hints": {
+      "nudge": "On the segment $y=0$, $ds=dx$.",
+      "technique": "$\\int_0^1 x\\,dx$",
+      "nextStep": "$1/2$",
+      "fullSolution": "Value $=1/2$"
+    }
+  },
+  {
+    "id": "exam_47",
+    "skillId": "u5_surface",
+    "kind": "exam",
+    "prompt": "Outward flux of $\\langle 0,0,z\\rangle$ through the unit cube's surface?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 2,
+    "examWeight": 1.3,
+    "misconceptionTags": [
+      "FLUX"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "Only the top face contributes: $z=1$ there.",
+      "technique": "Top flux $=1\\cdot(\\text{area }1)$; bottom has $z=0$, sides have normal $\\perp z$.",
+      "nextStep": "$1$",
+      "fullSolution": "Flux $=1$"
+    }
+  },
+  {
+    "id": "exam_48",
+    "skillId": "u5_surface",
+    "kind": "exam",
+    "prompt": "Outward flux of $\\langle x,y,z\\rangle$ through the unit sphere?",
+    "answerType": "exact",
+    "answer": "4\\pi",
+    "accept": [
+      "4pi",
+      "4π",
+      "\\pi*4"
+    ],
+    "difficulty": 3,
+    "examWeight": 1.5,
+    "misconceptionTags": [
+      "FLUX"
+    ],
+    "rubric": "$4\\pi$",
+    "hints": {
+      "nudge": "div F $=3$; Divergence theorem.",
+      "technique": "$3\\cdot\\frac{4}{3}\\pi(1)^3$",
+      "nextStep": "$4\\pi$",
+      "fullSolution": "Flux $=4\\pi$"
     }
   }
 ]

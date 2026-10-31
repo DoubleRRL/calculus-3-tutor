@@ -81,7 +81,7 @@
     ],
     "rubric": "no — paths can only disprove existence",
     "hints": {
-      "nudge": "Matching path limits is necessary but not sufficient.",
+      "nudge": "Two matching paths are only necessary. What must every other path give?",
       "technique": "Along $y=mx$ you get different values depending on $m$.",
       "nextStep": "Axes alone never prove existence.",
       "fullSolution": "No. Along $y=mx$: $\\frac{m}{1+m^2}$ depends on $m$, so the limit DNE."
@@ -168,7 +168,7 @@
     "hints": {
       "nudge": "Treat $x$ as constant; differentiate in $y$.",
       "technique": "$f_y=x^2$",
-      "nextStep": "$f_y(1,2)=1$",
+      "nextStep": "Plug $x=1$ into $f_y$.",
       "fullSolution": "$f_y(1,2)=1$"
     }
   },
@@ -206,7 +206,7 @@
     "hints": {
       "nudge": "$f_x=3x^2$, then differentiate again in $x$.",
       "technique": "$f_{xx}=6x$",
-      "nextStep": "$f_{xx}(1,0)=6$",
+      "nextStep": "Evaluate $6x$ at $x=1$.",
       "fullSolution": "$f_{xx}(1,0)=6$"
     }
   },
@@ -409,8 +409,8 @@
     "rubric": "saddle",
     "hints": {
       "nudge": "$D<0$ means the Hessian has mixed signs.",
-      "technique": "That is the saddle case.",
-      "nextStep": "saddle",
+      "technique": "$D=f_{xx}f_{yy}-(f_{xy})^2$.",
+      "nextStep": "With $D<0$ the quadratic form takes both signs.",
       "fullSolution": "saddle"
     }
   },
@@ -461,7 +461,7 @@
     "hints": {
       "nudge": "Maximize the $x$-coordinate on $x^2+y^2=1$.",
       "technique": "Farthest right point on the unit circle.",
-      "nextStep": "$(1,0)$",
+      "nextStep": "Max $x$ means $x^2=1$ at the extreme; get $y$ from $y^2=1-x^2$.",
       "fullSolution": "$(1,0)$"
     },
     "tupleLabels": [
@@ -508,7 +508,7 @@
     "hints": {
       "nudge": "Lines are not all paths.",
       "technique": "Paths like $y=x^2$ can disagree.",
-      "nextStep": "false",
+      "nextStep": "Take $y=x^2$, recompute the limit, and compare with the line value.",
       "fullSolution": "false"
     }
   },
@@ -526,9 +526,9 @@
     "rubric": "12",
     "hints": {
       "nudge": "$dz/dt=2xy x' + x^2 y'$",
-      "technique": "At t=2: $2(2)(2)(1)+4(1)=12$",
-      "nextStep": "12",
-      "fullSolution": "12"
+      "technique": "$x'=y'=1$ when both coordinates are $t$.",
+      "nextStep": "At $t=2$: $2xy\\,x'=2\\cdot2\\cdot2\\cdot1$ and $x^2y'=4\\cdot1$.",
+      "fullSolution": "$dz/dt=2\\cdot2\\cdot2\\cdot1+4\\cdot1=12$"
     }
   },
   {
@@ -550,8 +550,8 @@
     "rubric": "g=c",
     "hints": {
       "nudge": "Constrained optimization.",
-      "technique": "Constraint $g=c$.",
-      "nextStep": "g=c",
+      "technique": "Lagrange optimizes $f$ on the curve where $g$ is held at a constant.",
+      "nextStep": "List the extra equation that pins that constant.",
       "fullSolution": "g=c"
     }
   },
@@ -600,8 +600,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Need $1-x^2-y^2\\ge 0$",
-      "technique": "Disk $x^2+y^2\\le 1$",
-      "nextStep": "true",
+      "technique": "A square root needs a nonnegative radicand.",
+      "nextStep": "Solve $1-x^2-y^2\\ge 0$ and name the region.",
       "fullSolution": "true"
     }
   },
@@ -624,8 +624,8 @@
     "rubric": "x+y=3",
     "hints": {
       "nudge": "Set f equal to constant.",
-      "technique": "$x+y=3$",
-      "nextStep": "x+y=3",
+      "technique": "Level curves of $f$ are the level sets $f=c$.",
+      "nextStep": "Set $x+y$ equal to the level value.",
       "fullSolution": "x+y=3"
     }
   },
@@ -643,8 +643,8 @@
     "rubric": "0",
     "hints": {
       "nudge": "Substitute y=0.",
-      "technique": "Numerator 0",
-      "nextStep": "0",
+      "technique": "$xy=x\\cdot 0$ vanishes.",
+      "nextStep": "The fraction is then $0$ over $x^2$.",
       "fullSolution": "0"
     }
   },
@@ -666,8 +666,8 @@
     "rubric": "1/2",
     "hints": {
       "nudge": "Substitute y=x.",
-      "technique": "$x^2/(2x^2)=1/2$",
-      "nextStep": "1/2",
+      "technique": "$xy$ becomes $x^2$ and $x^2+y^2$ becomes $2x^2$.",
+      "nextStep": "Cancel the $x^2$ and read off the constant.",
       "fullSolution": "1/2"
     }
   },
@@ -690,7 +690,7 @@
     "hints": {
       "nudge": "Definition of critical points.",
       "technique": "∇f = 0 or undefined",
-      "nextStep": "true",
+      "nextStep": "Check the word interior: a critical point needs an open neighbourhood.",
       "fullSolution": "true"
     }
   },
@@ -713,8 +713,8 @@
     "rubric": "min",
     "hints": {
       "nudge": "f ≥ 0 everywhere.",
-      "technique": "Global min at 0",
-      "nextStep": "min",
+      "technique": "Compare $f$ with its value at the critical point.",
+      "nextStep": "Test $f$ at a point off the critical point.",
       "fullSolution": "min"
     }
   },
@@ -737,7 +737,7 @@
     "hints": {
       "nudge": "Standard Lagrange system.",
       "technique": "∇f = λ∇g and constraint",
-      "nextStep": "true",
+      "nextStep": "Count the equations: two from the gradient match, one from the constraint.",
       "fullSolution": "true"
     }
   },
@@ -759,8 +759,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "∇f=⟨1,1⟩, ∇g=⟨2x,2y⟩.",
-      "technique": "1=λ2x, 1=λ2y ⇒ x=y",
-      "nextStep": "true",
+      "technique": "Match $\\nabla f=\\lambda\\nabla g$ component by component.",
+      "nextStep": "Subtract the component equations $1=2\\lambda x$ and $1=2\\lambda y$.",
       "fullSolution": "true"
     }
   },
@@ -783,8 +783,8 @@
     "rubric": "ascent",
     "hints": {
       "nudge": "Definition of ∇f.",
-      "technique": "Steepest ascent",
-      "nextStep": "ascent",
+      "technique": "$\\nabla f$ is perpendicular to the level curves of $f$.",
+      "nextStep": "Move along $\\nabla f$ and watch which way $f$ changes.",
       "fullSolution": "ascent"
     }
   },
@@ -829,8 +829,8 @@
     "rubric": "3",
     "hints": {
       "nudge": "$dz/dt=y+x(2t)$",
-      "technique": "At t=1: 1+1·2=3",
-      "nextStep": "3",
+      "technique": "$x'=1$ and $y'=2t$.",
+      "nextStep": "At $t=1$: $y=1$ and $y'=2$, so plug into $y+x\\,y'$.",
       "fullSolution": "3"
     }
   },
@@ -848,8 +848,8 @@
     "rubric": "8",
     "hints": {
       "nudge": "$f_x=2xy$",
-      "technique": "2(1)(4)=8",
-      "nextStep": "8",
+      "technique": "$f_x=2xy$, so $2$ times the two coordinates.",
+      "nextStep": "Plug $x=1$, $y=4$ into $f_x=2xy$.",
       "fullSolution": "8"
     }
   }

@@ -704,6 +704,50 @@ const LESSONS: Record<string, Omit<Lesson, "skillId">> = {
       },
     },
   },
+  u2_curvature: {
+    hook: "How sharply does the curve bend?",
+    glossaryIds: ["unit-tangent", "curvature", "tnb-frame"],
+    pages: [
+      {
+        kind: "demo",
+        title: "Look",
+        goal: "Scrub the circle. Speed can stay constant while the path still bends.",
+        spec: {
+          type: "curve",
+          grid: { min: -3, max: 3, step: 1 },
+          curve: { kind: "circle", r: 2 },
+          tRange: [0, 6.2832],
+          initialT: 0.4,
+          task: { kind: "atT", t: 1.5708 },
+        },
+      },
+      {
+        kind: "prose",
+        title: "Unit tangent",
+        text: "The unit tangent is the direction of motion: $\\mathbf{T}=\\mathbf{r}'/\\|\\mathbf{r}'\\|$. It always has length $1$.",
+      },
+      {
+        kind: "steps",
+        title: "Curvature",
+        steps: [
+          {
+            text: "$\\kappa=\\|\\mathbf{T}'\\|/\\|\\mathbf{r}'\\|=\\|\\mathbf{r}'\\times\\mathbf{r}''\\|/\\|\\mathbf{r}'\\|^3$.",
+            explain: "Big $\\kappa$ means a tight bend. A line has $\\kappa=0$; a circle of radius $R$ has $\\kappa=1/R$.",
+          },
+        ],
+      },
+      {
+        kind: "prose",
+        title: "TNB in one breath",
+        text: "$\\mathbf{N}$ points toward the bend (the principal normal). $\\mathbf{B}=\\mathbf{T}\\times\\mathbf{N}$ is the binormal, perpendicular to the osculating plane.",
+      },
+    ],
+    eli5:
+      "Unit tangent $\\mathbf{T}$ is velocity made length $1$. Curvature $\\kappa$ measures how fast $\\mathbf{T}$ turns — a circle of radius $R$ has $\\kappa=1/R$; a straight line has $\\kappa=0$. $\\mathbf{N}$ points into the bend; $\\mathbf{B}=\\mathbf{T}\\times\\mathbf{N}$.",
+    analogy: "Steering wheel: T is the heading, κ is how hard you turn, N is toward the inside of the curve.",
+    workedExample:
+      "$\\mathbf{r}=\\langle\\cos t,\\sin t,0\\rangle$ has radius $1$, so $\\kappa=1$. For radius $2$, $\\kappa=1/2$.",
+  },
   u3_functions: {
     eli5:
       "A function of two variables $f(x,y)$ needs a whole plane of inputs. Level curves are the set where $f$ is constant — like contour lines on a topographic map.",

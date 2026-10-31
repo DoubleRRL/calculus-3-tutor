@@ -5,9 +5,11 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { MessageCircle, ChevronRight, X } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import type { CoachMessage } from "@/types/content";
 import { CoachPanel } from "./CoachPanel";
+import { FloatDismissBackdrop } from "./FloatDismissBackdrop";
+import { PanelFrame } from "./PanelFrame";
 import { Icon } from "@/ui";
 import {
   AnimatePresence,
@@ -16,52 +18,9 @@ import {
   springOrInstant,
   useReducedMotion,
 } from "@/lib/motion";
+import { clamp } from "@/lib/panels";
 
-const PANEL_SIZE_KEY = "calctutor.coachPanelSize";
 const SHEET_HEIGHT_KEY = "calctutor.coachSheetHeight";
-
-const MIN_W = 280;
-const MIN_H = 280;
-/** Keep panel top below session header so the resize grip stays usable. */
-const HEADER_CLEARANCE = 56;
-const BOTTOM_OFFSET_PX = 100;
-
-function clamp(n: number, lo: number, hi: number) {
-  return Math.max(lo, Math.min(hi, n));
-}
-
-function maxPanelHeight(): number {
-  return Math.max(
-    MIN_H,
-    window.innerHeight - BOTTOM_OFFSET_PX - HEADER_CLEARANCE,
-  );
-}
-
-function maxPanelWidth(): number {
-  return Math.min(window.innerWidth * 0.9, 28 * 16);
-}
-
-function defaultPanelSize(): { w: number; h: number } {
-  return {
-    w: 320,
-    h: clamp(Math.round(window.innerHeight * 0.55), MIN_H, maxPanelHeight()),
-  };
-}
-
-function loadPanelSize(): { w: number; h: number } {
-  const fallback = defaultPanelSize();
-  try {
-    const raw = localStorage.getItem(PANEL_SIZE_KEY);
-    if (!raw) return fallback;
-    const parsed = JSON.parse(raw) as { w?: number; h?: number };
-    return {
-      w: clamp(Number(parsed.w) || fallback.w, MIN_W, maxPanelWidth()),
-      h: clamp(Number(parsed.h) || fallback.h, MIN_H, maxPanelHeight()),
-    };
-  } catch {
-    return fallback;
-  }
-}
 
 function loadSheetHeight(): number {
   try {
@@ -99,86 +58,45 @@ export function FloatingCoach({
   onAsk: (q: string) => void;
   chips?: string[];
   caption?: string;
-  /** `sheet` = bottom sheet (Discuss from feedback); `float` = side panel. */
+  /** `sheet` = bottom sheet (Discuss from feedback); `float` = free panel. */
   variant?: "float" | "sheet";
 }) {
   const reduced = useReducedMotion();
-  const [panelSize, setPanelSize] = useState(loadPanelSize);
   const [sheetH, setSheetH] = useState(loadSheetHeight);
-  const dragRef = useRef<{
-    kind: "panel" | "sheet";
-    startX: number;
-    startY: number;
-    startW: number;
-    startH: number;
-  } | null>(null);
-
-  useEffect(() => {
-    localStorage.setItem(PANEL_SIZE_KEY, JSON.stringify(panelSize));
-  }, [panelSize]);
+  const sheetDrag = useRef<{ startY: number; startH: number } | null>(null);
 
   useEffect(() => {
     localStorage.setItem(SHEET_HEIGHT_KEY, String(sheetH));
   }, [sheetH]);
 
-  const onPointerMove = useCallback((e: PointerEvent) => {
-    const d = dragRef.current;
+  const onSheetDrag = useCallback((e: PointerEvent) => {
+    const d = sheetDrag.current;
     if (!d) return;
-    if (d.kind === "panel") {
-      // Handle is top-left: drag left/up grows the panel (anchored bottom-right).
-      const dw = d.startX - e.clientX;
-      const dh = d.startY - e.clientY;
-      setPanelSize({
-        w: clamp(d.startW + dw, MIN_W, maxPanelWidth()),
-        h: clamp(d.startH + dh, MIN_H, maxPanelHeight()),
-      });
-    } else {
-      const dh = d.startY - e.clientY;
-      setSheetH(
-        clamp(
-          d.startH + dh,
-          window.innerHeight * 0.4,
-          window.innerHeight * 0.85,
-        ),
-      );
-    }
+    const dh = d.startY - e.clientY;
+    setSheetH(
+      clamp(
+        d.startH + dh,
+        window.innerHeight * 0.4,
+        window.innerHeight * 0.85,
+      ),
+    );
   }, []);
 
-  const endDrag = useCallback(() => {
-    dragRef.current = null;
-    window.removeEventListener("pointermove", onPointerMove);
-    window.removeEventListener("pointerup", endDrag);
-  }, [onPointerMove]);
-
-  function beginPanelResize(e: ReactPointerEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    dragRef.current = {
-      kind: "panel",
-      startX: e.clientX,
-      startY: e.clientY,
-      startW: panelSize.w,
-      startH: panelSize.h,
-    };
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", endDrag);
-  }
+  const endSheetDrag = useCallback(() => {
+    sheetDrag.current = null;
+    window.removeEventListener("pointermove", onSheetDrag);
+    window.removeEventListener("pointerup", endSheetDrag);
+  }, [onSheetDrag]);
 
   function beginSheetResize(e: ReactPointerEvent) {
     e.preventDefault();
     e.stopPropagation();
-    dragRef.current = {
-      kind: "sheet",
-      startX: e.clientX,
-      startY: e.clientY,
-      startW: 0,
-      startH: sheetH,
-    };
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", endDrag);
+    sheetDrag.current = { startY: e.clientY, startH: sheetH };
+    window.addEventListener("pointermove", onSheetDrag);
+    window.addEventListener("pointerup", endSheetDrag);
   }
 
-  useEffect(() => () => endDrag(), [endDrag]);
+  useEffect(() => endSheetDrag, [endSheetDrag]);
 
   if (!enabled) return null;
 
@@ -214,7 +132,7 @@ export function FloatingCoach({
                   onPointerDown={beginSheetResize}
                   className="mx-auto mb-2 h-1.5 w-10 shrink-0 rounded-full bg-[var(--line-2)] cursor-ns-resize touch-none"
                 />
-                <div className="flex items-center justify-between gap-2 mb-2 max-w-xl mx-auto w-full shrink-0">
+                <div className="mb-2 flex w-full max-w-xl shrink-0 items-center justify-between gap-2 mx-auto">
                   <p className="text-[13px] font-medium text-[var(--ink-1)]">
                     Discuss with coach
                   </p>
@@ -222,12 +140,12 @@ export function FloatingCoach({
                     type="button"
                     aria-label="Close coach"
                     onClick={() => onOpenChange(false)}
-                    className="w-8 h-8 flex items-center justify-center rounded-[var(--r-nav)] text-[var(--ink-3)] hover:bg-[var(--accent-weak)] hover:text-[var(--ink-1)]"
+                    className="flex h-8 w-8 items-center justify-center rounded-[var(--r-nav)] text-[var(--ink-3)] hover:bg-[var(--accent-weak)] hover:text-[var(--ink-1)]"
                   >
-                    <Icon icon={X} size={14} />
+                    <Icon icon={MessageCircle} size={14} />
                   </button>
                 </div>
-                <div className="max-w-xl mx-auto w-full flex-1 min-h-0 flex flex-col">
+                <div className="flex min-h-0 w-full max-w-xl flex-1 flex-col mx-auto">
                   <CoachPanel
                     enabled
                     busy={busy}
@@ -247,59 +165,34 @@ export function FloatingCoach({
   }
 
   return (
-    <div
-      className={`pointer-events-none fixed inset-0 ${open ? "z-[55]" : "z-[45]"}`}
-    >
+    <div className={`pointer-events-none fixed inset-0 ${open ? "z-[55]" : "z-[45]"}`}>
+      {open && (
+        <FloatDismissBackdrop
+          onDismiss={() => onOpenChange(false)}
+          label="Close coach"
+        />
+      )}
+
       <AnimatePresence>
         {open && (
-          <motion.div
-            className="pointer-events-auto absolute right-3 rounded-[var(--r-card)] shadow-[0_8px_24px_rgba(0,0,0,0.1)]"
-            style={{
-              bottom,
-              width: panelSize.w,
-              height: panelSize.h,
-              maxHeight: maxPanelHeight(),
-              maxWidth: "calc(100% - 1.5rem)",
-            }}
-            initial={reduced ? false : { opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={reduced ? undefined : { opacity: 0, x: 20 }}
-            transition={springOrInstant(reduced, springs.ui)}
+          <PanelFrame
+            key="coach"
+            id="coach"
+            title="Coach"
+            onClose={() => onOpenChange(false)}
+            closeLabel="Minimize coach"
+            bodyClassName="flex flex-col p-2 pt-1"
           >
-            <div className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[var(--r-card)] border border-[var(--line)] bg-[var(--card)] p-3">
-              <button
-                type="button"
-                aria-label="Resize coach panel"
-                onPointerDown={beginPanelResize}
-                className="absolute left-1.5 top-1.5 w-3.5 h-3.5 rounded-sm border border-[var(--line-2)] bg-[var(--bg-sub)] cursor-nwse-resize touch-none z-10"
-                title="Drag to resize"
-              />
-              <div className="flex items-center justify-between gap-2 mb-2 shrink-0 pl-5">
-                <p className="text-[13px] font-medium text-[var(--ink-1)]">
-                  Coach
-                </p>
-                <button
-                  type="button"
-                  aria-label="Minimize coach"
-                  onClick={() => onOpenChange(false)}
-                  className="w-8 h-8 flex items-center justify-center rounded-[var(--r-nav)] text-[var(--ink-3)] hover:bg-[var(--accent-weak)] hover:text-[var(--ink-1)]"
-                >
-                  <Icon icon={ChevronRight} size={14} />
-                </button>
-              </div>
-              <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-                <CoachPanel
-                  enabled
-                  busy={busy}
-                  messages={messages}
-                  onAsk={onAsk}
-                  chips={chips}
-                  caption={caption}
-                  className="h-full min-h-0"
-                />
-              </div>
-            </div>
-          </motion.div>
+            <CoachPanel
+              enabled
+              busy={busy}
+              messages={messages}
+              onAsk={onAsk}
+              chips={chips}
+              caption={caption}
+              className="h-full min-h-0"
+            />
+          </PanelFrame>
         )}
       </AnimatePresence>
 

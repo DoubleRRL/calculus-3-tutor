@@ -1,6 +1,7 @@
 import { HashRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
 import { AppProvider } from "@/state/AppContext";
 import { AppShell } from "@/components/shell/AppShell";
+import { PanelViewportSync } from "@/components/PanelFrame";
 import { PathPage } from "@/pages/Path";
 import { PersonalizerPage } from "@/pages/Personalizer";
 import { SkillSheetPage } from "@/pages/SkillSheet";
@@ -15,6 +16,7 @@ export default function App() {
   return (
     <AppProvider>
       <HashRouter>
+        <PanelViewportSync />
         <LayoutGroup>
         <Routes>
           <Route element={<AppShell />}>

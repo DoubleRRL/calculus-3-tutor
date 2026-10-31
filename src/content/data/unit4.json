@@ -33,7 +33,7 @@
     "hints": {
       "nudge": "Inner integral in $y$: treat $x$ as constant.",
       "technique": "$x\\cdot y^2/2$ from 0 to 2 gives $2x$",
-      "nextStep": "$\\int_0^1 2x\\,dx=1$",
+      "nextStep": "Outer antiderivative of $2x$ is $x^2$, so evaluate $[x^2]_0^1$.",
       "fullSolution": "$\\int_0^1 2x\\,dx = 1$"
     }
   },
@@ -52,7 +52,7 @@
     "hints": {
       "nudge": "Constant integrand over the unit square.",
       "technique": "Inner $\\int_0^1 2\\,dx=2$, then $\\int_0^1 2\\,dy=2$",
-      "nextStep": "2",
+      "nextStep": "Each length-1 limit contributes a factor of $1$; there are two of them.",
       "fullSolution": "2"
     }
   },
@@ -119,7 +119,7 @@
     "hints": {
       "nudge": "Integrand is often easy; describing the region is hard.",
       "technique": "Wrong Type I/II limits are the classic trap.",
-      "nextStep": "wrong bounds",
+      "nextStep": "Sketch the region on paper, then read the limits off the sketch.",
       "fullSolution": "wrong bounds"
     }
   },
@@ -187,7 +187,7 @@
     "hints": {
       "nudge": "Polar matches rotational symmetry.",
       "technique": "Disks and annuli are natural in $(r,\\theta)$",
-      "nextStep": "circular",
+      "nextStep": "Name the region class whose bounds are one constant pair on $r$.",
       "fullSolution": "circular"
     }
   },
@@ -244,7 +244,7 @@
     "hints": {
       "nudge": "One pair of limits per variable.",
       "technique": "Variables $x,y,z$ → three nested integrals.",
-      "nextStep": "3",
+      "nextStep": "Count the variables in the integrand.",
       "fullSolution": "3"
     }
   },
@@ -268,7 +268,7 @@
     "hints": {
       "nudge": "A ball is constant $\\rho$ from the origin.",
       "technique": "Spherical bounds are simplest for spheres.",
-      "nextStep": "spherical",
+      "nextStep": "Count how many coordinates would need only a single constant each.",
       "fullSolution": "spherical"
     }
   },
@@ -286,8 +286,8 @@
     "rubric": "3",
     "hints": {
       "nudge": "Don't forget the $r$ in $dV=r\\,dr\\,d\\theta\\,dz$.",
-      "technique": "Factor equals the current $r$ value.",
-      "nextStep": "3",
+      "technique": "$dV$ in cylindrical picks up one factor of $r$.",
+      "nextStep": "Set $r=3$ in that factor.",
       "fullSolution": "3"
     }
   },
@@ -368,7 +368,7 @@
     "hints": {
       "nudge": "Orientation of the map can flip the sign of $\\det J$.",
       "technique": "Absolute value keeps area positive and orientation-safe.",
-      "nextStep": "both",
+      "nextStep": "Two things ride on that absolute value: orientation and region size.",
       "fullSolution": "both"
     }
   },
@@ -415,8 +415,8 @@
     "rubric": "r^3",
     "hints": {
       "nudge": "$x^2+y^2=r^2$, $dA=r\\,dr\\,d\\theta$",
-      "technique": "$r^2\\cdot r=r^3$",
-      "nextStep": "r^3",
+      "technique": "$x^2+y^2=r^2$, and the Jacobian adds one more factor of $r$.",
+      "nextStep": "Multiply the two factors and collect the exponent on $r$.",
       "fullSolution": "r^3"
     }
   },
@@ -441,7 +441,7 @@
     "hints": {
       "nudge": "Shared origin geometry.",
       "technique": "Constant $\\phi$, $\\rho$ bounds.",
-      "nextStep": "spherical",
+      "nextStep": "Name the coordinates whose bounds are two constants plus the origin.",
       "fullSolution": "spherical"
     }
   },
@@ -460,7 +460,7 @@
     "hints": {
       "nudge": "Area of rectangle.",
       "technique": "1·2=2",
-      "nextStep": "2",
+      "nextStep": "Width times height: $1$ by $2$.",
       "fullSolution": "2"
     }
   },
@@ -477,10 +477,10 @@
     ],
     "rubric": "1",
     "hints": {
-      "nudge": "Inner: $xy+y^2/2$ from 0 to 1 → x+1/2",
-      "technique": "∫(x+1/2)dx from 0 to 1 = 1",
-      "nextStep": "1",
-      "fullSolution": "1"
+      "nudge": "Integrate the $y$ part first, keeping $x$ as a constant.",
+      "technique": "$xy+y^2/2$ is the inner antiderivative.",
+      "nextStep": "At $y=0$ and $y=1$ that leaves $x+1/2$ for the outer integral.",
+      "fullSolution": "$\\int_0^1 (x+1/2)\\,dx=1$"
     }
   },
   {
@@ -501,8 +501,8 @@
     "rubric": "1-x",
     "hints": {
       "nudge": "Upper curve is the line.",
-      "technique": "y goes up to 1-x",
-      "nextStep": "1-x",
+      "technique": "Read the upper limit off the upper curve.",
+      "nextStep": "Rearrange $x+y=1$ to isolate $y$.",
       "fullSolution": "1-x"
     }
   },
@@ -522,9 +522,9 @@
     ],
     "rubric": "1-x",
     "hints": {
-      "nudge": "Hypotenuse y=1-x.",
-      "technique": "0 to 1-x",
-      "nextStep": "1-x",
+      "nudge": "Which side of the triangle is the hypotenuse?",
+      "technique": "The inner limit runs from the axis up to the hypotenuse.",
+      "nextStep": "Rearrange that line to isolate $y$.",
       "fullSolution": "1-x"
     }
   },
@@ -547,8 +547,8 @@
     "rubric": "r dr dθ",
     "hints": {
       "nudge": "Jacobian of polar.",
-      "technique": "dA = r dr dθ",
-      "nextStep": "r dr dθ",
+      "technique": "$\\partial(x,y)/\\partial(r,\\theta)=\\mathrm{diag}(r,1)$.",
+      "nextStep": "Take the absolute determinant of that Jacobian.",
       "fullSolution": "r dr dθ"
     }
   },
@@ -570,9 +570,9 @@
     ],
     "rubric": "π",
     "hints": {
-      "nudge": "Inner ∫ r dr = 1/2",
-      "technique": "Times 2π → π",
-      "nextStep": "π",
+      "nudge": "Integrate $r\\,dr$ first.",
+      "technique": "$\\int_0^1 r\\,dr=1/2$.",
+      "nextStep": "Multiply that value by the $\\theta$ range $2\\pi$.",
       "fullSolution": "π"
     }
   },
@@ -595,7 +595,7 @@
     "hints": {
       "nudge": "Standard spherical volume element.",
       "technique": "ρ² sin φ",
-      "nextStep": "true",
+      "nextStep": "Decide whether the stated factor is the one that belongs with $d\\rho\\,d\\phi\\,d\\theta$.",
       "fullSolution": "true"
     }
   },
@@ -617,8 +617,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Definition of r.",
-      "technique": "r² = x²+y²",
-      "nextStep": "true",
+      "technique": "By definition $r$ is the distance from the $z$-axis.",
+      "nextStep": "Square that distance and write it in terms of $x$ and $y$.",
       "fullSolution": "true"
     }
   },
@@ -636,8 +636,8 @@
     "rubric": "1",
     "hints": {
       "nudge": "Product of side lengths.",
-      "technique": "1",
-      "nextStep": "1",
+      "technique": "Box volume is width $\\times$ depth $\\times$ height.",
+      "nextStep": "All three sides are 1: multiply them.",
       "fullSolution": "1"
     }
   },
@@ -655,8 +655,8 @@
     "rubric": "2",
     "hints": {
       "nudge": "Constant times volume.",
-      "technique": "2·1=2",
-      "nextStep": "2",
+      "technique": "$\\iiint c\\,dV=c\\cdot\\text{Vol}$.",
+      "nextStep": "Pull the constant out and multiply by the unit cube volume.",
       "fullSolution": "2"
     }
   },
@@ -678,8 +678,8 @@
     "rubric": "true",
     "hints": {
       "nudge": "Absolute value of Jacobian determinant.",
-      "technique": "true",
-      "nextStep": "true",
+      "technique": "Change of variables multiplies by the area scale factor $|J|$.",
+      "nextStep": "Check that the statement uses $|J|$, not $J$.",
       "fullSolution": "true"
     }
   },
@@ -697,8 +697,8 @@
     "rubric": "6",
     "hints": {
       "nudge": "Diagonal Jacobian 2·3.",
-      "technique": "6",
-      "nextStep": "6",
+      "technique": "For a diagonal map, $|J|$ is the product of the two scale factors.",
+      "nextStep": "Jacobian is $\\mathrm{diag}(2,3)$; take its determinant.",
       "fullSolution": "6"
     }
   }

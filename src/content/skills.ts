@@ -149,6 +149,14 @@ export const SKILLS: Skill[] = [
     prerequisites: ["u2_vector_fn"],
     order: 22,
   },
+  {
+    id: "u2_curvature",
+    unitId: "unit2",
+    title: "Curvature & TNB",
+    objective: "Unit tangent T, curvature κ, and what N and B mean.",
+    prerequisites: ["u2_motion"],
+    order: 23,
+  },
 
   // Unit 3
   {

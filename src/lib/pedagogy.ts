@@ -6,6 +6,18 @@ export const SESSION_SIZES = [5, 12, 20] as const;
 
 export const EXAM_SIZE = 20;
 
+/** Cumulative recall check over skills already seen — not the full-course sim. */
+export const CHECKPOINT_SIZE = 10;
+
+/** Nudge a checkpoint when this many review cards are due… */
+export const CHECKPOINT_DUE_NUDGE = 3;
+
+/** …or after this many sessions since the last checkpoint. */
+export const CHECKPOINT_SESSIONS_NUDGE = 2;
+
+/** Minimum engaged course skills before checkpoints make sense. */
+export const CHECKPOINT_MIN_SKILLS = 4;
+
 /** Fractions of Today queue — should sum to ~1. */
 export const SESSION_MIX = {
   reviews: 0.25,

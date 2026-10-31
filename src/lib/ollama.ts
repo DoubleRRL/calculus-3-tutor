@@ -1,8 +1,18 @@
 import type { AppSettings, CoachMessage, ProblemItem } from "@/types/content";
+import type { TutorState } from "@/types/tutor";
+import { MODE_LABEL, openedModes } from "./tutorMachine";
 import { describeInteractionState } from "@/lib/interactions";
+import {
+  machineGradeOf,
+  sanitizeCoachReply,
+} from "@/lib/coachAlign";
 
 const DEFAULT_TIMEOUT_MS = 120_000;
-const HISTORY_CAP = 6;
+/**
+ * Enough history to keep a thread, small enough that the framing is never
+ * pushed out of the window mid-dialogue.
+ */
+const HISTORY_CAP = 10;
 
 export async function ollamaReachable(baseUrl: string): Promise<boolean> {
   try {
@@ -28,8 +38,33 @@ export async function listModels(baseUrl: string): Promise<string[]> {
   }
 }
 
+/**
+ * One model serves every tutor task. What differs between tasks is sampling,
+ * not the model: conversational nudges must be short and streamable, while
+ * post-session analysis wants a long non-streaming pass.
+ */
+export type TaskClass = "talk" | "analyse";
+
+const TASK_OPTIONS: Record<TaskClass, {
+  temperature: number;
+  numPredict: number;
+  stream: boolean;
+}> = {
+  talk: { temperature: 0.35, numPredict: 256, stream: true },
+  analyse: { temperature: 0.2, numPredict: 1024, stream: false },
+};
+
+export function taskOptions(task: TaskClass) {
+  return TASK_OPTIONS[task];
+}
+
 export function activeCoachModel(settings: AppSettings): string {
-  return settings.qualityMode ? settings.qualityModel : settings.coachModel;
+  return settings.tutorModel;
+}
+
+/** Model for long, non-interactive work. Falls back to the tutor model. */
+export function analysisModel(settings: AppSettings): string {
+  return settings.analysisModel || settings.tutorModel;
 }
 
 export interface CoachContext {
@@ -37,7 +72,10 @@ export interface CoachContext {
   skillTitle: string;
   skillObjective: string;
   attempt: string;
-  hintLevel: number;
+  /** Current ladder state. The app owns the rung; the model fills in words. */
+  tutor: TutorState;
+  /** 1-based coach turn on this problem. Turn 1 gets the full problem restated. */
+  turn: number;
   /** When set, coach explains the ELI5 intro — never spoil practice answers. */
   lessonIntro?: string;
 }
@@ -56,13 +94,52 @@ function explainStyleNote(settings: AppSettings): string {
   return "";
 }
 
-function buildSystemPrompt(ctx: CoachContext, settings: AppSettings): string {
+/**
+ * The state block. This is the single most important part of the prompt:
+ * previously the model was told "do not ask the same question twice" and
+ * "do not restart a step they already cleared" with nothing in the prompt
+ * telling it what it had already done — so it looped.
+ */
+function tutorStateBlock(ctx: CoachContext): string {
+  const t = ctx.tutor;
+  const asked = t.askedQuestions.slice(-4);
+  const cleared = t.clearedSteps.slice(-4);
+  const lines = [
+    `TURN: ${t.turn + 1} on this problem`,
+    `RUNG: ${t.mode} — ${MODE_LABEL[t.mode]}`,
+    `VERDICT ON THEIR LAST ATTEMPT: ${t.lastVerdict}`,
+  ];
+  if (asked.length) {
+    lines.push(`YOU ALREADY ASKED (do not repeat, do not paraphrase):`);
+    for (const q of asked) lines.push(`  - ${q}`);
+  }
+  if (cleared.length) {
+    lines.push(`ALREADY CLEARED (never go back): ${cleared.join(" | ")}`);
+  }
+  if (t.insists >= 1) {
+    lines.push(
+      `THEY HAVE ASKED FOR THE ANSWER ${t.insists}×. ${
+        t.insists >= 2
+          ? "They are entitled to it now — give the answer plainly."
+          : "Answer briefly, then one forward step."
+      }`,
+    );
+  }
+  const opened = openedModes(t);
+  if (opened.length > 1) {
+    lines.push(`RUNGS ALREADY SPENT: ${opened.join(" → ")}. Do not repeat them.`);
+  }
+  return lines.join("\n");
+}
+
+export function buildSystemPrompt(ctx: CoachContext, settings: AppSettings): string {
   const styleLine = explainStyleNote(settings);
   if (ctx.lessonIntro) {
     return `You are CalcTutor's Socratic coach for a Calculus 3 lesson INTRO (ELI5).
 
 Rules:
 - Next useful nudge only (1-4 short sentences). Prefer a question or one clear rephrase.
+- Do not ask the same question twice in a row.
 - Help with the interactive demo goal if present.
 - Do NOT spoil practice-problem answers.
 - Math: use ONLY $...$ or $$...$$ — never \\(...\\) or \\[...\\]. Keep formulas simple (avoid complex environments).
@@ -78,18 +155,27 @@ ${ctx.lessonIntro}`;
   const h = ctx.item.hints;
   return `You are CalcTutor's Socratic coach for Calculus 3. Help them think — do not do the problem for them.
 
+${tutorStateBlock(ctx)}
+
+Reply format — first two lines exactly, then your message:
+V: correct|wrong|empty
+Q: the ONE question you are asking them (a single question, or "-" if you are only stating a fact)
+Then 1-4 short sentences. Never more than one question per reply.
+
 Rules:
-- Give the NEXT useful nudge only (1-4 short sentences). Prefer one strategy step or one question.
-- Do not re-ask something they already answered.
-- If stuck (idk / where to start): share AT MOST one fact from Nudge or Technique below, then ask them to try the next tiny step. Do NOT dump the full solution, full determinant expansion, or a worked walkthrough.
-- Escalate toward the answer only if they insist twice or are clearly one step away.
-- Never invent numbers or answers not in the problem, attempt, or ALLOWED FACTS. Angles: acos/cos⁻¹ in degrees (not cosh).
-- Math: use ONLY $...$ or $$...$$ — never \\(...\\) or \\[...\\]. Prefer simple inline formulas over matrices/environments.
+- V must mirror the GRADE you are given. Never contradict it.
+- Your Q line is compared against your own previous questions by the app. If you are
+  going to ask essentially the same thing again, ask something SMALLER instead.
+- Give the NEXT useful step only. Do not restart anything they already cleared.
+- Never invent numbers not present in the problem, their attempt, GRADED, or the ladder below.
+- Angles: acos/cos⁻¹ in degrees (not cosh).
+- Math: use ONLY $...$ or $$...$$ — never \\(...\\) or \\[...\\]. Avoid matrices and complex environments.
 - No long chain-of-thought.
 ${styleLine ? `- ${styleLine}` : ""}
 
 Skill: ${ctx.skillTitle} — ${ctx.skillObjective}
-Hint level: ${ctx.hintLevel}/4 · Tags: ${ctx.item.misconceptionTags.join(", ") || "none"}
+GRADED: ${ctx.item.answer} (secret). PROBLEM text is the question, not the skill title.
+Tags: ${ctx.item.misconceptionTags.join(", ") || "none"}
 
 ALLOWED FACTS (guide with these; do not paste the whole ladder):
 - Nudge: ${h.nudge}
@@ -119,7 +205,15 @@ function answerFormatNote(item: ProblemItem): string {
   return `ANSWER FORMAT: ${item.answerType}`;
 }
 
-function buildUserPayload(ctx: CoachContext, question: string): string {
+/**
+ * The problem statement is restated on turn 1 only.
+ *
+ * Re-sending it every turn acted as a re-attractor: combined with "start with
+ * a verdict", every reply collapsed into the same template and the dialogue
+ * reset itself each time. After turn 1 the problem lives in the history and in
+ * the system prompt's GRADED line.
+ */
+export function buildUserPayload(ctx: CoachContext, question: string): string {
   if (ctx.lessonIntro) {
     return `/no_think
 LESSON INTRO:
@@ -135,15 +229,33 @@ ${question}`;
     ctx.item.interaction != null
       ? `\nINTERACTION STATE:\n${describeInteractionState(ctx.item.interaction, ctx.attempt)}\n`
       : "";
-  return `/no_think
+  const grade = machineGradeOf(ctx.item, ctx.attempt);
+
+  if (ctx.turn <= 1) {
+    return `/no_think
+FIRST TURN ON THIS PROBLEM — here it is:
 PROBLEM:
 ${ctx.item.prompt}
 ${interactionNote}
 ${answerFormatNote(ctx.item)}
+GRADE: ${grade}
 
 STUDENT ATTEMPT / SCRATCH:
 ${ctx.attempt || "(empty)"}
 
+STUDENT MESSAGE:
+${question}`;
+  }
+
+  // Later turns: compact. Do not restate the problem — that is what re-anchored
+  // the model to "start over" behaviour on every message.
+  const attempt = ctx.attempt.trim()
+    ? `THEIR CURRENT ANSWER: ${ctx.attempt}\n`
+    : `THEY HAVE NOT ENTERED AN ANSWER YET.\n`;
+  return `/no_think
+Same problem as turn 1.${interactionNote}
+GRADE: ${grade}
+${attempt}
 STUDENT MESSAGE:
 ${question}`;
 }
@@ -152,7 +264,9 @@ function chatBody(
   model: string,
   messages: { role: string; content: string }[],
   stream: boolean,
+  task: TaskClass = "talk",
 ) {
+  const o = TASK_OPTIONS[task];
   return {
     model,
     messages,
@@ -160,8 +274,8 @@ function chatBody(
     keep_alive: "30m",
     think: false,
     options: {
-      temperature: 0.35,
-      num_predict: 256,
+      temperature: o.temperature,
+      num_predict: o.numPredict,
     },
   };
 }
@@ -226,6 +340,11 @@ async function readStream(
   return full.trim();
 }
 
+function finishCoachReply(ctx: CoachContext, reply: string): string {
+  if (ctx.lessonIntro) return reply;
+  return sanitizeCoachReply(ctx.item, ctx.attempt, reply);
+}
+
 export async function askCoach(
   settings: AppSettings,
   ctx: CoachContext,
@@ -269,11 +388,14 @@ export async function askCoach(
 
     if (preferStream && r.body) {
       const full = await readStream(r, opts!.onToken!);
-      return full || "(No response from model.)";
+      return finishCoachReply(ctx, full || "(No response from model.)");
     }
 
     const data = (await r.json()) as { message?: { content?: string } };
-    return data.message?.content?.trim() || "(No response from model.)";
+    return finishCoachReply(
+      ctx,
+      data.message?.content?.trim() || "(No response from model.)",
+    );
   } catch (e) {
     if (e instanceof DOMException && e.name === "AbortError") {
       if (timedOut) {

@@ -129,9 +129,17 @@ export interface ReviewCard {
 export type ThemeMode = "light" | "dark" | "system";
 
 export interface AppSettings {
-  coachModel: string;
-  qualityModel: string;
-  qualityMode: boolean;
+  /**
+   * The single model that serves every tutor task. Task-specific sampling
+   * (streaming vs not, budget, temperature) is chosen by the app in
+   * `lib/ollama.ts`, not exposed as configuration.
+   */
+  tutorModel: string;
+  /**
+   * Optional model override for long, non-interactive work (post-session
+   * diagnosis). Empty means "use tutorModel".
+   */
+  analysisModel: string;
   ollamaBaseUrl: string;
   onboardingDone: boolean;
   /** Short personalizer finished (background / daily time / explain style). */
@@ -144,7 +152,13 @@ export interface AppSettings {
   coachFollowStream: boolean;
 }
 
-export type SessionMode = "today" | "skill" | "review" | "exam" | "placement";
+export type SessionMode =
+  | "today"
+  | "skill"
+  | "review"
+  | "exam"
+  | "checkpoint"
+  | "placement";
 
 export interface SessionSummary {
   at: number;

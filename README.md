@@ -49,6 +49,7 @@ Ollama must be running separately for Ask coach.
 1. Diagnostic (Calc 1–2) → Units 1–5 (Stewart-aligned) → exam simulator  
 2. Per skill: learn → guided → drill → mix → mastery gate → FSRS reviews  
 3. Stuck? curated hint ladder first; Ask coach second (scoped context, anti-spoiler)  
-4. Exam mode: coach off  
+4. Checkpoints: 10-item cumulative recall checks over seen topics only — nudged when reviews pile up or a couple of sessions pass; coach off  
+5. Exam mode: full-course sim, coach off  
 
 No cloud. No LLM-generated primary problem bank.

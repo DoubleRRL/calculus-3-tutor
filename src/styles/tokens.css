@@ -11,10 +11,10 @@
   --text-prompt: 18px;
   --text-title: 24px;
 
-  /* Warm paper field — Opus trailer vibe */
+  /* Warm paper field — Opus trailer vibe (ink-3 tuned to AA on all surfaces) */
   --ink-1: #2c261f;
   --ink-2: #6b5f52;
-  --ink-3: #9a8d7c;
+  --ink-3: #736757;
   --bg: #f3ede2;
   --bg-sub: #ede6d9;
   --card: #faf6ee;
@@ -58,7 +58,7 @@
 [data-theme="dark"] {
   --ink-1: #f0e8dc;
   --ink-2: #b8ab99;
-  --ink-3: #7a6f62;
+  --ink-3: #938879;
   --bg: #1c1914;
   --bg-sub: #16130f;
   --card: #242018;

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Flame, X } from "lucide-react";
-import { ProgressBar, Icon, Pill } from "@/ui";
+import { ProgressBar, Icon, Pill, RollingNumber } from "@/ui";
 import {
   motion,
   springs,
@@ -64,7 +64,7 @@ export function SessionShell({
           >
             <Pill tone="streak">
               <Icon icon={Flame} size={14} />
-              {combo}
+              <RollingNumber value={combo} />
             </Pill>
           </motion.div>
         )}

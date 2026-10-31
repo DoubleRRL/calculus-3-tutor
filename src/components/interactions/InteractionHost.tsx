@@ -92,7 +92,7 @@ export function InteractionHost({
               </p>
             }
           >
-            <Surface3D spec={spec} {...common} />
+            <Surface3D spec={spec} {...common} mode={mode} />
           </Suspense>
         );
       default:

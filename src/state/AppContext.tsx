@@ -15,6 +15,8 @@ import {
   computeReadiness,
   loadState,
   markSkillGroked,
+  recordCheckpointScore,
+  recordExamScore,
   recordSessionComplete,
   resetState,
   saveState,
@@ -36,7 +38,9 @@ interface AppCtx {
   recordAttempt: (attempt: AttemptRecord, grade: 1 | 2 | 3 | 4) => void;
   updateSettings: (patch: Partial<AppSettings>) => void;
   reset: () => void;
+  replaceState: (next: PersistedState) => void;
   pushExamScore: (pct: number) => void;
+  pushCheckpointScore: (pct: number) => void;
   completeSession: (summary?: SessionSummary) => void;
   addXp: (amount: number) => void;
   markGroked: (skillId: string) => void;
@@ -105,11 +109,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState(resetState());
   }, []);
 
+  const replaceState = useCallback((next: PersistedState) => {
+    saveState(next);
+    setState(next);
+  }, []);
+
   const pushExamScore = useCallback((pct: number) => {
-    setState((prev) => ({
-      ...prev,
-      examScores: [...prev.examScores, pct].slice(-10),
-    }));
+    setState((prev) => recordExamScore(prev, pct));
+  }, []);
+
+  const pushCheckpointScore = useCallback((pct: number) => {
+    setState((prev) => recordCheckpointScore(prev, pct));
   }, []);
 
   const completeSession = useCallback((summary?: SessionSummary) => {
@@ -135,7 +145,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       recordAttempt,
       updateSettings,
       reset,
+      replaceState,
       pushExamScore,
+      pushCheckpointScore,
       completeSession,
       addXp,
       markGroked,
@@ -149,7 +161,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       recordAttempt,
       updateSettings,
       reset,
+      replaceState,
       pushExamScore,
+      pushCheckpointScore,
       completeSession,
       addXp,
       markGroked,

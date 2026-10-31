@@ -13,10 +13,19 @@ import { ClickFill, countBlanks, decodeClickFill } from "./ClickFill";
 import { TupleInput } from "./TupleInput";
 import { MathText } from "@/components/MathText";
 import { InteractionHost } from "@/components/interactions/InteractionHost";
-import { HintLadderPanel } from "@/components/HintLadder";
 import { LESSON_COACH_CHIPS } from "@/components/CoachPanel";
+import { LadderRail } from "./LadderRail";
+import {
+  escalateTutor,
+  hasRevealed,
+  initTutorState,
+  isInsist,
+  tutorReducer,
+} from "@/lib/tutorMachine";
+import { parseCoachReply } from "@/lib/coachReply";
 import { FloatingCoach } from "@/components/FloatingCoach";
 import { FloatingScratchCalc } from "@/components/FloatingScratchCalc";
+import { FloatingGlossary } from "@/components/FloatingGlossary";
 import { Button, Sheet } from "@/ui";
 import { gradeAnswer } from "@/lib/grading";
 import { askCoach, warmCoach } from "@/lib/ollama";
@@ -26,11 +35,11 @@ import { itemXp, XP } from "@/lib/gamify";
 import { defaultExamWeight } from "@/lib/pedagogy";
 import { scoreExamAttempt } from "@/lib/scheduler";
 import type { CoachMessage, SessionMode, SessionSummary } from "@/types/content";
+import { modeIndex, type TutorState } from "@/types/tutor";
 import {
   AnimatePresence,
   motion,
-  springs,
-  springOrInstant,
+  tweens,
   useReducedMotion,
 } from "@/lib/motion";
 
@@ -42,27 +51,29 @@ export function SessionPage() {
     ? "skill"
     : mode === "review" ||
         mode === "exam" ||
+        mode === "checkpoint" ||
         mode === "placement" ||
         mode === "today"
       ? mode
       : "today";
   const nav = useNavigate();
-  const {
-    state,
-    recordAttempt,
-    pushExamScore,
-    completeSession,
-    addXp,
-    markGroked,
-    setFocusSkillId,
-    setResume,
-    updateSettings,
-  } = useApp();
+    const {
+      state,
+      recordAttempt,
+      pushExamScore,
+      pushCheckpointScore,
+      completeSession,
+      addXp,
+      markGroked,
+      setFocusSkillId,
+      setResume,
+      updateSettings,
+    } = useApp();
 
   const [steps, setSteps] = useState<SessionStep[]>([]);
   const [idx, setIdx] = useState(0);
   const [answer, setAnswer] = useState("");
-  const [hintLevel, setHintLevel] = useState(0);
+  const [tutor, setTutor] = useState<TutorState>(initTutorState);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [correct, setCorrect] = useState(false);
   const [locked, setLocked] = useState(false);
@@ -83,6 +94,7 @@ export function SessionPage() {
   const [coachSheet, setCoachSheet] = useState(false);
   const [coachPulse, setCoachPulse] = useState(false);
   const [calcOpen, setCalcOpen] = useState(false);
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [quitOpen, setQuitOpen] = useState(false);
   const [gen, setGen] = useState(0);
   const [teachXpAwarded, setTeachXpAwarded] = useState(false);
@@ -99,11 +111,19 @@ export function SessionPage() {
   const examRef = useRef<{ weight: number; correct: boolean }[]>([]);
   const startRef = useRef(Date.now());
   const abortRef = useRef<AbortController | null>(null);
+  const badgesAtStartRef = useRef<string[]>(state.badges);
   const reduced = useReducedMotion();
 
-  const coachOn = sessionMode !== "exam";
-  const hintsOn = sessionMode !== "exam";
-  const trackExam = sessionMode === "exam";
+  const examLike = sessionMode === "exam" || sessionMode === "checkpoint";
+  const coachOn = !examLike;
+  const hintsOn = !examLike;
+  const trackExam = examLike;
+
+  /**
+   * 0..4 depth of help given so far, kept as a derived value because the grade,
+   * XP and FSRS maths all predate the ladder machine.
+   */
+  const hintLevel = modeIndex(tutor.mode);
 
   function boot() {
     const built = buildSessionSteps(sessionMode, state, {
@@ -113,7 +133,7 @@ export function SessionPage() {
     setSteps(built);
     setIdx(0);
     setAnswer("");
-    setHintLevel(0);
+    setTutor(initTutorState());
     setFeedback(null);
     setLocked(false);
     setCorrect(false);
@@ -137,6 +157,7 @@ export function SessionPage() {
     setFirstPassStats(null);
     examRef.current = [];
     startRef.current = Date.now();
+    badgesAtStartRef.current = state.badges;
     setResults(built.map((s) => (isTeach(s) ? "teach" : "pending")));
     if (coachOn) void warmCoach(state.settings);
   }
@@ -173,6 +194,19 @@ export function SessionPage() {
 
   useEffect(() => () => setFocusSkillId(null), [setFocusSkillId]);
 
+  /**
+   * Vertical slot for a closed panel's dock tab. Panels float freely, so tabs
+   * are the only thing still anchored right and they must not overlap.
+   */
+  function dockIndex(which: "calc" | "glossary"): number {
+    const slots: string[] = [];
+    if (coachOn) slots.push("coach");
+    if (coachOn) slots.push("calc");
+    if (step) slots.push("glossary");
+    const at = slots.indexOf(which);
+    return at < 0 ? 0 : at;
+  }
+
   /** One shell segment for the teach block; one per practice item. */
   const segments = useMemo(() => {
     type Seg = "pending" | "teach" | "correct" | "wrong" | "current";
@@ -200,7 +234,7 @@ export function SessionPage() {
   function resetUi() {
     abortRef.current?.abort();
     setAnswer("");
-    setHintLevel(0);
+    setTutor(initTutorState());
     setFeedback(null);
     setLocked(false);
     setCorrect(false);
@@ -209,13 +243,19 @@ export function SessionPage() {
     setCoachOpen(false);
     setCoachSheet(false);
     setCoachPulse(false);
+    setCalcOpen(false);
+    setGlossaryOpen(false);
   }
 
   function finishSession() {
     const problemSteps = steps.filter((s) => !isTeach(s));
     if (trackExam) {
       const pct = scoreExamAttempt(examRef.current);
-      pushExamScore(pct);
+      if (sessionMode === "checkpoint") {
+        pushCheckpointScore(pct);
+      } else {
+        pushExamScore(pct);
+      }
       setExamPct(pct);
     }
     const items = firstPassStats?.items ?? problemSteps.length;
@@ -255,7 +295,7 @@ export function SessionPage() {
   }
 
   function maybeReviewOrFinish() {
-    if (!reviewPass && sessionMode !== "exam") {
+    if (!reviewPass && !examLike) {
       const wrongs = steps.filter(
         (s, i) => !isTeach(s) && results[i] === "wrong",
       );
@@ -337,7 +377,15 @@ export function SessionPage() {
     setFeedback(result.feedback);
     setCorrect(result.correct);
     setLocked(true);
-    const revealed = hintLevel >= 4;
+    const revealed = hasRevealed(tutor);
+    setTutor((s) =>
+      tutorReducer(s, {
+        type: "submit",
+        correct: result.correct,
+        answer,
+        revealed,
+      }).state,
+    );
     const grade: 1 | 2 | 3 | 4 = result.correct
       ? revealed
         ? 2
@@ -405,6 +453,9 @@ export function SessionPage() {
     const ac = new AbortController();
     abortRef.current = ac;
     const history = coachMsgs;
+    // A demand for the answer is counted before the model ever sees it, so the
+    // "insist twice" rule the prompt describes is actually backed by a counter.
+    if (isInsist(q)) setTutor((s) => tutorReducer(s, { type: "insist" }).state);
     setCoachBusy(true);
     setCoachMsgs((m) => [
       ...m,
@@ -469,7 +520,8 @@ export function SessionPage() {
           skillTitle: skill.title,
           skillObjective: skill.objective,
           attempt: problem ? answer : "",
-          hintLevel,
+          tutor,
+          turn: tutor.turn,
           lessonIntro,
         },
         q,
@@ -492,14 +544,26 @@ export function SessionPage() {
         flushTimer = null;
       }
       flushTokens();
+      const parsed = parseCoachReply(reply);
       setCoachMsgs((m) => {
         const copy = [...m];
         const last = copy[copy.length - 1];
-        if (last?.role === "assistant" && last.content.length < reply.length) {
-          copy[copy.length - 1] = { role: "assistant", content: reply };
+        if (last?.role === "assistant") {
+          copy[copy.length - 1] = {
+            role: "assistant",
+            content: parsed.text || reply,
+          };
         }
         return copy;
       });
+      // The question the coach actually asked is what the app compares against
+      // its own history, so repetition is detected from behaviour, not vibes.
+      setTutor((s) =>
+        tutorReducer(s, {
+          type: "reply",
+          question: parsed.question || q,
+        }).state,
+      );
     } catch (e) {
       if (flushTimer != null) clearTimeout(flushTimer);
       setCoachMsgs((m) => {
@@ -549,9 +613,19 @@ export function SessionPage() {
   if (!steps.length && !done) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-[var(--bg)]">
-        <p className="text-[13px] text-[var(--ink-3)] animate-pulse-soft">
-          Building session…
-        </p>
+        {/* Skeleton → content: mirrors the session layout while building */}
+        <div className="w-full max-w-xl px-4 space-y-5" aria-hidden>
+          <div className="h-3 w-24 rounded-full bg-[var(--line)] animate-pulse-soft" />
+          <div className="space-y-2">
+            <div className="h-6 w-4/5 rounded-md bg-[var(--line)] animate-pulse-soft" />
+            <div className="h-6 w-3/5 rounded-md bg-[var(--line)] animate-pulse-soft [animation-delay:120ms]" />
+          </div>
+          <div className="h-12 rounded-[var(--r-input)] bg-[var(--line)] animate-pulse-soft [animation-delay:240ms]" />
+          <div className="h-12 rounded-full bg-[var(--accent-weak)] animate-pulse-soft [animation-delay:360ms]" />
+          <p className="text-center text-[12px] text-[var(--ink-3)]">
+            Building session…
+          </p>
+        </div>
       </div>
     );
   }
@@ -567,7 +641,11 @@ export function SessionPage() {
         total={problemTotal}
         bestCombo={bestCombo}
         examPct={examPct}
+        sessionMode={sessionMode}
         skillId={skillId}
+        newBadges={state.badges.filter(
+          (id) => !badgesAtStartRef.current.includes(id),
+        )}
         onAgain={() => setGen((g) => g + 1)}
       />
     );
@@ -606,7 +684,7 @@ export function SessionPage() {
     <motion.div
       layoutId={reduced ? undefined : "session-action"}
       className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-2 bg-[var(--bg)]"
-      transition={springOrInstant(reduced, springs.ui)}
+      transition={reduced ? { duration: 0 } : tweens.fast}
     >
       <div className="max-w-xl mx-auto">
         <Button className="w-full" onClick={submit}>
@@ -690,11 +768,18 @@ export function SessionPage() {
                   setAnswer(v);
                   setCalcOpen(false);
                 }}
-                tabBottomOffsetPx={coachOn ? 48 : 0}
-                panelRightOffsetPx={
-                  coachOn && coachOpen && !coachSheet ? 340 : 12
+                tabBottomOffsetPx={dockIndex("calc") * 46}
+              />
+            )}
+            {step && (
+              <FloatingGlossary
+                open={glossaryOpen}
+                onOpenChange={setGlossaryOpen}
+                skillId={
+                  skill?.id ??
+                  (isTeach(step) ? step.skillId : step.queue.item.skillId)
                 }
-                hideDockTab={coachOpen && !coachSheet}
+                tabBottomOffsetPx={dockIndex("glossary") * 46}
               />
             )}
           </>
@@ -705,10 +790,10 @@ export function SessionPage() {
           {isTeach(step) ? (
             <motion.div
               key={`teach-${step.skillId}-${lessonPhase}-${pageIndex}`}
-              initial={reduced ? false : { opacity: 0, y: 16 }}
+              initial={reduced ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduced ? undefined : { opacity: 0 }}
-              transition={springOrInstant(reduced, springs.soft)}
+              transition={reduced ? { duration: 0 } : tweens.fast}
             >
               <LessonDeck
                 skillId={step.skillId}
@@ -722,10 +807,10 @@ export function SessionPage() {
             <motion.div
               key={`prob-${idx}`}
               className={`space-y-4 ${locked && !correct ? "animate-shake" : ""}`}
-              initial={reduced ? false : { opacity: 0, y: 16 }}
+              initial={reduced ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduced ? undefined : { opacity: 0 }}
-              transition={springOrInstant(reduced, springs.soft)}
+              transition={reduced ? { duration: 0 } : tweens.fast}
             >
               <p className="text-[12px] text-[var(--ink-3)]">
                 {reviewPass ? "Review" : step.queue.reason}
@@ -814,11 +899,11 @@ export function SessionPage() {
               )}
 
               {hintsOn && (
-                <HintLadderPanel
+                <LadderRail
                   hints={problem!.hints}
-                  level={hintLevel}
-                  revealCost
-                  onEscalate={() => setHintLevel((h) => Math.min(4, h + 1))}
+                  tutor={tutor}
+                  disabled={locked}
+                  onEscalate={() => setTutor((s) => escalateTutor(s))}
                 />
               )}
             </motion.div>

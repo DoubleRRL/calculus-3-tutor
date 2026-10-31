@@ -2,6 +2,7 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useApp } from "@/state/AppContext";
 import { skillById } from "@/content";
 import { lessonForSkill } from "@/content/lessons";
+import { SkillArt } from "@/content/art"; // ART: skill header (remove with src/content/art)
 import { MathText } from "@/components/MathText";
 import { Button, Card } from "@/ui";
 
@@ -46,6 +47,7 @@ export function SkillSheetPage() {
       <Link to="/path" className="text-[13px] text-[var(--ink-3)] hover:text-[var(--ink-1)]">
         ← Path
       </Link>
+      <SkillArt skillId={skillId} className="h-32" /> {/* ART: skill header */}
       <div>
         <h1 className="text-[24px] font-medium text-[var(--ink-1)]">{skill.title}</h1>
         <p className="text-[13px] text-[var(--ink-2)] mt-1">{skill.objective}</p>
