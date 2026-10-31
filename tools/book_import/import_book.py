@@ -224,6 +224,28 @@ def toc_sections(doc: pymupdf.Document) -> dict[str, tuple[int, int]]:
     return out
 
 
+def block_text(block: dict) -> str:
+    parts: list[str] = []
+    for line in block.get("lines", []):
+        for span in line.get("spans", []):
+            parts.append(span.get("text", ""))
+        parts.append(" ")
+    return " ".join(parts).strip()
+
+
+def exercise_heading_map(doc: pymupdf.Document) -> dict[str, int]:
+    """section id -> page (1-based) where its exercise set starts."""
+    out: dict[str, int] = {}
+    for pno in range(doc.page_count):
+        for b in doc[pno].get_text("dict")["blocks"]:
+            if b.get("type") != 0:
+                continue
+            m = re.match(r"^(\d{1,2}\.\d{1,2})\s+Exercises?\b", block_text(b))
+            if m:
+                out.setdefault(m.group(1), pno + 1)
+    return out
+
+
 def heading_page(doc: pymupdf.Document, start: int, end: int) -> int | None:
     """First page of the section's exercise set (has the 'Exercises' heading)."""
     for pno in range(start - 1, min(end - 1, doc.page_count)):
@@ -418,16 +440,22 @@ def process_section(
     out_root: Path,
     zoom: float,
     want_answers: bool,
+    headings: dict[str, int],
 ) -> dict:
     start, end = bounds
-    first = heading_page(doc, start, end)
+    first = headings.get(section) or heading_page(doc, start, end)
     out_dir = out_root / section
     out_dir.mkdir(parents=True, exist_ok=True)
 
     exercises: dict[int, dict] = {}
     pages: list[int] = []
     if first is not None:
-        for pno in range(first, end):
+        later = [p for p in headings.values() if p > first]
+        next_heading = min(later) if later else None
+        # The next section's exercises start at next_heading; its prose may
+        # begin a page or two earlier. Never read past one page into it.
+        stop = min(next_heading, end + 1) if next_heading else end + 1
+        for pno in range(first, min(doc.page_count, stop)):
             page = doc[pno - 1]
             bands = page_bands(page, top=48 if pno != first else 150)
             if not bands:
@@ -511,6 +539,7 @@ def main() -> int:
             pass
     index["source"] = args.pdf.name
     index["generatedAt"] = datetime.now(timezone.utc).isoformat()
+    headings = exercise_heading_map(doc)
 
     for section in sorted(wanted, key=lambda s: tuple(int(x) for x in s.split("."))):
         data = process_section(
@@ -520,6 +549,7 @@ def main() -> int:
             args.out,
             args.zoom,
             not args.no_answers,
+            headings,
         )
         index["sections"][section] = data
         n = len(data["exercises"])
