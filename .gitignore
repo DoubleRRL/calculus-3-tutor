@@ -2,6 +2,7 @@ node_modules
 dist
 dist-ssr
 wondertest
+public/book
 *.local
 .DS_Store
 src-tauri/target
@@ -9,6 +10,8 @@ src-tauri/gen
 data/*.db
 data/*.db-journal
 .venv
+__pycache__/
+*.pyc
 *.log
 .vscode
 .idea

@@ -1,8 +1,8 @@
 # CalcTutor
 
-Local Calc 3 mastery system. Curated skills + verified problems; Ollama as a per-problem Socratic coach. Progress measured by mastery, retention, and exam readiness.
+Local Calculus 3 cockpit. Topics are Stewart sections; problems are cropped from your own PDF and tracked per exercise. Optional Ollama coach.
 
-## Run (web)
+## Run
 
 ```bash
 npm install
@@ -11,45 +11,46 @@ npm run dev
 
 Open [http://127.0.0.1:3000](http://127.0.0.1:3000).
 
-Requires [Ollama](https://ollama.com) for Ask coach:
+## Import the book
+
+The importer crops each exercise and its answer-key entry as images. This keeps the math exact — the PDF text layer mangles symbols.
 
 ```bash
-ollama serve
-# recommended
-ollama pull phi4   # quality mode (~9GB) — M2 Air 16GB OK if other apps closed
-# you likely already have:
-# qwen3:8b  (default coach)
-# qwen3:4b  (flash)
+python3 -m venv .venv
+.venv/bin/pip install -r tools/book_import/requirements.txt
+.venv/bin/python tools/book_import/import_book.py \
+  --pdf "/path/to/Calculus 9th Ed.pdf" --all
 ```
 
-## Desktop app (Tauri)
+Sections are read from the PDF's table of contents. Write one section instead:
+
+```bash
+.venv/bin/python tools/book_import/import_book.py \
+  --pdf "/path/to/Calculus 9th Ed.pdf" --sections 14.3 14.4
+```
+
+Output goes to `public/book/` (gitignored). The app reads `public/book/index.json` at load. Re-run before `npm run tauri build` if you want the book inside the bundle.
+
+## Structure
+
+- `src/pages/Cockpit.tsx` — chapter/section grid with per-topic status.
+- `src/pages/TopicSheet.tsx` — status, notes, exercises for one section.
+- `src/pages/Exercise.tsx` — one cropped problem, answer reveal, got-it/missed logging.
+- `src/pages/CourseSetup.tsx` — sections, grade weights, exam blueprints. All editable.
+- `src/lib/courseStore.ts` — course config, topic and exercise progress, readiness.
+- `src/content/stewart.ts` — Stewart 12–17 section map.
+
+The old skill-path app is still reachable at `#/legacy`.
+
+## Desktop (Tauri)
 
 ```bash
 npm run tauri build
-```
-
-App bundle:
-
-`src-tauri/target/release/bundle/macos/CalcTutor.app`
-
-DMG:
-
-`src-tauri/target/release/bundle/dmg/CalcTutor_0.1.0_aarch64.dmg`
-
-Dev desktop shell:
-
-```bash
 npm run tauri dev
 ```
 
-Ollama must be running separately for Ask coach.
+Bundle: `src-tauri/target/release/bundle/macos/CalcTutor.app`
 
-## Pedagogy
+## Local model
 
-1. Diagnostic (Calc 1–2) → Units 1–5 (Stewart-aligned) → exam simulator  
-2. Per skill: learn → guided → drill → mix → mastery gate → FSRS reviews  
-3. Stuck? curated hint ladder first; Ask coach second (scoped context, anti-spoiler)  
-4. Checkpoints: 10-item cumulative recall checks over seen topics only — nudged when reviews pile up or a couple of sessions pass; coach off  
-5. Exam mode: full-course sim, coach off  
-
-No cloud. No LLM-generated primary problem bank.
+`ollama serve`, then a 7–8B model at Q4 (e.g. `qwen3:8b`) fits a 16GB M2 Air.

@@ -1,26 +1,22 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { BookOpen, Flame, Settings, Trophy } from "lucide-react";
+import { LayoutGrid, Settings, SlidersHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useApp } from "@/state/AppContext";
-import { Icon, Pill, RollingNumber } from "@/ui";
-import { levelFromXp } from "@/lib/gamify";
-import { resumeSkill } from "@/lib/store";
+import { useCourse } from "@/state/CourseContext";
+import { Icon } from "@/ui";
 import { GlossaryDrawer, GLOSSARY_DEFAULT_W } from "@/components/GlossaryDrawer";
 import { CommandPalette } from "@/components/CommandPalette";
 
 const tabs = [
-  { to: "/", label: "Learn", icon: BookOpen, end: true },
-  { to: "/exam", label: "Exam", icon: Trophy },
+  { to: "/", label: "Topics", icon: LayoutGrid, end: true },
+  { to: "/setup", label: "Setup", icon: SlidersHorizontal },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function AppShell() {
-  const { state } = useApp();
+  const { course, coverage } = useCourse();
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [glossaryWidth, setGlossaryWidth] = useState(GLOSSARY_DEFAULT_W);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const lvl = levelFromXp(state.xp);
-  const resume = resumeSkill(state);
 
   // Global ⌘K / Ctrl+K toggles the command palette.
   useEffect(() => {
@@ -44,8 +40,8 @@ export function AppShell() {
           <p className="text-[12px] text-[var(--ink-3)] tracking-wide uppercase">
             CalcTutor
           </p>
-          <p className="text-[14px] font-medium text-[var(--ink-1)] mt-0.5">
-            Calc 3 mastery
+          <p className="text-[14px] font-medium text-[var(--ink-1)] mt-0.5 truncate">
+            {course.config.name}
           </p>
         </div>
         <button
@@ -78,14 +74,12 @@ export function AppShell() {
           ))}
         </nav>
         <div className="mt-auto px-2 space-y-2">
-          <Pill tone="streak">
-            <Icon icon={Flame} size={14} />
-            <RollingNumber value={state.streak} /> day
-          </Pill>
-          <p className="text-[12px] text-[var(--ink-3)] truncate">
-            Lv {lvl.level}
-            {resume ? ` · ${resume.title}` : ""}
-          </p>
+          <div className="rounded-[10px] border border-[var(--line)] bg-[var(--bg-sub)] px-2.5 py-2">
+            <p className="font-mono text-[12px] text-[var(--ink-1)]">
+              {coverage.done}/{coverage.total}
+            </p>
+            <p className="text-[11px] text-[var(--ink-3)]">topics solid</p>
+          </div>
           <button
             type="button"
             onClick={() => setGlossaryOpen((o) => !o)}
@@ -101,14 +95,13 @@ export function AppShell() {
           <div className="min-w-0">
             <p className="text-[12px] text-[var(--ink-3)]">CalcTutor</p>
             <p className="text-[14px] font-medium truncate">
-              {resume?.title ?? `Lv ${lvl.level}`}
+              {course.config.name}
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <Pill tone="streak">
-              <Icon icon={Flame} size={14} />
-              <RollingNumber value={state.streak} />
-            </Pill>
+            <span className="font-mono text-[12px] text-[var(--ink-2)]">
+              {coverage.done}/{coverage.total}
+            </span>
             <button
               type="button"
               onClick={() => setGlossaryOpen((o) => !o)}
