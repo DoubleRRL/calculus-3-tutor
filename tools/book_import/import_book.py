@@ -233,53 +233,17 @@ def heading_page(doc: pymupdf.Document, start: int, end: int) -> int | None:
     return None
 
 
-def answer_headers(page: pymupdf.Page) -> list[tuple[str, float]]:
-    """(section, y) for every 'Exercises 14.3 ■ page 969' header on the page."""
-    out: list[tuple[str, float]] = []
-    for b in page.get_text("dict")["blocks"]:
-        if b.get("type") != 0:
-            continue
-        for line in b.get("lines", []):
-            text = " ".join(s.get("text", "") for s in line.get("spans", []))
-            m = ANS_HEADER_RE.search(text)
-            if m:
-                out.append((m.group(1), float(line["bbox"][1])))
-    return out
-
-
-def answer_segments(doc: pymupdf.Document, section: str) -> list[tuple[int, float, float]]:
-    """(page index, y_start, y_end) covering a section's answers.
-
-    A section's answers often begin at the bottom of the page that announces
-    them and continue onto the page that announces the *next* section, so the
-    stop page is included up to that next header.
-    """
-    start: tuple[int, float] | None = None
-    for pno in range(doc.page_count):
-        for sid, y in answer_headers(doc[pno]):
-            if sid == section:
-                start = (pno, y)
-                break
-        if start:
-            break
-    if start is None:
-        return []
-
-    pno, y = start
-    segments: list[tuple[int, float, float]] = [
-        (pno, y, doc[pno].rect.height - 20)
-    ]
-    for later in range(pno + 1, min(pno + 4, doc.page_count)):
-        page = doc[later]
-        stop = next(
-            (hy for sid, hy in answer_headers(page) if sid != section), None
-        )
-        segments.append(
-            (later, 48, (stop - 2) if stop else page.rect.height - 20)
-        )
-        if stop is not None:
-            break
-    return segments
+@dataclass
+class AnswerItem:
+    kind: str  # "anchor" | "header"
+    section: str
+    number: int
+    page: int
+    column: int
+    x0: float
+    y0: float
+    x1: float
+    y1: float
 
 
 def any_anchors(page: pymupdf.Page) -> list[Anchor]:
@@ -298,47 +262,132 @@ def any_anchors(page: pymupdf.Page) -> list[Anchor]:
     return out
 
 
+def page_answer_items(page: pymupdf.Page) -> list[AnswerItem]:
+    """Answer-key entries and section headers in reading order (column, then y)."""
+    gutter = page_gutter(page)
+    items: list[AnswerItem] = []
+
+    def column_of(x: float) -> int:
+        return 0 if gutter is None or x < gutter else 1
+
+    for b in page.get_text("dict")["blocks"]:
+        if b.get("type") != 0:
+            continue
+        for line in b.get("lines", []):
+            text = " ".join(s.get("text", "") for s in line.get("spans", []))
+            m = ANS_HEADER_RE.search(text)
+            if m:
+                x0, y0, x1, y1 = line["bbox"]
+                items.append(
+                    AnswerItem(
+                        "header", m.group(1), 0, page.number + 1,
+                        column_of(x0), x0, y0, x1, y1,
+                    )
+                )
+
+    for a in any_anchors(page):
+        items.append(
+            AnswerItem(
+                "anchor", "", a.number, page.number + 1,
+                column_of(a.x0), a.x0, a.y0, a.x1, a.y1,
+            )
+        )
+
+    items.sort(key=lambda i: (i.column, i.y0))
+    return items
+
+
+def answer_items(doc: pymupdf.Document, section: str) -> list[AnswerItem]:
+    """Everything from a section's answer header up to the next section's."""
+    start_page: int | None = None
+    for pno in range(doc.page_count):
+        if any(
+            i.kind == "header" and i.section == section
+            for i in page_answer_items(doc[pno])
+        ):
+            start_page = pno
+            break
+    if start_page is None:
+        return []
+
+    items: list[AnswerItem] = []
+    for pno in range(start_page, min(start_page + 4, doc.page_count)):
+        page_items = page_answer_items(doc[pno])
+        items.extend(page_items)
+        if pno > start_page and any(
+            i.kind == "header" and i.section != section for i in page_items
+        ):
+            break
+
+    start = next(
+        k
+        for k, i in enumerate(items)
+        if i.kind == "header" and i.section == section
+    )
+    end = next(
+        (
+            k
+            for k in range(start + 1, len(items))
+            if items[k].kind == "header" and items[k].section != section
+        ),
+        len(items),
+    )
+    return items[start:end]
+
+
 def crop_answers(
     doc: pymupdf.Document, section: str, out_dir: Path, zoom: float
 ) -> dict[str, str]:
-    segments = answer_segments(doc, section)
+    items = answer_items(doc, section)
+    if not items:
+        return {}
+    start = items[0]
+    anchors = [i for i in items if i.kind == "anchor"]
+    if not anchors:
+        return {}
+
+    groups: dict[tuple[int, int], list[AnswerItem]] = {}
+    for a in anchors:
+        groups.setdefault((a.page, a.column), []).append(a)
+
     saved: dict[str, str] = {}
-    for pno, y_start, y_end in segments:
-        page = doc[pno]
-        anchors = [
-            a for a in any_anchors(page) if y_start - 2 <= a.y0 <= y_end
-        ]
-        if not anchors:
-            continue
-        split = page_gutter(page)
-        if split is None:
-            bands = bands_for_column(
-                page,
-                anchors,
-                [],
-                min(a.x0 for a in anchors) - 6,
-                page.rect.width - 30,
-                y_start,
-            )
+    for (page_no, column), group in sorted(groups.items()):
+        page = doc[page_no - 1]
+        gutter = page_gutter(page)
+        if gutter is None:
+            x0 = min(a.x0 for a in group) - 6
+            x1 = page.rect.width - 30
+        elif column == 0:
+            x0 = min(a.x0 for a in group) - 6
+            x1 = gutter - 8
         else:
-            left = [a for a in anchors if a.x0 < split]
-            right = [a for a in anchors if a.x0 >= split]
-            bands = bands_for_column(
-                page,
-                left,
-                [],
-                min((a.x0 for a in left), default=36) - 6,
-                split - 8,
-                y_start,
-            )
-            bands += bands_for_column(
-                page, right, [], split - 8, page.rect.width - 30, y_start
-            )
+            x0 = gutter - 8
+            x1 = page.rect.width - 30
+
+        top = 48.0
+        if start.page == page_no and start.column == column:
+            top = start.y0 - 2
+
+        last_y = max(a.y0 for a in group)
+        stops = [
+            i.y0 - 2
+            for i in items
+            if i.kind == "header"
+            and i.page == page_no
+            and i.column == column
+            and i.y0 > last_y
+        ]
+        bottom = min(stops) if stops else page.rect.height - 20
+
+        band_anchors = [Anchor(a.number, a.x0, a.y0, a.x1, a.y1) for a in group]
+        bands = bands_for_column(page, band_anchors, [], x0, x1, top)
         for anchor, rect in bands:
             name = f"ans-{anchor.number:02d}.png"
             if name in saved:
                 continue
-            clipped = pymupdf.Rect(rect.x0, max(rect.y0, y_start), rect.x1, min(rect.y1, y_end))
+            clipped = pymupdf.Rect(
+                rect.x0, max(rect.y0, top), rect.x1, min(rect.y1, bottom)
+            )
             if clipped.height < 6:
                 continue
             render(page, clipped, out_dir / name, zoom)

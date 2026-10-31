@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, ChevronRight } from "lucide-react";
 import { useCourse } from "@/state/CourseContext";
 import { progressFor } from "@/lib/courseStore";
 import type { TopicStatus } from "@/types/course";
@@ -185,7 +185,10 @@ export function CockpitPage() {
             };
             return (
               <section key={chapter.number} className="space-y-2.5">
-                <div className="flex items-center gap-2.5">
+                <Link
+                  to={`/chapter/${chapter.number}`}
+                  className="group -mx-1 px-1 py-0.5 rounded-[8px] flex items-center gap-2.5 hover:bg-[var(--accent-weak)]"
+                >
                   <ChapterBadge number={chapter.number} />
                   <div className="min-w-0 flex-1">
                     <h2 className="text-[14px] font-medium text-[var(--ink-1)] truncate">
@@ -195,7 +198,12 @@ export function CockpitPage() {
                   <span className="shrink-0 font-mono text-[11px] text-[var(--ink-3)]">
                     {stats.done}/{stats.total}
                   </span>
-                </div>
+                  <Icon
+                    icon={ChevronRight}
+                    size={14}
+                    className="shrink-0 text-[var(--ink-3)]"
+                  />
+                </Link>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {chapter.topics.map((topic) => (
                     <TopicChip

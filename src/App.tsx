@@ -5,6 +5,7 @@ import { AppShell } from "@/components/shell/AppShell";
 import { PanelViewportSync } from "@/components/PanelFrame";
 import { CockpitPage } from "@/pages/Cockpit";
 import { TopicSheetPage } from "@/pages/TopicSheet";
+import { ChapterPage } from "@/pages/Chapter";
 import { ExercisePage } from "@/pages/Exercise";
 import { CourseSetupPage } from "@/pages/CourseSetup";
 import { PathPage } from "@/pages/Path";
@@ -27,6 +28,7 @@ export default function App() {
             <Routes>
               <Route element={<AppShell />}>
                 <Route index element={<CockpitPage />} />
+                <Route path="chapter/:number" element={<ChapterPage />} />
                 <Route path="topic/:topicId" element={<TopicSheetPage />} />
                 <Route
                   path="topic/:topicId/exercise/:number"

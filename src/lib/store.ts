@@ -34,6 +34,7 @@ const STORAGE_KEY = "calctutor.v3";
 
 export const DEFAULT_SETTINGS: AppSettings = {
   tutorModel: "qwen3:8b",
+  visionModel: "gemma4:e4b",
   analysisModel: "",
   ollamaBaseUrl: "http://127.0.0.1:11434",
   onboardingDone: false,
@@ -54,6 +55,16 @@ function strOrEmpty(v: unknown): string {
   if (typeof v === "string") return v;
   if (v === undefined || v === null) return "";
   return String(v);
+}
+
+/**
+ * The first vision default was a model this machine never had. Treat that
+ * exact value as "unset" so existing saves pick up the working default.
+ */
+function visionModelFor(raw: unknown): string {
+  const stored = strOrEmpty(raw);
+  if (!stored || stored === "qwen2.5vl:7b") return DEFAULT_SETTINGS.visionModel;
+  return stored;
 }
 
 function parseLearnerProfile(raw: unknown): LearnerProfile | null {
@@ -253,6 +264,7 @@ export function parsePersisted(raw: unknown): PersistedState | null {
   const settings: AppSettings = {
     ...DEFAULT_SETTINGS,
     tutorModel,
+    visionModel: visionModelFor(raw.settings.visionModel),
     analysisModel,
     ollamaBaseUrl: String(
       raw.settings.ollamaBaseUrl ?? DEFAULT_SETTINGS.ollamaBaseUrl,

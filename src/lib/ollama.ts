@@ -345,6 +345,108 @@ function finishCoachReply(ctx: CoachContext, reply: string): string {
   return sanitizeCoachReply(ctx.item, ctx.attempt, reply);
 }
 
+/**
+ * The exercise coach works from the page image, because the PDF's text layer
+ * is unusable and nobody should have to retype a problem to get help.
+ */
+const VISION_SYSTEM = `You are a calculus tutor looking at one exercise from Stewart Calculus, cropped from the page.
+
+The image is the whole problem. Read it carefully.
+- Restate the problem in plain words before solving anything. If a symbol is ambiguous, say which reading you are using.
+- Never invent notation that is not in the image.
+- Do not dump a full solution unless asked. Default to one step at a time.
+- When the learner asks you to simplify or says they do not understand, go concrete: replace symbols with numbers, then solve a smaller version of the same problem, then return to theirs.
+- If they ask "what is this even asking", answer in one paragraph with no formulas.
+- Show intermediate algebra. Keep prose short.
+- Write math in LaTeX: $...$ inline, $$...$$ on its own line.
+
+You cannot run code. Do not claim to have checked an answer with a calculator.`;
+
+export type VisionTurn = { role: "user" | "assistant"; content: string };
+
+export async function askVisionCoach(
+  settings: AppSettings,
+  opts: {
+    question: string;
+    history: VisionTurn[];
+    imageBase64: string;
+    onToken?: (chunk: string) => void;
+    signal?: AbortSignal;
+  },
+): Promise<string> {
+  const model = settings.visionModel || settings.tutorModel;
+  const messages = [
+    { role: "system", content: VISION_SYSTEM },
+    ...opts.history.slice(-8).map((m) => ({ role: m.role, content: m.content })),
+    { role: "user", content: opts.question, images: [opts.imageBase64] },
+  ];
+
+  const controller = new AbortController();
+  let timedOut = false;
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, 240_000);
+  const onOuterAbort = () => controller.abort();
+  opts.signal?.addEventListener("abort", onOuterAbort);
+
+  try {
+    const preferStream = Boolean(opts.onToken);
+    const r = await fetch(`${settings.ollamaBaseUrl}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...chatBody(model, messages, preferStream, "talk"),
+        options: { temperature: 0.25, num_predict: 512 },
+      }),
+      signal: controller.signal,
+    });
+
+    if (!r.ok) {
+      const text = await r.text();
+      if (/does not support images|unknown model|not found/i.test(text)) {
+        throw new Error(
+          `${model} can't read images. Pull a vision model (this machine has gemma4:e4b) and set it in Settings.`,
+        );
+      }
+      throw new Error(`Ollama error ${r.status}: ${text.slice(0, 200)}`);
+    }
+
+    if (preferStream && r.body) {
+      return (await readStream(r, opts.onToken!)) || "(No response from model.)";
+    }
+    const data = (await r.json()) as { message?: { content?: string } };
+    return data.message?.content?.trim() || "(No response from model.)";
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") {
+      if (timedOut) {
+        throw new Error("Vision model timed out. Try again once it is loaded.");
+      }
+      throw new Error("Coach request was cancelled.");
+    }
+    throw e;
+  } finally {
+    clearTimeout(timeout);
+    opts.signal?.removeEventListener("abort", onOuterAbort);
+  }
+}
+
+/** Fetch a same-origin image and return bare base64 for Ollama. */
+export async function imageToBase64(url: string): Promise<string> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Could not load exercise image (${res.status}).`);
+  const blob = await res.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const raw = String(reader.result ?? "");
+      resolve(raw.slice(raw.indexOf(",") + 1));
+    };
+    reader.onerror = () => reject(new Error("Could not read exercise image."));
+    reader.readAsDataURL(blob);
+  });
+}
+
 export async function askCoach(
   settings: AppSettings,
   ctx: CoachContext,

@@ -53,4 +53,4 @@ Bundle: `src-tauri/target/release/bundle/macos/CalcTutor.app`
 
 ## Local model
 
-`ollama serve`, then a 7–8B model at Q4 (e.g. `qwen3:8b`) fits a 16GB M2 Air.
+`ollama serve`, then a 7–8B model at Q4 fits a 16GB M2 Air. The exercise coach needs a vision model — this setup uses `gemma4:e4b` (8B, vision). `qwen2.5vl:7b` also works. Set both models in Settings.

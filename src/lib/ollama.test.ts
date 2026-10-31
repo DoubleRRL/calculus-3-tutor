@@ -6,6 +6,7 @@ import type { TutorState } from "@/types/tutor";
 
 const settings: AppSettings = {
   tutorModel: "qwen3:8b",
+  visionModel: "qwen2.5vl:7b",
   analysisModel: "",
   ollamaBaseUrl: "http://127.0.0.1:11434",
   onboardingDone: true,

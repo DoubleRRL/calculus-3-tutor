@@ -5,6 +5,7 @@ import { useCourse } from "@/state/CourseContext";
 import { useBookSection, bookAsset } from "@/lib/book";
 import { progressFor } from "@/lib/courseStore";
 import { Button, Card, Icon } from "@/ui";
+import { ExerciseCoach } from "@/components/course/ExerciseCoach";
 
 export function ExercisePage() {
   const { topicId, number } = useParams();
@@ -81,6 +82,13 @@ export function ExercisePage() {
               className="w-full h-auto"
             />
           </div>
+
+          <ExerciseCoach
+            key={`${topic.id}-${exercise.number}`}
+            topicId={topic.id}
+            number={exercise.number}
+            imageUrl={bookAsset(exercise.image)}
+          />
 
           <div className="flex flex-wrap items-center gap-2">
             <Button

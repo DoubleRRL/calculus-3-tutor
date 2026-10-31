@@ -136,6 +136,11 @@ export interface AppSettings {
    */
   tutorModel: string;
   /**
+   * Multimodal model used by the exercise coach. It must accept images;
+   * the text tutor model is not assumed to.
+   */
+  visionModel: string;
+  /**
    * Optional model override for long, non-interactive work (post-session
    * diagnosis). Empty means "use tutorModel".
    */

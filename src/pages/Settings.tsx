@@ -3,7 +3,6 @@ import { useApp } from "@/state/AppContext";
 import { listModels, ollamaReachable } from "@/lib/ollama";
 import { parsePersisted } from "@/lib/store";
 import { Button, Card } from "@/ui";
-import { SESSION_SIZES } from "@/lib/pedagogy";
 import type { ThemeMode } from "@/types/content";
 
 export function SettingsPage() {
@@ -25,23 +24,8 @@ export function SettingsPage() {
     <div className="animate-rise space-y-4 max-w-xl">
       <div>
         <h1 className="text-[24px] font-medium text-[var(--ink-1)]">Settings</h1>
-        <p className="text-[13px] text-[var(--ink-3)] mt-1">
-          Local Ollama · qwen3:8b coach · phi4 quality
-        </p>
+        <p className="text-[13px] text-[var(--ink-3)] mt-1">Local Ollama</p>
       </div>
-
-      <Section title="Practice length">
-        <p className="text-[12px] text-[var(--ink-3)] mb-2">
-          Problems per topic practice run
-        </p>
-        <Seg
-          options={SESSION_SIZES.map(String)}
-          value={String(state.settings.sessionSize)}
-          onChange={(v) =>
-            updateSettings({ sessionSize: Number(v) as 5 | 12 | 20 })
-          }
-        />
-      </Section>
 
       <Section title="Appearance">
         <Seg
@@ -88,8 +72,19 @@ export function SettingsPage() {
             onChange={(v) => updateSettings({ tutorModel: v })}
           />
           <span className="mt-1 block text-[11px] text-[var(--ink-3)]">
-            Used for everything. Chat nudges stream; the end-of-session review
-            runs long-form on the same model.
+            Text only.
+          </span>
+        </label>
+        <label className="block mb-2">
+          <span className="text-[12px] text-[var(--ink-3)]">Vision model</span>
+          <ModelSelect
+            value={state.settings.visionModel}
+            models={models}
+            onChange={(v) => updateSettings({ visionModel: v })}
+          />
+          <span className="mt-1 block text-[11px] text-[var(--ink-3)]">
+            Reads the exercise images for the coach. Needs a multimodal model
+            (this machine has gemma4:e4b).
           </span>
         </label>
         <details className="mb-2">

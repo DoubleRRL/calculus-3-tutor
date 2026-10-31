@@ -35,7 +35,11 @@ export function TopicSheetPage() {
           All topics
         </Link>
         <p className="mt-4 text-[12px] uppercase tracking-wide text-[var(--ink-3)]">
-          Chapter {topic.chapter} · {topic.id}
+          <Link to={`/chapter/${topic.chapter}`} className="hover:text-[var(--ink-1)]">
+            Chapter {topic.chapter}
+          </Link>
+          {" · "}
+          {topic.id}
         </p>
         <h1 className="mt-1 text-[24px] font-medium text-[var(--ink-1)]">
           {topic.title}
