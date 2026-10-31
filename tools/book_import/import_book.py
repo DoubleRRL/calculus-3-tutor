@@ -424,7 +424,10 @@ def crop_answers(
             if name in saved:
                 continue
             clipped = pymupdf.Rect(
-                rect.x0, max(rect.y0, top), rect.x1, min(rect.y1, bottom)
+                rect.x0,
+                max(rect.y0 - 8, top),
+                rect.x1,
+                min(rect.y1, bottom),
             )
             if clipped.height < 6:
                 continue
