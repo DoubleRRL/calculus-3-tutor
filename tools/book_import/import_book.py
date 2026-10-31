@@ -423,11 +423,15 @@ def crop_answers(
             name = f"ans-{anchor.number:02d}.png"
             if name in saved:
                 continue
+            # Display math can be much taller than the numbered line; a fixed
+            # minimum keeps fractions and integrals whole. It can include the
+            # next answer, which is better than cutting this one.
+            bottom_wanted = max(rect.y1, anchor.y0 + 38)
             clipped = pymupdf.Rect(
                 rect.x0,
                 max(rect.y0 - 8, top),
                 rect.x1,
-                min(rect.y1, bottom),
+                min(bottom_wanted, bottom),
             )
             if clipped.height < 6:
                 continue
