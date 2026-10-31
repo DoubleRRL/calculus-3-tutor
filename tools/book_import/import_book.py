@@ -247,23 +247,28 @@ class AnswerItem:
 
 
 def any_anchors(page: pymupdf.Page) -> list[Anchor]:
-    """Numbered entries anywhere on the line — the answer key has several per line."""
+    """Numbered entries anywhere on the line — the answer key has several per line.
+
+    No dedupe by number: two different sections can both answer questions 1, 3,
+    5 on the same page, and dropping the repeats loses one section entirely.
+    """
     out: list[Anchor] = []
-    seen: set[int] = set()
     for x0, y0, x1, y1, word, _b, _l, _wno in page.get_text("words"):
         m = NUMBER_WORD.match(word.strip())
         if not m:
             continue
-        number = int(m.group(1))
-        if number in seen:
-            continue
-        seen.add(number)
-        out.append(Anchor(number, x0, y0, x1, y1))
+        out.append(Anchor(int(m.group(1)), x0, y0, x1, y1))
     return out
+
+
+_ANSWER_PAGE_CACHE: dict[int, list["AnswerItem"]] = {}
 
 
 def page_answer_items(page: pymupdf.Page) -> list[AnswerItem]:
     """Answer-key entries and section headers in reading order (column, then y)."""
+    cached = _ANSWER_PAGE_CACHE.get(page.number)
+    if cached is not None:
+        return cached
     gutter = page_gutter(page)
     items: list[AnswerItem] = []
 
@@ -294,13 +299,24 @@ def page_answer_items(page: pymupdf.Page) -> list[AnswerItem]:
         )
 
     items.sort(key=lambda i: (i.column, i.y0))
+    _ANSWER_PAGE_CACHE[page.number] = items
     return items
 
 
 def answer_items(doc: pymupdf.Document, section: str) -> list[AnswerItem]:
-    """Everything from a section's answer header up to the next section's."""
+    """Everything from a section's answer header up to the next section's.
+
+    Headers also appear in the chapter body ("Exercises 13.3" in a review
+    list), so the search starts at the answer appendix.
+    """
     start_page: int | None = None
-    for pno in range(doc.page_count):
+    search_from = 0
+    for _level, title, page in doc.get_toc():
+        if "answers to odd-numbered" in title.lower():
+            search_from = max(0, page - 1)
+            break
+
+    for pno in range(search_from, doc.page_count):
         if any(
             i.kind == "header" and i.section == section
             for i in page_answer_items(doc[pno])
