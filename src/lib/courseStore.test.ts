@@ -139,7 +139,7 @@ describe("topic progress", () => {
     expect(state.progress["14.3"]?.status).toBe("solid");
     state = recordExerciseAttempt(state, "14.3", 9, { clean: false });
     expect(progressForExercise(state, "14.3", 9)?.cleanStreak).toBe(0);
-    expect(state.progress["14.3"]?.status).toBe("solid");
+    expect(state.progress["14.3"]?.status).toBe("learning");
   });
 });
 

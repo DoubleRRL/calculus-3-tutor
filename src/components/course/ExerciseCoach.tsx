@@ -53,10 +53,16 @@ export function ExerciseCoach({
   topicId,
   number,
   imageUrl,
+  answerImageUrl,
+  context,
+  seed,
 }: {
   topicId: string;
   number: number;
   imageUrl: string;
+  answerImageUrl?: string | null;
+  context?: string;
+  seed?: { id: number; text: string } | null;
 }) {
   const { state } = useApp();
   const settings = state.settings;
@@ -67,8 +73,10 @@ export function ExerciseCoach({
   const [error, setError] = useState<string | null>(null);
   const [models, setModels] = useState<string[]>([]);
   const base64Ref = useRef<string | null>(null);
+  const answerBase64Ref = useRef<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const seedRef = useRef(0);
 
   useEffect(() => {
     void listModels(settings.ollamaBaseUrl).then(setModels);
@@ -116,11 +124,18 @@ export function ExerciseCoach({
     try {
       const image = base64Ref.current ?? (await imageToBase64(imageUrl));
       base64Ref.current = image;
+      let answerImage = answerBase64Ref.current;
+      if (!answerImage && answerImageUrl) {
+        answerImage = await imageToBase64(answerImageUrl);
+        answerBase64Ref.current = answerImage;
+      }
       let acc = "";
       const reply = await askVisionCoach(settings, {
         question,
         history,
         imageBase64: image,
+        extraImages: answerImage ? [answerImage] : undefined,
+        context,
         signal: controller.signal,
         onToken: (chunk) => {
           acc += chunk;
@@ -149,8 +164,20 @@ export function ExerciseCoach({
     }
   };
 
+  // A wrong check seeds the coach with what the learner typed, so they never
+  // have to restate it. Guarded so StrictMode does not double-send.
+  useEffect(() => {
+    if (!seed || seed.id === seedRef.current) return;
+    if (busy) return;
+    seedRef.current = seed.id;
+    document
+      .getElementById("coach")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    void send(seed.text);
+  }, [seed?.id, busy]);
+
   return (
-    <Card className="space-y-3">
+    <Card id="coach" className="space-y-3">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-[13px] font-medium text-[var(--ink-2)]">Coach</h2>
         <span className="font-mono text-[10px] text-[var(--ink-3)]">{model}</span>

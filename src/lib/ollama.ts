@@ -364,21 +364,163 @@ You cannot run code. Do not claim to have checked an answer with a calculator.`;
 
 export type VisionTurn = { role: "user" | "assistant"; content: string };
 
+/** One non-streaming vision completion, used for reading and judging answers. */
+async function visionOnce(
+  settings: AppSettings,
+  messages: { role: string; content: string; images?: string[] }[],
+  opts: { numPredict: number; timeoutMs?: number; temperature?: number },
+): Promise<string> {
+  const model = settings.visionModel || settings.tutorModel;
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(),
+    opts.timeoutMs ?? 120_000,
+  );
+  try {
+    const r = await fetch(`${settings.ollamaBaseUrl}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        messages,
+        stream: false,
+        keep_alive: "30m",
+        think: false,
+        options: {
+          temperature: opts.temperature ?? 0,
+          num_predict: opts.numPredict,
+        },
+      }),
+      signal: controller.signal,
+    });
+    if (!r.ok) {
+      const text = await r.text();
+      throw new Error(`Ollama error ${r.status}: ${text.slice(0, 200)}`);
+    }
+    const data = (await r.json()) as { message?: { content?: string } };
+    return data.message?.content?.trim() ?? "";
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const ANSWER_READ_SYSTEM = `You are reading ONE entry from the printed answer key of Stewart Calculus.
+
+The crop is for a specific exercise number, given in the message. Transcribe ONLY that exercise's answer.
+- Start at the bold number you were given and stop before the next number.
+- Ignore answers for neighbouring exercises that are visible in the crop.
+- Use plain-text math on one line: ^ for powers, / for fractions, pi, sqrt(...), <a,b,c> for vectors, ; between parts.
+- Do not write LaTeX, prose, or the exercise number.
+- If the answer is a graph or a sentence, transcribe the sentence.`;
+
+export async function transcribeAnswer(
+  settings: AppSettings,
+  imageBase64: string,
+  exerciseNumber: number,
+): Promise<string> {
+  const raw = await visionOnce(
+    settings,
+    [
+      { role: "system", content: ANSWER_READ_SYSTEM },
+      {
+        role: "user",
+        content: `Exercise ${exerciseNumber}. Return only its answer.`,
+        images: [imageBase64],
+      },
+    ],
+    { numPredict: 220 },
+  );
+  const first = raw.split("\n").map((l) => l.trim()).find(Boolean) ?? "";
+  return first
+    .replace(/^(answer|ans)\s*[:=]\s*/i, "")
+    .replace(new RegExp(`^#?${exerciseNumber}[.)]?\\s*`), "")
+    .replace(/^`+|`+$/g, "")
+    .replace(/^\$+|\$+$/g, "")
+    .trim();
+}
+
+export interface AnswerJudgement {
+  verdict: "correct" | "wrong" | "unclear";
+  reason?: string;
+}
+
+const ANSWER_JUDGE_SYSTEM = `You check one final answer for a Calculus 3 exercise.
+
+IMAGE 1 is the exercise. IMAGE 2, when present, is the printed answer key entry for the same exercise; it may show neighbouring exercise numbers, which you ignore.
+
+The student's message is their final answer, already worked out. Never tell them to "evaluate", "simplify", or "finish" it — compare it to the correct answer.
+Treat algebraically equivalent forms as correct: 1/2 = 0.5, pi/4 = 0.785, <1,2,3> = i + 2j + 3k, x*x = x^2.
+For an indefinite integral, match the key's convention on the constant of integration.
+A correct description of a graph or a region counts as correct.
+Do not re-solve unless you must to decide.
+
+Reply exactly two lines:
+VERDICT: correct | wrong | unclear
+WHY: the concrete mismatch (wrong value, sign, factor, bounds), one sentence. Do not give the full solution.`;
+
+export async function judgeAnswer(
+  settings: AppSettings,
+  opts: {
+    exerciseBase64: string;
+    answerBase64?: string;
+    student: string;
+    number: number;
+  },
+): Promise<AnswerJudgement> {
+  const images = [opts.exerciseBase64];
+  if (opts.answerBase64) images.push(opts.answerBase64);
+  const text = await visionOnce(
+    settings,
+    [
+      { role: "system", content: ANSWER_JUDGE_SYSTEM },
+      {
+        role: "user",
+        content: `Exercise ${opts.number}. Student's typed answer: ${opts.student}`,
+        images,
+      },
+    ],
+    { numPredict: 300, timeoutMs: 180_000 },
+  );
+  const verdict = /VERDICT\s*:\s*(correct|wrong|unclear)/i.exec(text)?.[1];
+  const reason = /WHY\s*:\s*(.+)/i.exec(text)?.[1]?.trim();
+  if (!verdict) return { verdict: "unclear", reason: text.slice(0, 200) };
+  return {
+    verdict: verdict.toLowerCase() as AnswerJudgement["verdict"],
+    reason,
+  };
+}
+
 export async function askVisionCoach(
   settings: AppSettings,
   opts: {
     question: string;
     history: VisionTurn[];
     imageBase64: string;
+    extraImages?: string[];
+    context?: string;
     onToken?: (chunk: string) => void;
     signal?: AbortSignal;
   },
 ): Promise<string> {
   const model = settings.visionModel || settings.tutorModel;
+  const extra = opts.extraImages ?? [];
+  const system = [
+    VISION_SYSTEM,
+    opts.context ? `COURSE CONTEXT:\n${opts.context}` : "",
+    extra.length
+      ? "A second image is attached: the printed answer key for this exercise. Use it to check the learner's answer and to see the target form. Do not reveal it unless they ask."
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
   const messages = [
-    { role: "system", content: VISION_SYSTEM },
+    { role: "system", content: system },
     ...opts.history.slice(-8).map((m) => ({ role: m.role, content: m.content })),
-    { role: "user", content: opts.question, images: [opts.imageBase64] },
+    {
+      role: "user",
+      content: opts.question,
+      images: [opts.imageBase64, ...extra],
+    },
   ];
 
   const controller = new AbortController();

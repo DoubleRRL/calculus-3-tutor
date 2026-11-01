@@ -516,6 +516,7 @@ export function recordTopicAttempt(
   const cleanStreak = opts.clean ? prev.cleanStreak + 1 : 0;
   let status: TopicStatus = prev.status;
   if (opts.clean && cleanStreak >= 3) status = "solid";
+  else if (!opts.clean && status === "solid") status = "learning";
   else if (status !== "known" && status !== "solid") status = "learning";
   return {
     ...state,

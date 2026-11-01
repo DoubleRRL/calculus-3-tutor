@@ -1,21 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, BookOpen, Check, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import { useCourse } from "@/state/CourseContext";
 import { useBookSection, bookAsset } from "@/lib/book";
 import { progressFor } from "@/lib/courseStore";
-import { Button, Card, Icon } from "@/ui";
+import { Icon } from "@/ui";
 import { ExerciseCoach } from "@/components/course/ExerciseCoach";
+import { AnswerCheck } from "@/components/course/AnswerCheck";
 
 export function ExercisePage() {
   const { topicId, number } = useParams();
   const { course, topics, recordExercise } = useCourse();
   const { section, loading } = useBookSection(topicId);
-  const [showAnswer, setShowAnswer] = useState(false);
   const n = Number(number);
+  const [seed, setSeed] = useState<{ id: number; text: string } | null>(null);
+  const seedId = useRef(0);
 
   useEffect(() => {
-    setShowAnswer(false);
+    setSeed(null);
   }, [n]);
 
   const topic = topics.find((t) => t.id === topicId);
@@ -27,6 +29,9 @@ export function ExercisePage() {
   const prev = index > 0 ? list[index - 1] : undefined;
   const next = index >= 0 && index < list.length - 1 ? list[index + 1] : undefined;
   const progress = progressFor(course, topic.id);
+  const coachContext = `Section ${topic.id} — ${topic.title}. ${topic.blurb} Builds on: ${
+    topic.prereqs.length ? topic.prereqs.join(", ") : "nothing in this course"
+  }.`;
 
   return (
     <div className="space-y-6">
@@ -54,13 +59,13 @@ export function ExercisePage() {
       </div>
 
       {loading && (
-        <Card>
+        <div className="rounded-[var(--r-card)] border border-[var(--line)] bg-[var(--card)] p-4">
           <p className="text-[13px] text-[var(--ink-3)]">Loading…</p>
-        </Card>
+        </div>
       )}
 
       {!loading && !exercise && (
-        <Card className="space-y-2">
+        <div className="space-y-2 rounded-[var(--r-card)] border border-[var(--line)] bg-[var(--card)] p-4">
           <p className="text-[14px] text-[var(--ink-1)]">
             Exercise {number} isn't in the imported set.
           </p>
@@ -70,66 +75,57 @@ export function ExercisePage() {
           >
             Back to the topic
           </Link>
-        </Card>
+        </div>
       )}
 
       {exercise && (
         <>
-          <div className="rounded-[var(--r-card)] border border-[var(--line)] bg-white p-2 overflow-hidden">
+          <div className="overflow-hidden rounded-[var(--r-card)] border border-[var(--line)] bg-white p-2">
             <img
               src={bookAsset(exercise.image)}
               alt={`Exercise ${exercise.number}`}
-              className="w-full h-auto"
+              className="h-auto w-full"
             />
           </div>
+
+          <AnswerCheck
+            key={`${topic.id}-${exercise.number}`}
+            topicId={topic.id}
+            number={exercise.number}
+            exerciseImageUrl={bookAsset(exercise.image)}
+            answerImageUrl={
+              exercise.answerImage ? bookAsset(exercise.answerImage) : null
+            }
+            onGraded={(ok) =>
+              recordExercise(topic.id, exercise.number, ok)
+            }
+            onWrong={(student) =>
+              setSeed({
+                id: ++seedId.current,
+                text: `I answered "${student}" and it was marked wrong. Ask me one question that finds where my reasoning broke, then give the smallest next step. Do not give the full solution.`,
+              })
+            }
+            differentHref={
+              next ? `/topic/${topic.id}/exercise/${next.number}` : undefined
+            }
+            differentNumber={next?.number}
+          />
+
+          <p className="text-[12px] text-[var(--ink-3)]">
+            {progress.attempts} attempts · {progress.cleanStreak} clean in a row
+          </p>
 
           <ExerciseCoach
             key={`${topic.id}-${exercise.number}`}
             topicId={topic.id}
             number={exercise.number}
             imageUrl={bookAsset(exercise.image)}
+            answerImageUrl={
+              exercise.answerImage ? bookAsset(exercise.answerImage) : null
+            }
+            context={coachContext}
+            seed={seed}
           />
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant="success"
-              onClick={() => recordExercise(topic.id, exercise.number, true)}
-            >
-              <Icon icon={Check} size={14} />
-              Got it
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => recordExercise(topic.id, exercise.number, false)}
-            >
-              <Icon icon={X} size={14} />
-              Missed it
-            </Button>
-            {exercise.answerImage && (
-              <Button variant="ghost" onClick={() => setShowAnswer((v) => !v)}>
-                {showAnswer ? "Hide answer" : "Show answer"}
-              </Button>
-            )}
-          </div>
-
-          <p className="text-[12px] text-[var(--ink-3)]">
-            {progress.attempts} attempts · {progress.cleanStreak} clean in a row
-          </p>
-
-          {showAnswer && exercise.answerImage && (
-            <div className="space-y-1.5">
-              <p className="text-[12px] font-medium text-[var(--ink-2)]">
-                Book answer
-              </p>
-              <div className="rounded-[var(--r-card)] border border-[var(--line)] bg-white p-2 overflow-hidden">
-                <img
-                  src={bookAsset(exercise.answerImage)}
-                  alt={`Answer to exercise ${exercise.number}`}
-                  className="w-full h-auto"
-                />
-              </div>
-            </div>
-          )}
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line)] pt-4">
             <a
