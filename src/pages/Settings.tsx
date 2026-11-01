@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/state/AppContext";
+import { useCourse } from "@/state/CourseContext";
 import { listModels, ollamaReachable } from "@/lib/ollama";
-import { parsePersisted } from "@/lib/store";
+import { parseSettings } from "@/lib/settings";
+import { parseCourseState } from "@/lib/courseStore";
 import { Button, Card } from "@/ui";
 import type { ThemeMode } from "@/types/content";
 
 export function SettingsPage() {
   const { state, updateSettings, reset, replaceState } = useApp();
+  const { course, replaceCourse, resetCourse } = useCourse();
   const [reachable, setReachable] = useState<boolean | null>(null);
   const [models, setModels] = useState<string[]>([]);
   const [dataMsg, setDataMsg] = useState<string | null>(null);
@@ -87,64 +90,39 @@ export function SettingsPage() {
             (this machine has gemma4:e4b).
           </span>
         </label>
-        <details className="mb-2">
-          <summary className="cursor-pointer text-[12px] text-[var(--ink-3)]">
-            Advanced
-          </summary>
-          <label className="mt-2 block">
-            <span className="text-[12px] text-[var(--ink-3)]">
-              Review model (optional)
-            </span>
-            <select
-              value={state.settings.analysisModel}
-              onChange={(e) =>
-                updateSettings({ analysisModel: e.target.value })
-              }
-              className="mt-1 w-full bg-[var(--bg)] border border-[var(--line)] rounded-[var(--r-input)] px-3 py-2 text-[14px] outline-none focus:border-[var(--ink-1)]"
-            >
-              <option value="">Same as tutor model</option>
-              {models.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-            <span className="mt-1 block text-[11px] text-[var(--ink-3)]">
-              Only needed if a different model reads long transcripts better.
-            </span>
-          </label>
-        </details>
       </Section>
 
       <Section title="Data">
         <p className="text-[12px] text-[var(--ink-3)] mb-3">
-          Progress is saved on this device. Export a backup before reinstalling.
+          Settings and course progress are saved on this device. Export a backup
+          before reinstalling.
         </p>
         <div className="flex flex-col gap-2">
           <Button
             variant="ghost"
             className="w-full"
             onClick={() => {
-              const blob = new Blob([JSON.stringify(state, null, 2)], {
-                type: "application/json",
-              });
+              const blob = new Blob(
+                [JSON.stringify({ settings: state.settings, course }, null, 2)],
+                { type: "application/json" },
+              );
               const url = URL.createObjectURL(blob);
               const a = document.createElement("a");
               a.href = url;
-              a.download = "calctutor-progress.json";
+              a.download = "calctutor-backup.json";
               a.click();
               URL.revokeObjectURL(url);
               setDataMsg("Backup downloaded.");
             }}
           >
-            Export progress
+            Export backup
           </Button>
           <Button
             variant="ghost"
             className="w-full"
             onClick={() => importRef.current?.click()}
           >
-            Import progress
+            Import backup
           </Button>
           <input
             ref={importRef}
@@ -157,20 +135,33 @@ export function SettingsPage() {
               if (!file) return;
               void file.text().then((text) => {
                 try {
-                  const parsed = parsePersisted(JSON.parse(text) as unknown);
-                  if (!parsed) {
+                  const raw = JSON.parse(text) as unknown;
+                  if (
+                    typeof raw !== "object" ||
+                    raw === null ||
+                    (!("settings" in raw) && !("course" in raw))
+                  ) {
+                    setDataMsg("That file isn’t a CalcTutor backup.");
+                    return;
+                  }
+                  const parsedSettings = parseSettings(raw);
+                  if (!parsedSettings) {
                     setDataMsg("That file isn’t a valid CalcTutor backup.");
                     return;
                   }
+                  const parsedCourse = parseCourseState(
+                    (raw as { course?: unknown }).course,
+                  );
                   if (
                     !window.confirm(
-                      "Replace current progress with this backup?",
+                      "Replace current settings and course progress with this backup?",
                     )
                   ) {
                     return;
                   }
-                  replaceState(parsed);
-                  setDataMsg("Progress restored from backup.");
+                  replaceState({ settings: parsedSettings });
+                  if (parsedCourse) replaceCourse(parsedCourse);
+                  setDataMsg("Backup restored.");
                 } catch {
                   setDataMsg("Couldn’t read that file.");
                 }
@@ -184,13 +175,18 @@ export function SettingsPage() {
             variant="danger"
             className="w-full"
             onClick={() => {
-              if (window.confirm("Reset all progress? This cannot be undone.")) {
+              if (
+                window.confirm(
+                  "Reset all course progress and settings? This cannot be undone.",
+                )
+              ) {
                 reset();
+                resetCourse();
                 setDataMsg(null);
               }
             }}
           >
-            Reset progress
+            Reset everything
           </Button>
         </div>
       </Section>

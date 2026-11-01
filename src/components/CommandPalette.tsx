@@ -9,10 +9,15 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/state/AppContext";
-import { SKILLS, UNITS } from "@/content";
-import { resumeSkill } from "@/lib/store";
+import { useCourse } from "@/state/CourseContext";
 import { Icon } from "@/ui";
-import { BookOpen, Settings, Sparkles, SunMoon, Trophy, Zap } from "lucide-react";
+import {
+  BookOpen,
+  LayoutGrid,
+  Settings,
+  SlidersHorizontal,
+  SunMoon,
+} from "lucide-react";
 
 type Cmd = {
   id: string;
@@ -49,6 +54,7 @@ export function CommandPalette({
   onClose: () => void;
 }) {
   const nav = useNavigate();
+  const { chapters } = useCourse();
   const { state, updateSettings } = useApp();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
@@ -56,33 +62,31 @@ export function CommandPalette({
   const listRef = useRef<HTMLDivElement>(null);
 
   const commands = useMemo<Cmd[]>(() => {
-    const resume = resumeSkill(state);
-    const theme =
-      state.settings.theme === "dark" ? "light" : "dark";
+    const theme = state.settings.theme === "dark" ? "light" : "dark";
     const cmds: Cmd[] = [
       {
-        id: "resume",
-        label: resume ? `Continue: ${resume.title}` : "Start learning",
-        group: "Actions",
-        icon: <Icon icon={Zap} size={14} />,
-        keywords: "resume today session learn",
-        run: () => resume && nav(`/s/skill/${resume.id}`),
+        id: "topics",
+        label: "All topics",
+        group: "Go",
+        icon: <Icon icon={LayoutGrid} size={14} />,
+        keywords: "chapters sections dashboard",
+        run: () => nav("/"),
       },
       {
-        id: "checkpoint",
-        label: "Start checkpoint (10 mixed items)",
-        group: "Actions",
-        icon: <Icon icon={Sparkles} size={14} />,
-        keywords: "checkpoint recall review mixed",
-        run: () => nav("/s/checkpoint"),
+        id: "setup",
+        label: "Course setup",
+        group: "Go",
+        icon: <Icon icon={SlidersHorizontal} size={14} />,
+        keywords: "sections weights exams syllabus",
+        run: () => nav("/setup"),
       },
       {
-        id: "exam",
-        label: "Start full exam sim",
-        group: "Actions",
-        icon: <Icon icon={Trophy} size={14} />,
-        keywords: "exam simulation test",
-        run: () => nav("/s/exam"),
+        id: "settings",
+        label: "Open settings",
+        group: "Go",
+        icon: <Icon icon={Settings} size={14} />,
+        keywords: "preferences model ollama",
+        run: () => nav("/settings"),
       },
       {
         id: "theme",
@@ -92,37 +96,29 @@ export function CommandPalette({
         keywords: "theme dark light appearance",
         run: () => updateSettings({ theme }),
       },
-      {
-        id: "settings",
-        label: "Open settings",
-        group: "Actions",
-        icon: <Icon icon={Settings} size={14} />,
-        keywords: "settings preferences model",
-        run: () => nav("/settings"),
-      },
     ];
-    const units = new Map(UNITS.map((u) => [u.id, u.title]));
-    for (const s of SKILLS) {
-      if (s.unitId === "diagnostic") continue;
-      const unlocked = state.skills[s.id]?.unlocked;
-      cmds.push({
-        id: `skill-${s.id}`,
-        label: unlocked ? s.title : `${s.title} (locked)`,
-        group: units.get(s.unitId) ?? "Topics",
-        icon: <Icon icon={BookOpen} size={14} />,
-        keywords: `${s.objective} ${s.unitId}`,
-        run: () => {
-          if (unlocked) nav(`/s/skill/${s.id}`);
-          else nav("/"); // locked topics just go back to the path
-        },
-      });
+
+    for (const chapter of chapters) {
+      for (const topic of chapter.topics) {
+        cmds.push({
+          id: `topic-${topic.id}`,
+          label: `${topic.id} ${topic.title}`,
+          group: `Chapter ${chapter.number} · ${chapter.title}`,
+          icon: <Icon icon={BookOpen} size={14} />,
+          keywords: `${topic.blurb} ${chapter.title}`,
+          run: () => nav(`/topic/${topic.id}`),
+        });
+      }
     }
     return cmds;
-  }, [state, nav, updateSettings]);
+  }, [chapters, nav, updateSettings, state.settings.theme]);
 
   const results = useMemo(() => {
     const scored = commands
-      .map((c) => ({ cmd: c, score: fuzzy(query, `${c.label} ${c.keywords ?? ""}`) }))
+      .map((c) => ({
+        cmd: c,
+        score: fuzzy(query, `${c.label} ${c.keywords ?? ""}`),
+      }))
       .filter((r) => r.score >= 0);
     scored.sort((a, b) => b.score - a.score);
     return scored.map((r) => r.cmd);

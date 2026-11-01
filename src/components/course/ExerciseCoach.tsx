@@ -92,9 +92,10 @@ export function ExerciseCoach({
   }, [messages, key, busy]);
 
   useEffect(() => {
+    if (!settings.coachFollowStream) return;
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages]);
+  }, [messages, settings.coachFollowStream]);
 
   useEffect(() => () => abortRef.current?.abort(), []);
 

@@ -5,6 +5,7 @@ import { useCourse } from "@/state/CourseContext";
 import { Icon } from "@/ui";
 import { GlossaryDrawer, GLOSSARY_DEFAULT_W } from "@/components/GlossaryDrawer";
 import { CommandPalette } from "@/components/CommandPalette";
+import { FloatingScratchCalc } from "@/components/FloatingScratchCalc";
 
 const tabs = [
   { to: "/", label: "Topics", icon: LayoutGrid, end: true },
@@ -17,6 +18,7 @@ export function AppShell() {
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [glossaryWidth, setGlossaryWidth] = useState(GLOSSARY_DEFAULT_W);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [calcOpen, setCalcOpen] = useState(false);
 
   // Global ⌘K / Ctrl+K toggles the command palette.
   useEffect(() => {
@@ -143,6 +145,12 @@ export function AppShell() {
       />
 
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+
+      <FloatingScratchCalc
+        open={calcOpen}
+        onOpenChange={setCalcOpen}
+        onUseResult={() => {}}
+      />
     </div>
   );
 }
