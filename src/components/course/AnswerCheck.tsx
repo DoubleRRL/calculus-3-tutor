@@ -122,7 +122,6 @@ export function AnswerCheck({
           reason = judged.reason;
         } else if (judged.verdict === "wrong") {
           verdict = "wrong";
-          reason = judged.reason ?? reason;
         } else if (verdict === "unknown") {
           reason = judged.reason ?? reason;
         }
