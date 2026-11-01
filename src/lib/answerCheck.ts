@@ -40,6 +40,62 @@ function readGroup(s: string, start: number): { body: string; end: number } | nu
   return null;
 }
 
+/** Read a balanced (...) or {...} group starting at `start`. */
+function readDelimited(
+  s: string,
+  start: number,
+): { body: string; end: number } | null {
+  const open = s[start];
+  const close = open === "(" ? ")" : open === "{" ? "}" : null;
+  if (!close) return null;
+  let depth = 0;
+  for (let i = start; i < s.length; i++) {
+    if (s[i] === open) depth++;
+    else if (s[i] === close) {
+      depth--;
+      if (depth === 0) return { body: s.slice(start + 1, i), end: i };
+    }
+  }
+  return null;
+}
+
+/**
+ * √(x), ∛(x), ∜(x), and √[n](x) -> powers. Runs before the generic √ mapping
+ * so the index is not lost.
+ */
+function replaceRootSymbols(s: string): string {
+  let out = "";
+  let i = 0;
+  while (i < s.length) {
+    const ch = s[i];
+    if (ch === "√" || ch === "∛" || ch === "∜") {
+      let j = i + 1;
+      while (s[j] === " ") j++;
+      let index: string | null = null;
+      if (ch === "√" && s[j] === "[") {
+        const close = s.indexOf("]", j);
+        if (close > j) {
+          index = s.slice(j + 1, close);
+          j = close + 1;
+          while (s[j] === " ") j++;
+        }
+      }
+      const group = readDelimited(s, j);
+      if (group) {
+        const n = ch === "∛" ? "3" : ch === "∜" ? "4" : index;
+        out += n
+          ? `((${group.body})^(1/(${n})))`
+          : `sqrt(${group.body})`;
+        i = group.end + 1;
+        continue;
+      }
+    }
+    out += ch;
+    i++;
+  }
+  return out;
+}
+
 /**
  * Turn what a person types into something mathjs can parse. Accepts plain
  * math, LaTeX-lite, and the symbols the palette inserts.
@@ -86,6 +142,8 @@ export function normalizeAnswer(input: string): string {
     .replace(/\\text\{([^{}]*)\}/g, "$1")
     .replace(/\\mathrm\{([^{}]*)\}/g, "$1")
     .replace(/\\[a-zA-Z]+/g, "");
+
+  s = replaceRootSymbols(s);
 
   s = s
     .replace(/√/g, "sqrt")

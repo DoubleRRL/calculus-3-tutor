@@ -10,6 +10,7 @@ describe("answer normalization", () => {
     expect(normalizeAnswer("\\frac{\\pi}{4}")).toBe("((pi)/(4))");
     expect(normalizeAnswer("π/4")).toBe("pi/4");
     expect(normalizeAnswer("√(2)")).toBe("sqrt(2)");
+    expect(normalizeAnswer("√[4](64)")).toBe("((64)^(1/(4)))");
     expect(normalizeAnswer("z = x^2 + y^2")).toBe("x^2 + y^2");
     expect(normalizeAnswer("⟨1, 2, 3⟩")).toBe("[1, 2, 3]");
     expect(normalizeAnswer("pi")).toBe(normalizeAnswer("π"));
@@ -27,6 +28,14 @@ describe("final answer comparison", () => {
     expect((await check("sin(x)^2 + cos(x)^2", "1")).verdict).toBe("correct");
     expect((await check("sqrt(x)", "x^(1/2)")).verdict).toBe("correct");
     expect((await check("x^2 + 2x + 1", "(x+1)^2")).verdict).toBe("correct");
+  });
+
+  it("handles square, cube, and nth roots", async () => {
+    expect((await check("√(16)", "4")).verdict).toBe("correct");
+    expect((await check("∛(27)", "3")).verdict).toBe("correct");
+    expect((await check("√[4](16)", "2")).verdict).toBe("correct");
+    expect((await check("√[4](64)", "2*sqrt(2)")).verdict).toBe("correct");
+    expect((await check("√[5](32)", "2")).verdict).toBe("correct");
   });
 
   it("rejects different functions", async () => {

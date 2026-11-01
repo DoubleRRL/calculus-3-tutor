@@ -5,6 +5,8 @@ type Variant = {
   insert: string;
   back?: number;
   title: string;
+  /** Opens the index field instead of inserting immediately. */
+  nth?: boolean;
 };
 
 type Family = {
@@ -47,6 +49,7 @@ const FAMILIES: Family[] = [
     variants: [
       { label: "√", insert: "√()", back: 1, title: "Square root" },
       { label: "∛", insert: "∛()", back: 1, title: "Cube root" },
+      { label: "ⁿ√", insert: "", title: "nth root", nth: true },
     ],
   },
   { id: "frac", label: "/", insert: "/", title: "Fraction" },
@@ -139,6 +142,8 @@ export function MathInput({
   const inputRef = useRef<HTMLInputElement>(null);
   const [hover, setHover] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
+  const [nthOpen, setNthOpen] = useState(false);
+  const [nthIndex, setNthIndex] = useState("4");
 
   const insert = (token: string, back = 0) => {
     const el = inputRef.current;
@@ -215,13 +220,58 @@ export function MathInput({
                       key={`${v.label}-${v.title}`}
                       type="button"
                       disabled={disabled}
-                      onClick={() => insert(v.insert, v.back)}
+                      onClick={() => {
+                        if (v.nth) {
+                          setNthOpen(true);
+                          return;
+                        }
+                        insert(v.insert, v.back);
+                      }}
                       title={v.title}
                       className="h-7 min-w-7 rounded-[5px] px-1.5 font-mono text-[12px] text-[var(--ink-2)] hover:bg-[var(--accent-weak)] hover:text-[var(--ink-1)] disabled:opacity-40"
                     >
                       {v.label}
                     </button>
                   ))}
+                  {f.id === "root" && nthOpen && (
+                    <div className="mt-0.5 flex w-full basis-full items-center gap-1 border-t border-[var(--line)] pt-1">
+                      <span className="text-[10px] text-[var(--ink-3)]">
+                        index
+                      </span>
+                      <input
+                        autoFocus
+                        value={nthIndex}
+                        onChange={(e) =>
+                          setNthIndex(e.target.value.replace(/\D/g, "").slice(0, 2))
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const n = Number(nthIndex);
+                            if (!Number.isInteger(n) || n < 2 || n > 20) return;
+                            insert(`√[${n}]()`, 1);
+                            setNthOpen(false);
+                          }
+                        }}
+                        inputMode="numeric"
+                        aria-label="Root index"
+                        className="w-9 rounded-[4px] border border-[var(--line)] bg-[var(--bg)] px-1 py-0.5 font-mono text-[11px] text-[var(--ink-1)] focus:border-[var(--line-2)] focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const n = Number(nthIndex);
+                          if (!Number.isInteger(n) || n < 2 || n > 20) return;
+                          insert(`√[${n}]()`, 1);
+                          setNthOpen(false);
+                        }}
+                        className="rounded-[4px] border border-[var(--line)] px-1.5 py-0.5 text-[10px] text-[var(--ink-2)] hover:bg-[var(--accent-weak)] hover:text-[var(--ink-1)]"
+                      >
+                        Insert
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
