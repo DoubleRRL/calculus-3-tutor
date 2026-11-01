@@ -12,6 +12,7 @@ describe("answer normalization", () => {
     expect(normalizeAnswer("√(2)")).toBe("sqrt(2)");
     expect(normalizeAnswer("z = x^2 + y^2")).toBe("x^2 + y^2");
     expect(normalizeAnswer("⟨1, 2, 3⟩")).toBe("[1, 2, 3]");
+    expect(normalizeAnswer("pi")).toBe(normalizeAnswer("π"));
   });
 });
 
@@ -19,6 +20,7 @@ describe("final answer comparison", () => {
   it("matches equivalent numbers", async () => {
     expect((await check("1/2", "0.5")).verdict).toBe("correct");
     expect((await check("\\frac{\\pi}{4}", "0.785398")).verdict).toBe("correct");
+    expect((await check("pi/4", "π/4")).verdict).toBe("correct");
   });
 
   it("matches equivalent expressions by sampling", async () => {
