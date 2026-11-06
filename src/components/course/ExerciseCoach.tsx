@@ -16,6 +16,10 @@ function threadKey(topicId: string, number: number): string {
   return `calctutor.coach.v1.${topicId}.${number}`;
 }
 
+function endedKey(topicId: string, number: number): string {
+  return `calctutor.coach.v1.end.${topicId}.${number}`;
+}
+
 function loadThread(key: string): VisionTurn[] {
   try {
     const raw = localStorage.getItem(key);
@@ -34,20 +38,28 @@ function loadThread(key: string): VisionTurn[] {
   }
 }
 
-const QUICK = [
-  {
-    label: "Explain simply",
-    text: "Explain what this problem is asking and how to start, in plain language. No formulas at first.",
-  },
-  {
-    label: "First step",
-    text: "What is the first step? Give me only that, then stop.",
-  },
-  {
-    label: "Simpler example",
-    text: "Show me a simpler version of this problem with concrete numbers, then point back to mine.",
-  },
-];
+const EXPLAIN_PROMPT =
+  "Explain what this problem is asking and how to start, in plain language. No formulas at first.";
+const FIRST_STEP_PROMPT =
+  "What is the first step? Give me only that, then stop.";
+const NEXT_STEP_PROMPT =
+  "Give me only the next step. Continue from the step you just gave. Do not repeat any earlier step. Stop after one step.";
+const SIMPLER_PROMPT =
+  "Show me a simpler version of this problem with concrete numbers, then point back to mine.";
+const MAX_STEPS = 8;
+
+function userLabel(content: string): string {
+  const text = content.trim();
+  if (text === EXPLAIN_PROMPT) return "Explain simply";
+  if (text === FIRST_STEP_PROMPT) return "First step";
+  if (text === NEXT_STEP_PROMPT) return "Next step";
+  if (text === SIMPLER_PROMPT) return "Simpler example";
+  return content;
+}
+
+function cleanCoachText(content: string): string {
+  return content.replace(/\[END\]/gi, "").trim();
+}
 
 export function ExerciseCoach({
   topicId,
@@ -68,6 +80,16 @@ export function ExerciseCoach({
   const settings = state.settings;
   const key = threadKey(topicId, number);
   const [messages, setMessages] = useState<VisionTurn[]>(() => loadThread(key));
+  const [stepEnded, setStepEnded] = useState(() => {
+    try {
+      if (localStorage.getItem(endedKey(topicId, number)) === "1") return true;
+    } catch {
+      // ignore storage failures; fall back to the thread marker
+    }
+    return loadThread(key).some(
+      (m) => m.role === "assistant" && /\[END\]/i.test(m.content),
+    );
+  });
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,6 +127,21 @@ export function ExerciseCoach({
     models.some(
       (m) => m === model || m.split(":")[0] === model.split(":")[0],
     );
+
+  const stepCount = messages.filter(
+    (m) =>
+      m.role === "user" &&
+      (m.content === FIRST_STEP_PROMPT || m.content === NEXT_STEP_PROMPT),
+  ).length;
+  const stepLabel = stepCount === 0 ? "First step" : "Next step";
+  const stepPrompt =
+    stepCount === 0 ? FIRST_STEP_PROMPT : NEXT_STEP_PROMPT;
+  const showStep = !stepEnded && stepCount < MAX_STEPS;
+  const quick = [
+    { label: "Explain simply", text: EXPLAIN_PROMPT },
+    ...(showStep ? [{ label: stepLabel, text: stepPrompt }] : []),
+    { label: "Simpler example", text: SIMPLER_PROMPT },
+  ];
 
   const send = async (text: string) => {
     const question = text.trim();
@@ -153,6 +190,20 @@ export function ExerciseCoach({
           copy[copy.length - 1] = { role: "assistant", content: reply };
           return copy;
         });
+      }
+      const finalText = acc || reply;
+      if (
+        /\[END\]/i.test(finalText) ||
+        /final answer|the answer is|so the answer|that completes/i.test(
+          finalText.slice(-240),
+        )
+      ) {
+        setStepEnded(true);
+        try {
+          localStorage.setItem(endedKey(topicId, number), "1");
+        } catch {
+          // session-only is fine if storage is full
+        }
       }
     } catch (e) {
       // Do not leave an unanswered question in the thread; it confuses the
@@ -206,9 +257,9 @@ export function ExerciseCoach({
               }
             >
               {m.role === "user" ? (
-                <span className="font-medium">{m.content}</span>
+                <span className="font-medium">{userLabel(m.content)}</span>
               ) : m.content ? (
-                <MathText text={m.content} />
+                <MathText text={cleanCoachText(m.content)} />
               ) : (
                 <span className="text-[var(--ink-3)]">…</span>
               )}
@@ -218,7 +269,7 @@ export function ExerciseCoach({
       )}
 
       <div className="flex flex-wrap gap-1.5">
-        {QUICK.map((q) => (
+        {quick.map((q) => (
           <button
             key={q.label}
             type="button"

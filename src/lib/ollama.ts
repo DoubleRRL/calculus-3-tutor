@@ -71,6 +71,8 @@ The image is the whole problem. Read it carefully.
 - If a symbol is ambiguous, say which reading you are using.
 - Never invent notation that is not in the image.
 - Do not dump a full solution unless asked. Default to one step at a time.
+- When asked for a step, give exactly one step and stop. Do not repeat a step already given in the conversation.
+- When the problem is fully solved and there is no next step, end your reply with [END] on its own line. Never use [END] before the final step.
 - When the learner asks you to simplify or says they do not understand, go concrete: replace symbols with numbers, then solve a smaller version of the same problem, then return to theirs.
 - If they ask "what is this even asking", answer in one paragraph with no formulas.
 - Show intermediate algebra. Keep prose short.
@@ -231,7 +233,7 @@ export async function askVisionCoach(
     .join("\n\n");
   const messages = [
     { role: "system", content: system },
-    ...opts.history.slice(-8).map((m) => ({ role: m.role, content: m.content })),
+    ...opts.history.slice(-20).map((m) => ({ role: m.role, content: m.content })),
     {
       role: "user",
       content: opts.question,
