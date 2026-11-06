@@ -34,7 +34,6 @@ import pymupdf
 
 SECTION_RE = re.compile(r"^(\d{1,2})\.(\d{1,2})\s+\S")
 NUMBER_WORD = re.compile(r"^(\d{1,3})\.$")
-RANGE_WORD = re.compile(r"^\d{1,3}[–-]\d{1,3}$")
 ANS_HEADER_RE = re.compile(r"Exercises\s+(\d{1,2}\.\d{1,2})\b")
 
 
@@ -47,30 +46,110 @@ class Anchor:
     y1: float
 
 
+@dataclass
+class RangeHeader:
+    first: int
+    last: int
+    page: int
+    rect: pymupdf.Rect
+
+
+NUMBER_SPAN = re.compile(r"^[\s\t\u2002\u2003]*(\d{1,3})\.(?:[\s\t\u2002\u2003]|$)")
+
+
 def exercise_anchors(page: pymupdf.Page) -> list[Anchor]:
-    """Numbers that start a line, e.g. '1.' at the left edge of an item."""
+    """Number spans anywhere on the page, including two-up and figure labels.
+
+    Exercise numbers are bold spans.  A line-level regex misses the right-hand
+    problem in a two-up row and numbers printed after a figure label, so walk
+    the spans and keep each bold ``n.`` with its own x position.
+    """
     out: list[Anchor] = []
     seen: set[int] = set()
-    for x0, y0, x1, y1, word, _b, _l, wno in page.get_text("words"):
-        if wno != 0:
+    for block in page.get_text("dict")["blocks"]:
+        if block.get("type") != 0:
             continue
-        m = NUMBER_WORD.match(word.strip())
-        if not m:
-            continue
-        number = int(m.group(1))
-        if number in seen:
-            continue
-        seen.add(number)
-        out.append(Anchor(number, x0, y0, x1, y1))
+        for line in block.get("lines", []):
+            for span in line.get("spans", []):
+                text = span.get("text", "")
+                font = span.get("font", "")
+                if "Bold" not in font and "Semibold" not in font:
+                    continue
+                m = NUMBER_SPAN.match(text)
+                if not m:
+                    continue
+                number = int(m.group(1))
+                if number in seen:
+                    continue
+                seen.add(number)
+                x0, y0, x1, y1 = span["bbox"]
+                out.append(Anchor(number, x0, y0, x1, y1))
     return out
 
 
-def range_headers(page: pymupdf.Page) -> list[float]:
-    ys = []
-    for x0, y0, _x1, _y1, word, _b, _l, wno in page.get_text("words"):
-        if wno == 0 and RANGE_WORD.match(word.strip()):
-            ys.append(y0)
-    return ys
+def range_header_blocks(page: pymupdf.Page) -> list[RangeHeader]:
+    """Blocks that start with a range like ``1–6`` or ``9–16``."""
+    out: list[RangeHeader] = []
+    for block in page.get_text("dict")["blocks"]:
+        if block.get("type") != 0:
+            continue
+        text = block_text(block)
+        m = re.match(r"^(\d{1,3})[–-](\d{1,3})\b", text)
+        if not m:
+            continue
+        out.append(
+            RangeHeader(
+                first=int(m.group(1)),
+                last=int(m.group(2)),
+                page=page.number + 1,
+                rect=pymupdf.Rect(block["bbox"]),
+            )
+        )
+    return out
+
+
+def header_crop_rect(
+    page: pymupdf.Page, header: RangeHeader
+) -> pymupdf.Rect | None:
+    """Column-wide strip containing the range header and its instruction."""
+    gutter = page_gutter(page)
+    if gutter is None:
+        column_x0, column_x1 = 30.0, page.rect.width - 30
+    elif header.rect.x0 < gutter:
+        column_x0, column_x1 = 30.0, gutter - 8
+    else:
+        column_x0, column_x1 = gutter - 8, page.rect.width - 30
+
+    top = max(48, header.rect.y0 - 2)
+    bottom = header.rect.y1 + 4
+
+    below = [
+        anchor
+        for anchor in exercise_anchors(page)
+        if column_x0 - 2 <= anchor.x0 <= column_x1 + 2
+        and anchor.y0 > header.rect.y0 + 2
+    ]
+    if below:
+        limit = min(a.y0 for a in below) - 2
+        for block in page.get_text("dict")["blocks"]:
+            if block.get("type") != 0:
+                continue
+            bx0, by0, bx1, by1 = block["bbox"]
+            if bx1 <= column_x0 or bx0 >= column_x1:
+                continue
+            if by0 >= header.rect.y1 - 2 and by1 < limit:
+                bottom = max(bottom, by1)
+        bottom = min(bottom, limit)
+
+    bottom = min(page.rect.height - 16, bottom)
+    if bottom - top < 8:
+        return None
+    return pymupdf.Rect(
+        max(0, max(column_x0, header.rect.x0 - 6)),
+        top,
+        min(page.rect.width, min(column_x1, header.rect.x1 + 6)),
+        bottom,
+    )
 
 
 def page_gutter(page: pymupdf.Page) -> float | None:
@@ -116,45 +195,72 @@ def page_gutter(page: pymupdf.Page) -> float | None:
 def bands_for_column(
     page: pymupdf.Page,
     anchors: list[Anchor],
-    headers: list[float],
     x0: float,
     x1: float,
     top: float,
 ) -> list[tuple[Anchor, pymupdf.Rect]]:
-    """Split one column into bands, one per anchor row."""
+    """Split one column into one band per anchor.
+
+    Rows with two anchors at the same y are split horizontally at the next
+    anchor's x, so both the odd and even problem survive.  A lone anchor keeps
+    the full column width, which preserves figures printed to its right.
+    """
     if not anchors:
         return []
+    anchors = [a for a in anchors if x0 - 2 <= a.x0 <= x1 + 2]
+    if not anchors:
+        return []
+
+    rows: list[list[Anchor]] = []
+    for anchor in sorted(anchors, key=lambda a: (a.y0, a.x0)):
+        if rows and abs(anchor.y0 - rows[-1][0].y0) <= 2:
+            rows[-1].append(anchor)
+        else:
+            rows.append([anchor])
+    for row in rows:
+        row.sort(key=lambda a: a.x0)
+
     blocks = [
         pymupdf.Rect(b["bbox"])
         for b in page.get_text("dict")["blocks"]
         if b.get("type") == 0
     ]
-    ys = sorted({round(a.y0, 1) for a in anchors})
+
+    def column_bottom(y: float) -> float:
+        below = [
+            block.y1
+            for block in blocks
+            if block.x0 >= x0 - 4
+            and block.x1 <= x1 + 4
+            and block.y0 >= y - 4
+        ]
+        return max(below) if below else y + 10
+
     out: list[tuple[Anchor, pymupdf.Rect]] = []
-    for i, y in enumerate(ys):
-        row = [a for a in anchors if round(a.y0, 1) == y]
-        start = y
-        # a "4–5 Determine ..." header belongs to the items below it
-        for hy in headers:
-            if hy < y - 2 and hy >= start - 60:
-                prev = [yy for yy in ys if hy - 2 < yy <= y]
-                if not prev:
-                    start = hy
-                    break
-        end = ys[i + 1] - 5 if i + 1 < len(ys) else None
-        if end is None:
-            below = [b.y1 for b in blocks if b.x0 >= x0 - 4 and b.y0 >= y - 4]
-            end = (max(below) if below else row[0].y1) + 4
-        rect = pymupdf.Rect(
-            max(0, x0),
-            max(top, start - 4),
-            min(page.rect.width, x1),
-            min(page.rect.height - 16, end),
-        )
-        if rect.height < 8 or rect.width < 20:
+    for i, row in enumerate(rows):
+        y0 = max(top, row[0].y0 - 4)
+        if i + 1 < len(rows):
+            y1 = max(y0 + 8, rows[i + 1][0].y0 - 5)
+        else:
+            y1 = min(page.rect.height - 16, column_bottom(row[0].y0) + 4)
+        if y1 - y0 < 8:
             continue
-        for a in row:
-            out.append((a, rect))
+
+        for j, anchor in enumerate(row):
+            if len(row) == 1:
+                left, right = x0, x1
+            else:
+                left = x0 if j == 0 else anchor.x0 - 4
+                right = row[j + 1].x0 - 4 if j + 1 < len(row) else x1
+            rect = pymupdf.Rect(
+                max(0, left),
+                y0,
+                min(page.rect.width, right),
+                y1,
+            )
+            if rect.height < 8 or rect.width < 20:
+                continue
+            out.append((anchor, rect))
     return out
 
 
@@ -182,18 +288,17 @@ def page_bands(
     anchors = exercise_anchors(page)
     if not anchors:
         return []
-    headers = range_headers(page)
     split = page_split(page, anchors)
     if split is None:
         left_edge = min(a.x0 for a in anchors) - 6
         return bands_for_column(
-            page, anchors, headers, left_edge, page.rect.width - 30, top
+            page, anchors, left_edge, page.rect.width - 30, top
         )
     left = [a for a in anchors if a.x0 < split]
     right = [a for a in anchors if a.x0 >= split]
     left_edge = min((a.x0 for a in left), default=split - 200) - 6
-    out = bands_for_column(page, left, headers, left_edge, split - 8, top)
-    out += bands_for_column(page, right, headers, split - 8, page.rect.width - 30, top)
+    out = bands_for_column(page, left, left_edge, split - 8, top)
+    out += bands_for_column(page, right, split - 8, page.rect.width - 30, top)
     return out
 
 
@@ -207,6 +312,51 @@ def render(page: pymupdf.Page, rect: pymupdf.Rect, path: Path, zoom: float) -> t
     )
     pix.save(path, jpg_quality=88)
     return pix.width, pix.height
+
+
+def render_composite(
+    problem_page: pymupdf.Page,
+    problem_rect: pymupdf.Rect,
+    header_page: pymupdf.Page,
+    header_rect: pymupdf.Rect,
+    path: Path,
+    zoom: float,
+) -> tuple[int, int]:
+    """Stack a range header above a problem so the exercise is self-contained."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    matrix = pymupdf.Matrix(zoom, zoom)
+    header = header_page.get_pixmap(
+        clip=header_rect, matrix=matrix, colorspace=pymupdf.csGRAY, alpha=False
+    )
+    problem = problem_page.get_pixmap(
+        clip=problem_rect, matrix=matrix, colorspace=pymupdf.csGRAY, alpha=False
+    )
+    gap = 10
+    width = max(header.width, problem.width)
+    height = header.height + gap + problem.height
+    doc = pymupdf.open()
+    try:
+        page = doc.new_page(width=width / zoom, height=height / zoom)
+        page.insert_image(
+            pymupdf.Rect(0, 0, header.width / zoom, header.height / zoom),
+            pixmap=header,
+        )
+        page.insert_image(
+            pymupdf.Rect(
+                0,
+                (header.height + gap) / zoom,
+                problem.width / zoom,
+                (header.height + gap + problem.height) / zoom,
+            ),
+            pixmap=problem,
+        )
+        out = page.get_pixmap(
+            matrix=matrix, colorspace=pymupdf.csGRAY, alpha=False
+        )
+        out.save(path, jpg_quality=88)
+        return out.width, out.height
+    finally:
+        doc.close()
 
 
 def toc_sections(doc: pymupdf.Document) -> dict[str, tuple[int, int]]:
@@ -404,7 +554,8 @@ def crop_answers(
 
         top = 48.0
         if start.page == page_no and start.column == column:
-            top = start.y0 - 2
+            # Start at the first answer, not the "Exercises 15.3" header.
+            top = min(a.y0 for a in group) - 4
 
         last_y = max(a.y0 for a in group)
         stops = [
@@ -418,20 +569,37 @@ def crop_answers(
         bottom = min(stops) if stops else page.rect.height - 20
 
         band_anchors = [Anchor(a.number, a.x0, a.y0, a.x1, a.y1) for a in group]
-        bands = bands_for_column(page, band_anchors, [], x0, x1, top)
+        bands = bands_for_column(page, band_anchors, x0, x1, top)
         for anchor, rect in bands:
             name = f"ans-{anchor.number:02d}.png"
             if name in saved:
                 continue
-            # Display math can be much taller than the numbered line; a fixed
-            # minimum keeps fractions and integrals whole. It can include the
-            # next answer, which is better than cutting this one.
+            # Display math can be taller than the numbered line, so give the
+            # crop a minimum height — but never past the next answer's number.
+            next_answer_y = min(
+                (a.y0 for a in group if a.y0 > anchor.y0 + 2),
+                default=None,
+            )
+            prev_answer_y = max(
+                (a.y0 for a in group if a.y0 < anchor.y0 - 2),
+                default=None,
+            )
+            hard_bottom = (
+                min(bottom, next_answer_y - 2)
+                if next_answer_y is not None
+                else bottom
+            )
+            top_limit = (
+                (prev_answer_y + anchor.y0) / 2
+                if prev_answer_y is not None
+                else top
+            )
             bottom_wanted = max(rect.y1, anchor.y0 + 38)
             clipped = pymupdf.Rect(
                 rect.x0,
-                max(rect.y0 - 8, top),
+                max(rect.y0 - 8, top_limit, top),
                 rect.x1,
-                min(bottom_wanted, bottom),
+                min(bottom_wanted, hard_bottom),
             )
             if clipped.height < 6:
                 continue
@@ -462,34 +630,65 @@ def process_section(
         # The next section's exercises start at next_heading; its prose may
         # begin a page or two earlier. Never read past one page into it.
         stop = min(next_heading, end + 1) if next_heading else end + 1
-        for pno in range(first, min(doc.page_count, stop)):
+        page_numbers = list(range(first, min(doc.page_count, stop)))
+
+        headers: list[tuple[RangeHeader, pymupdf.Rect]] = []
+        for pno in page_numbers:
+            header_page = doc[pno - 1]
+            for header in range_header_blocks(header_page):
+                crop = header_crop_rect(header_page, header)
+                if crop is not None:
+                    headers.append((header, crop))
+
+        for pno in page_numbers:
             page = doc[pno - 1]
-            bands = page_bands(page, top=48 if pno != first else 150)
+            bands = page_bands(page, top=48)
             if not bands:
                 continue
             pages.append(pno)
             page_name = f"page-{pno}.png"
             if not (out_dir / page_name).exists():
                 render(page, page.rect, out_dir / page_name, zoom)
-            by_rect: dict[tuple[int, int, int, int], str] = {}
             for anchor, rect in bands:
                 if anchor.number in exercises:
                     continue
-                key = tuple(round(v) for v in rect)
-                name = by_rect.get(key)
-                if name is None:
-                    name = f"ex-{anchor.number:02d}.png"
+                name = f"ex-{anchor.number:02d}.png"
+                matching = [
+                    (header, crop)
+                    for header, crop in headers
+                    if header.first <= anchor.number <= header.last
+                ]
+                thumb_image: str | None = None
+                if matching:
+                    header, crop = min(
+                        matching,
+                        key=lambda item: item[0].last - item[0].first,
+                    )
+                    w, h = render_composite(
+                        page,
+                        rect,
+                        doc[header.page - 1],
+                        crop,
+                        out_dir / name,
+                        zoom,
+                    )
+                    thumb_name = f"prob-{anchor.number:02d}.png"
+                    render(page, rect, out_dir / thumb_name, zoom)
+                    thumb_image = f"{section}/{thumb_name}"
+                else:
                     w, h = render(page, rect, out_dir / name, zoom)
-                    by_rect[key] = name
-                    exercises[anchor.number] = {
-                        "number": anchor.number,
-                        "image": f"{section}/{name}",
-                        "width": w,
-                        "height": h,
-                        "page": pno,
-                        "pageImage": f"{section}/{page_name}",
-                        "answerImage": None,
-                    }
+                entry = {
+                    "number": anchor.number,
+                    "image": f"{section}/{name}",
+                    "width": w,
+                    "height": h,
+                    "page": pno,
+                    "pageImage": f"{section}/{page_name}",
+                    "answerImage": None,
+                }
+                if thumb_image:
+                    entry["thumbImage"] = thumb_image
+                exercises[anchor.number] = entry
 
     if want_answers and exercises:
         answers = crop_answers(doc, section, out_dir, zoom)

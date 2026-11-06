@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 
 export interface BookExercise {
   number: number;
+  /** Full problem, with any shared range instructions stacked above it. */
   image: string;
+  /** Problem-only crop for the exercise grid. Falls back to `image`. */
+  thumbImage?: string | null;
   width: number;
   height: number;
   page: number;

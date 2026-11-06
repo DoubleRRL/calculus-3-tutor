@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useCourse } from "@/state/CourseContext";
@@ -6,6 +7,8 @@ import type { TopicStatus } from "@/types/course";
 import { Card, Icon } from "@/ui";
 import { STATUS_LABEL, StatusDot } from "@/components/course/TopicChip";
 import { TopicExercises } from "@/components/course/TopicExercises";
+import { TopicPrimer } from "@/components/course/TopicPrimer";
+import { primerForSection } from "@/content/primers";
 
 const STATUS_ORDER: TopicStatus[] = ["unseen", "learning", "solid", "known"];
 
@@ -13,6 +16,19 @@ export function TopicSheetPage() {
   const { topicId } = useParams();
   const { course, topics, setStatus, setNote } = useCourse();
   const topic = topics.find((t) => t.id === topicId);
+  const initialProgress = topic ? progressFor(course, topic.id) : null;
+  const [exercisesOpen, setExercisesOpen] = useState(
+    () => initialProgress?.status !== "unseen",
+  );
+
+  useEffect(() => {
+    if (topic) {
+      setExercisesOpen(progressFor(course, topic.id).status !== "unseen");
+    }
+    // Only reset when the route's topic changes; a primer attempt changing
+    // the status should not slam the exercise grid shut.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topic?.id]);
 
   if (!topic) return <Navigate to="/" replace />;
 
@@ -23,6 +39,17 @@ export function TopicSheetPage() {
   const prereqs = topic.prereqs
     .map((id) => topics.find((t) => t.id === id))
     .filter((t): t is NonNullable<typeof t> => Boolean(t));
+  const hasPrimer = Boolean(primerForSection(topic.id));
+
+  function openExercises() {
+    setExercisesOpen(true);
+    window.requestAnimationFrame(() => {
+      document.getElementById("book-exercises")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }
 
   return (
     <div className="space-y-7">
@@ -49,6 +76,13 @@ export function TopicSheetPage() {
         </p>
       </div>
 
+      <TopicPrimer
+        key={topic.id}
+        topicId={topic.id}
+        prereqs={prereqs}
+        onOpenExercises={openExercises}
+      />
+
       <section className="space-y-2">
         <h2 className="text-[13px] font-medium text-[var(--ink-2)]">Status</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -73,7 +107,13 @@ export function TopicSheetPage() {
         </div>
       </section>
 
-      <TopicExercises topicId={topic.id} />
+      <section id="book-exercises" className="scroll-mt-6">
+        <TopicExercises
+          topicId={topic.id}
+          open={exercisesOpen}
+          onToggle={() => setExercisesOpen((value) => !value)}
+        />
+      </section>
 
       <Card className="space-y-2">
         <div className="flex items-baseline justify-between">
@@ -88,21 +128,21 @@ export function TopicSheetPage() {
         />
       </Card>
 
-      {(prereqs.length > 0 || progress.attempts > 0) && (
-        <div className="grid sm:grid-cols-2 gap-3">
-          {prereqs.length > 0 && (
+      {((!hasPrimer && prereqs.length > 0) || progress.attempts > 0) && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {!hasPrimer && prereqs.length > 0 && (
             <Card className="space-y-2">
               <h2 className="text-[13px] font-medium text-[var(--ink-2)]">
                 Builds on
               </h2>
               <div className="flex flex-wrap gap-1.5">
-                {prereqs.map((p) => (
+                {prereqs.map((prereq) => (
                   <Link
-                    key={p.id}
-                    to={`/topic/${p.id}`}
+                    key={prereq.id}
+                    to={`/topic/${prereq.id}`}
                     className="rounded-[var(--r-pill)] border border-[var(--line)] px-2.5 py-1 text-[12px] text-[var(--ink-2)] hover:bg-[var(--accent-weak)]"
                   >
-                    {p.id} {p.title}
+                    {prereq.id} {prereq.title}
                   </Link>
                 ))}
               </div>

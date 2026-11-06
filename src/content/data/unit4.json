@@ -1,0 +1,705 @@
+[
+  {
+    "id": "u4_dr_learn",
+    "skillId": "u4_double_rect",
+    "kind": "learn",
+    "prompt": "$\\iint_R 1\\,dA$ over $[0,2]\\times[0,3]$ equals area. Value?",
+    "answerType": "numeric",
+    "answer": "6",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "FUBINI"
+    ],
+    "rubric": "6",
+    "hints": {
+      "nudge": "Integrating 1 over a region gives its area.",
+      "technique": "Rectangle width 2, height 3.",
+      "nextStep": "$2\\times 3=6$",
+      "fullSolution": "Area $=6$"
+    }
+  },
+  {
+    "id": "u4_dr_drill1",
+    "skillId": "u4_double_rect",
+    "kind": "drill",
+    "prompt": "$\\int_0^1\\int_0^2 xy\\,dy\\,dx$?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "FUBINI"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "Inner integral in $y$: treat $x$ as constant.",
+      "technique": "$x\\cdot y^2/2$ from 0 to 2 gives $2x$",
+      "nextStep": "Outer antiderivative of $2x$ is $x^2$, so evaluate $[x^2]_0^1$.",
+      "fullSolution": "$\\int_0^1 2x\\,dx = 1$"
+    }
+  },
+  {
+    "id": "u4_dr_mastery",
+    "skillId": "u4_double_rect",
+    "kind": "mastery",
+    "prompt": "$\\int_0^1\\int_0^1 2\\,dx\\,dy$?",
+    "answerType": "numeric",
+    "answer": "2",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "FUBINI"
+    ],
+    "rubric": "2",
+    "hints": {
+      "nudge": "Constant integrand over the unit square.",
+      "technique": "Inner $\\int_0^1 2\\,dx=2$, then $\\int_0^1 2\\,dy=2$",
+      "nextStep": "Each length-1 limit contributes a factor of $1$; there are two of them.",
+      "fullSolution": "2"
+    }
+  },
+  {
+    "id": "u4_b_learn",
+    "skillId": "u4_bounds",
+    "kind": "learn",
+    "prompt": "Region under $y=1-x$ in first quadrant: Type I has $x$ from 0 to 1, $y$ from 0 to $1-x$. Upper $y$-limit at $x=0.5$?",
+    "answerType": "numeric",
+    "answer": "0.5",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "BOUNDS_SETUP"
+    ],
+    "rubric": "0.5",
+    "hints": {
+      "nudge": "Type I: for fixed $x$, $y$ runs bottom to top.",
+      "technique": "Top curve is $y=1-x$.",
+      "nextStep": "At $x=0.5$, upper limit is $0.5$",
+      "fullSolution": "Upper $y$-limit is $0.5$"
+    }
+  },
+  {
+    "id": "u4_b_drill1",
+    "skillId": "u4_bounds",
+    "kind": "drill",
+    "prompt": "For the triangle with vertices $(0,0),(1,0),(0,1)$, switching to Type II: $y$ from 0 to 1. At $y=0.2$, $x$ goes from 0 to?",
+    "answerType": "numeric",
+    "answer": "0.8",
+    "accept": [
+      "0.8",
+      "4/5",
+      "0.80"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "BOUNDS_SETUP"
+    ],
+    "rubric": "0.8",
+    "hints": {
+      "nudge": "Hypotenuse is $x+y=1$, so $x=1-y$.",
+      "technique": "At $y=0.2$, $x$ runs from 0 to $1-0.2$",
+      "nextStep": "0.8",
+      "fullSolution": "$x$ goes up to $0.8$"
+    }
+  },
+  {
+    "id": "u4_b_mastery",
+    "skillId": "u4_bounds",
+    "kind": "mastery",
+    "prompt": "Biggest setup mistake on finals is usually… (wrong integrand / wrong bounds / arithmetic)",
+    "answerType": "choice",
+    "answer": "wrong bounds",
+    "choices": [
+      "wrong integrand",
+      "wrong bounds",
+      "arithmetic"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "BOUNDS_SETUP"
+    ],
+    "rubric": "wrong bounds",
+    "hints": {
+      "nudge": "Integrand is often easy; describing the region is hard.",
+      "technique": "Wrong Type I/II limits are the classic trap.",
+      "nextStep": "Sketch the region on paper, then read the limits off the sketch.",
+      "fullSolution": "wrong bounds"
+    }
+  },
+  {
+    "id": "u4_p_learn",
+    "skillId": "u4_polar",
+    "kind": "learn",
+    "prompt": "In polar, $dA = r\\,dr\\,d\\theta$. Disk $x^2+y^2\\le 1$: $\\iint r\\,dr\\,d\\theta$ over full disk equals area $\\pi$. The Jacobian factor $r$ at $r=0.5$ is?",
+    "answerType": "numeric",
+    "answer": "0.5",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "POLAR_JACOBIAN"
+    ],
+    "rubric": "0.5",
+    "hints": {
+      "nudge": "The extra factor in polar is simply $r$.",
+      "technique": "Plug in $r=0.5$",
+      "nextStep": "0.5",
+      "fullSolution": "The factor is $0.5$"
+    }
+  },
+  {
+    "id": "u4_p_drill1",
+    "skillId": "u4_polar",
+    "kind": "drill",
+    "prompt": "Area of unit disk via polar: $\\int_0^{2\\pi}\\int_0^1 r\\,dr\\,d\\theta=?$ (enter approx $3.14$)",
+    "answerType": "numeric",
+    "answer": "3.14",
+    "accept": [
+      "3.14",
+      "3.1416",
+      "pi",
+      "π"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "POLAR_JACOBIAN"
+    ],
+    "rubric": "$\\pi \\approx 3.14$",
+    "hints": {
+      "nudge": "Inner $\\int_0^1 r\\,dr = 1/2$",
+      "technique": "Then $\\int_0^{2\\pi} \\tfrac{1}{2}\\,d\\theta=\\pi$",
+      "nextStep": "$\\pi\\approx 3.14$",
+      "fullSolution": "Area $=\\pi\\approx 3.14$"
+    }
+  },
+  {
+    "id": "u4_p_mastery",
+    "skillId": "u4_polar",
+    "kind": "mastery",
+    "prompt": "Prefer polar when the region is… (rectangular / circular / triangular)",
+    "answerType": "choice",
+    "answer": "circular",
+    "choices": [
+      "rectangular",
+      "circular",
+      "triangular"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "COORD_CHOICE"
+    ],
+    "rubric": "circular",
+    "hints": {
+      "nudge": "Polar matches rotational symmetry.",
+      "technique": "Disks and annuli are natural in $(r,\\theta)$",
+      "nextStep": "Name the region class whose bounds are one constant pair on $r$.",
+      "fullSolution": "circular"
+    }
+  },
+  {
+    "id": "u4_t_learn",
+    "skillId": "u4_triple",
+    "kind": "learn",
+    "prompt": "Volume of unit cube $[0,1]^3$ via $\\iiint 1\\,dV$?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "TRIPLE"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "Integrating 1 gives volume.",
+      "technique": "Unit cube has side length 1.",
+      "nextStep": "Volume $=1$",
+      "fullSolution": "1"
+    }
+  },
+  {
+    "id": "u4_t_drill1",
+    "skillId": "u4_triple",
+    "kind": "drill",
+    "prompt": "$\\int_0^1\\int_0^1\\int_0^1 2\\,dx\\,dy\\,dz$?",
+    "answerType": "numeric",
+    "answer": "2",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "TRIPLE"
+    ],
+    "rubric": "2",
+    "hints": {
+      "nudge": "Constant 2 over the unit cube.",
+      "technique": "Each nested integral over $[0,1]$ multiplies by 1.",
+      "nextStep": "Result is 2",
+      "fullSolution": "2"
+    }
+  },
+  {
+    "id": "u4_t_mastery",
+    "skillId": "u4_triple",
+    "kind": "mastery",
+    "prompt": "A triple integral has how many nested limits to set?",
+    "answerType": "numeric",
+    "answer": "3",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "BOUNDS_SETUP"
+    ],
+    "rubric": "3",
+    "hints": {
+      "nudge": "One pair of limits per variable.",
+      "technique": "Variables $x,y,z$ → three nested integrals.",
+      "nextStep": "Count the variables in the integrand.",
+      "fullSolution": "3"
+    }
+  },
+  {
+    "id": "u4_cs_learn",
+    "skillId": "u4_cyl_sph_int",
+    "kind": "learn",
+    "prompt": "Cylindrical $dV = r\\,dr\\,d\\theta\\,dz$. Spherical $dV=\\rho^2\\sin\\phi\\,d\\rho\\,d\\phi\\,d\\theta$. For a solid ball, prefer… (cylindrical / spherical / cartesian)",
+    "answerType": "choice",
+    "answer": "spherical",
+    "choices": [
+      "cylindrical",
+      "spherical",
+      "cartesian"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "COORD_CHOICE"
+    ],
+    "rubric": "spherical",
+    "hints": {
+      "nudge": "A ball is constant $\\rho$ from the origin.",
+      "technique": "Spherical bounds are simplest for spheres.",
+      "nextStep": "Count how many coordinates would need only a single constant each.",
+      "fullSolution": "spherical"
+    }
+  },
+  {
+    "id": "u4_cs_drill1",
+    "skillId": "u4_cyl_sph_int",
+    "kind": "drill",
+    "prompt": "Cylindrical Jacobian factor is $r$. At $r=3$, factor?",
+    "answerType": "numeric",
+    "answer": "3",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "CYL_JACOBIAN"
+    ],
+    "rubric": "3",
+    "hints": {
+      "nudge": "Don't forget the $r$ in $dV=r\\,dr\\,d\\theta\\,dz$.",
+      "technique": "$dV$ in cylindrical picks up one factor of $r$.",
+      "nextStep": "Set $r=3$ in that factor.",
+      "fullSolution": "3"
+    }
+  },
+  {
+    "id": "u4_cs_mastery",
+    "skillId": "u4_cyl_sph_int",
+    "kind": "mastery",
+    "prompt": "Spherical Jacobian at $\\rho=1$, $\\phi=\\pi/2$?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "SPH_JACOBIAN"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "Factor is $\\rho^2\\sin\\phi$",
+      "technique": "$1^2\\cdot\\sin(\\pi/2)=1$",
+      "nextStep": "1",
+      "fullSolution": "$\\rho^2\\sin\\phi=1$"
+    }
+  },
+  {
+    "id": "u4_j_learn",
+    "skillId": "u4_jacobian",
+    "kind": "learn",
+    "prompt": "Change of variables: multiply by $|\\partial(x,y)/\\partial(u,v)|$. If $x=u$, $y=v$, Jacobian determinant?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "JACOBIAN"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "Identity map has derivative matrix $I$.",
+      "technique": "$\\det I = 1$",
+      "nextStep": "1",
+      "fullSolution": "$|J|=1$"
+    }
+  },
+  {
+    "id": "u4_j_drill1",
+    "skillId": "u4_jacobian",
+    "kind": "drill",
+    "prompt": "If $x=2u$, $y=3v$, $|J|=?$",
+    "answerType": "numeric",
+    "answer": "6",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "JACOBIAN"
+    ],
+    "rubric": "6",
+    "hints": {
+      "nudge": "Diagonal scaling: $J=\\mathrm{diag}(2,3)$",
+      "technique": "$|J|=|2\\cdot 3|=6$",
+      "nextStep": "6",
+      "fullSolution": "$|J|=6$"
+    }
+  },
+  {
+    "id": "u4_j_mastery",
+    "skillId": "u4_jacobian",
+    "kind": "mastery",
+    "prompt": "Forget the absolute value of J and you risk… (sign error / wrong region / both)",
+    "answerType": "choice",
+    "answer": "both",
+    "choices": [
+      "sign error",
+      "wrong region",
+      "both"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "JACOBIAN"
+    ],
+    "rubric": "both",
+    "hints": {
+      "nudge": "Orientation of the map can flip the sign of $\\det J$.",
+      "technique": "Absolute value keeps area positive and orientation-safe.",
+      "nextStep": "Two things ride on that absolute value: orientation and region size.",
+      "fullSolution": "both"
+    }
+  },
+  {
+    "id": "u4_b_mix1",
+    "skillId": "u4_bounds",
+    "kind": "mix",
+    "prompt": "Region $0\\le y\\le 1$, $y\\le x\\le 1$. Switch order: $x$ from 0 to 1, $y$ from 0 to?",
+    "answerType": "exact",
+    "answer": "x",
+    "accept": [
+      "x"
+    ],
+    "difficulty": 3,
+    "examWeight": 1.4,
+    "misconceptionTags": [
+      "BOUNDS_SETUP"
+    ],
+    "rubric": "x",
+    "hints": {
+      "nudge": "Sketch the triangle-ish region.",
+      "technique": "For fixed x, y goes up to x=y.",
+      "nextStep": "y from 0 to x",
+      "fullSolution": "Upper limit $x$"
+    }
+  },
+  {
+    "id": "u4_p_mix1",
+    "skillId": "u4_polar",
+    "kind": "mix",
+    "prompt": "$\\iint_D (x^2+y^2)\\,dA$ over unit disk — polar integrand (with Jacobian) is? (r^2 / r^3 / 1)",
+    "answerType": "choice",
+    "answer": "r^3",
+    "choices": [
+      "r^2",
+      "r^3",
+      "1"
+    ],
+    "difficulty": 3,
+    "examWeight": 1.3,
+    "misconceptionTags": [
+      "POLAR_JACOBIAN"
+    ],
+    "rubric": "r^3",
+    "hints": {
+      "nudge": "$x^2+y^2=r^2$, $dA=r\\,dr\\,d\\theta$",
+      "technique": "$x^2+y^2=r^2$, and the Jacobian adds one more factor of $r$.",
+      "nextStep": "Multiply the two factors and collect the exponent on $r$.",
+      "fullSolution": "r^3"
+    }
+  },
+  {
+    "id": "u4_cs_mix1",
+    "skillId": "u4_cyl_sph_int",
+    "kind": "mix",
+    "prompt": "Ice-cream cone (sphere + cone) usually prefers… (cartesian / cylindrical / spherical)",
+    "answerType": "choice",
+    "answer": "spherical",
+    "choices": [
+      "cartesian",
+      "cylindrical",
+      "spherical"
+    ],
+    "difficulty": 2,
+    "examWeight": 1.3,
+    "misconceptionTags": [
+      "COORD_CHOICE"
+    ],
+    "rubric": "spherical",
+    "hints": {
+      "nudge": "Shared origin geometry.",
+      "technique": "Constant $\\phi$, $\\rho$ bounds.",
+      "nextStep": "Name the coordinates whose bounds are two constants plus the origin.",
+      "fullSolution": "spherical"
+    }
+  },
+  {
+    "id": "u4_dr_guided",
+    "skillId": "u4_double_rect",
+    "kind": "guided",
+    "prompt": "Over $[0,1]\\times[0,2]$, $\\iint 1\\,dA$ equals the area. Value?",
+    "answerType": "numeric",
+    "answer": "2",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "DOUBLE"
+    ],
+    "rubric": "2",
+    "hints": {
+      "nudge": "Area of rectangle.",
+      "technique": "1·2=2",
+      "nextStep": "Width times height: $1$ by $2$.",
+      "fullSolution": "2"
+    }
+  },
+  {
+    "id": "u4_dr_drill2",
+    "skillId": "u4_double_rect",
+    "kind": "drill",
+    "prompt": "$\\int_0^1\\int_0^1 (x+y)\\,dy\\,dx$?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "ITERATED"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "Integrate the $y$ part first, keeping $x$ as a constant.",
+      "technique": "$xy+y^2/2$ is the inner antiderivative.",
+      "nextStep": "At $y=0$ and $y=1$ that leaves $x+1/2$ for the outer integral.",
+      "fullSolution": "$\\int_0^1 (x+1/2)\\,dx=1$"
+    }
+  },
+  {
+    "id": "u4_b_guided",
+    "skillId": "u4_bounds",
+    "kind": "guided",
+    "prompt": "Region under $y=1-x$ in first quadrant: $x$ from 0 to 1, $y$ from 0 to?",
+    "answerType": "exact",
+    "answer": "1-x",
+    "accept": [
+      "1-x",
+      "1 - x"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "BOUNDS_SETUP"
+    ],
+    "rubric": "1-x",
+    "hints": {
+      "nudge": "Upper curve is the line.",
+      "technique": "Read the upper limit off the upper curve.",
+      "nextStep": "Rearrange $x+y=1$ to isolate $y$.",
+      "fullSolution": "1-x"
+    }
+  },
+  {
+    "id": "u4_b_drill2",
+    "skillId": "u4_bounds",
+    "kind": "drill",
+    "prompt": "Triangle vertices (0,0),(1,0),(0,1). Outer dx from 0 to 1, inner y from 0 to?",
+    "answerType": "exact",
+    "answer": "1-x",
+    "accept": [
+      "1-x"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "BOUNDS_SETUP"
+    ],
+    "rubric": "1-x",
+    "hints": {
+      "nudge": "Which side of the triangle is the hypotenuse?",
+      "technique": "The inner limit runs from the axis up to the hypotenuse.",
+      "nextStep": "Rearrange that line to isolate $y$.",
+      "fullSolution": "1-x"
+    }
+  },
+  {
+    "id": "u4_p_guided",
+    "skillId": "u4_polar",
+    "kind": "guided",
+    "prompt": "In polar, $dA=$ ? (r dr dθ / dr dθ / r^2 dr dθ)",
+    "answerType": "choice",
+    "answer": "r dr dθ",
+    "choices": [
+      "r dr dθ",
+      "dr dθ",
+      "r^2 dr dθ"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "POLAR_JACOBIAN"
+    ],
+    "rubric": "r dr dθ",
+    "hints": {
+      "nudge": "Jacobian of polar.",
+      "technique": "$\\partial(x,y)/\\partial(r,\\theta)=\\mathrm{diag}(r,1)$.",
+      "nextStep": "Take the absolute determinant of that Jacobian.",
+      "fullSolution": "r dr dθ"
+    }
+  },
+  {
+    "id": "u4_p_drill2",
+    "skillId": "u4_polar",
+    "kind": "drill",
+    "prompt": "Unit disk area via polar: $\\int_0^{2\\pi}\\int_0^1 r\\,dr\\,d\\theta$ equals?",
+    "answerType": "exact",
+    "answer": "\\pi",
+    "accept": [
+      "pi",
+      "π",
+      "\\pi"
+    ],
+    "difficulty": 2,
+    "misconceptionTags": [
+      "POLAR"
+    ],
+    "rubric": "π",
+    "hints": {
+      "nudge": "Integrate $r\\,dr$ first.",
+      "technique": "$\\int_0^1 r\\,dr=1/2$.",
+      "nextStep": "Multiply that value by the $\\theta$ range $2\\pi$.",
+      "fullSolution": "π"
+    }
+  },
+  {
+    "id": "u4_cs_guided",
+    "skillId": "u4_cyl_sph_int",
+    "kind": "guided",
+    "prompt": "Spherical Jacobian factor is $\\rho^2\\sin\\phi$. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "SPHERICAL"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Standard spherical volume element.",
+      "technique": "ρ² sin φ",
+      "nextStep": "Decide whether the stated factor is the one that belongs with $d\\rho\\,d\\phi\\,d\\theta$.",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u4_cs_drill2",
+    "skillId": "u4_cyl_sph_int",
+    "kind": "drill",
+    "prompt": "Cylindrical: $x^2+y^2=r^2$. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "CYLINDRICAL"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Definition of r.",
+      "technique": "By definition $r$ is the distance from the $z$-axis.",
+      "nextStep": "Square that distance and write it in terms of $x$ and $y$.",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u4_t_guided",
+    "skillId": "u4_triple",
+    "kind": "guided",
+    "prompt": "Volume of unit cube $[0,1]^3$ is?",
+    "answerType": "numeric",
+    "answer": "1",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "TRIPLE"
+    ],
+    "rubric": "1",
+    "hints": {
+      "nudge": "Product of side lengths.",
+      "technique": "Box volume is width $\\times$ depth $\\times$ height.",
+      "nextStep": "All three sides are 1: multiply them.",
+      "fullSolution": "1"
+    }
+  },
+  {
+    "id": "u4_t_drill2",
+    "skillId": "u4_triple",
+    "kind": "drill",
+    "prompt": "$\\iiint_{[0,1]^3} 2\\,dV$?",
+    "answerType": "numeric",
+    "answer": "2",
+    "difficulty": 1,
+    "misconceptionTags": [
+      "TRIPLE"
+    ],
+    "rubric": "2",
+    "hints": {
+      "nudge": "Constant times volume.",
+      "technique": "$\\iiint c\\,dV=c\\cdot\\text{Vol}$.",
+      "nextStep": "Pull the constant out and multiply by the unit cube volume.",
+      "fullSolution": "2"
+    }
+  },
+  {
+    "id": "u4_j_guided",
+    "skillId": "u4_jacobian",
+    "kind": "guided",
+    "prompt": "Change of variables multiplies by $|\\partial(x,y)/\\partial(u,v)|$. true/false",
+    "answerType": "choice",
+    "answer": "true",
+    "choices": [
+      "true",
+      "false"
+    ],
+    "difficulty": 1,
+    "misconceptionTags": [
+      "JACOBIAN"
+    ],
+    "rubric": "true",
+    "hints": {
+      "nudge": "Absolute value of Jacobian determinant.",
+      "technique": "Change of variables multiplies by the area scale factor $|J|$.",
+      "nextStep": "Check that the statement uses $|J|$, not $J$.",
+      "fullSolution": "true"
+    }
+  },
+  {
+    "id": "u4_j_drill2",
+    "skillId": "u4_jacobian",
+    "kind": "drill",
+    "prompt": "If $x=2u$, $y=3v$, $|J|=$?",
+    "answerType": "numeric",
+    "answer": "6",
+    "difficulty": 2,
+    "misconceptionTags": [
+      "JACOBIAN"
+    ],
+    "rubric": "6",
+    "hints": {
+      "nudge": "Diagonal Jacobian 2·3.",
+      "technique": "For a diagonal map, $|J|$ is the product of the two scale factors.",
+      "nextStep": "Jacobian is $\\mathrm{diag}(2,3)$; take its determinant.",
+      "fullSolution": "6"
+    }
+  }
+]
