@@ -121,22 +121,6 @@ export function TopicPrimer({
 
   return (
     <Card className="space-y-5" padded>
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div>
-          <p className="text-[11px] uppercase tracking-wide text-[var(--ink-3)]">
-            Primer
-          </p>
-          <p className="mt-1 text-[13px] text-[var(--ink-2)]">
-            The idea, one worked example, then a short ladder.
-          </p>
-        </div>
-        {stored.completed && (
-          <span className="rounded-[var(--r-pill)] border border-[var(--line)] px-2.5 py-1 text-[11px] text-[var(--ink-3)]">
-            Completed
-          </span>
-        )}
-      </div>
-
       {prereqs.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5 text-[12px] text-[var(--ink-3)]">
           <span>Before this:</span>
@@ -223,10 +207,10 @@ export function TopicPrimer({
       <div className="space-y-3">
         <div className="flex items-baseline justify-between gap-3">
           <p className="text-[11px] uppercase tracking-wide text-[var(--ink-3)]">
-            Your turn
+            Practice
           </p>
           <p className="text-[11px] text-[var(--ink-3)]">
-            {items.length} items · hints are free
+            {items.length} items
           </p>
         </div>
         <PrimerPractice
@@ -285,6 +269,11 @@ export function TopicPrimer({
         >
           Full exercise set
         </button>
+        {stored.completed && (
+          <span className="ml-auto rounded-[var(--r-pill)] border border-[var(--line)] px-2.5 py-1 text-[11px] text-[var(--ink-3)]">
+            Completed
+          </span>
+        )}
       </div>
     </Card>
   );

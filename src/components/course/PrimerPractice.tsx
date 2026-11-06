@@ -45,7 +45,6 @@ export function PrimerPractice({
   const [recorded, setRecorded] = useState(false);
 
   const item = items[index];
-  const result = results[index];
   const last = index === items.length - 1;
 
   const hint = useMemo(() => {
@@ -286,11 +285,6 @@ export function PrimerPractice({
           <p className="mt-1 text-[13px] leading-relaxed text-[var(--ink-2)]">
             <MathText text={hint.text} />
           </p>
-          {hint.level === 4 && result === null && (
-            <p className="mt-2 text-[11px] text-[var(--ink-3)]">
-              Full solution shown. Move on when ready.
-            </p>
-          )}
         </div>
       )}
     </div>
