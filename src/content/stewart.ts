@@ -1,9 +1,9 @@
 import type { ChapterDef, SectionDef } from "@/types/course";
 
 /**
- * Stewart Calculus, 9th edition — chapters 12–16, plus chapter 17 as an
- * optional module. These are section references only; the app never ships
- * textbook problem text.
+ * Stewart Calculus, 9th edition — chapters 12–16, plus chapter 9 as an
+ * optional differential-equations module. These are section references only;
+ * the app never ships textbook problem text.
  */
 export const STEWART_CHAPTERS: ChapterDef[] = [
   {
@@ -289,31 +289,31 @@ export const STEWART_CHAPTERS: ChapterDef[] = [
     ],
   },
   {
-    number: 17,
-    title: "Differential Equations (optional)",
+    number: 9,
+    title: "Differential Equations",
     sections: [
       {
-        id: "17.1",
-        chapter: 17,
+        id: "9.1",
+        chapter: 9,
         title: "Modeling with Differential Equations",
         blurb: "Build a model and check that a function solves it.",
         prereqs: [],
         optional: true,
       },
       {
-        id: "17.2",
-        chapter: 17,
+        id: "9.2",
+        chapter: 9,
         title: "Direction Fields and Euler's Method",
         blurb: "Read slope fields; approximate solutions numerically.",
-        prereqs: ["17.1"],
+        prereqs: ["9.1"],
         optional: true,
       },
       {
-        id: "17.3",
-        chapter: 17,
+        id: "9.3",
+        chapter: 9,
         title: "Separable Equations",
         blurb: "Solve separable equations with initial conditions.",
-        prereqs: ["17.1"],
+        prereqs: ["9.1"],
         optional: true,
       },
     ],
@@ -328,7 +328,7 @@ export const STEWART_BY_ID: Record<string, SectionDef> = Object.fromEntries(
   ALL_STEWART_SECTIONS.map((s) => [s.id, s]),
 );
 
-/** Chapter 12–16 on by default; 17 stays off until the syllabus says otherwise. */
+/** Chapters 12–16 on by default; chapter 9 stays off until the syllabus says otherwise. */
 export const DEFAULT_INCLUDED_TOPIC_IDS: string[] = ALL_STEWART_SECTIONS.filter(
   (s) => !s.optional,
 ).map((s) => s.id);

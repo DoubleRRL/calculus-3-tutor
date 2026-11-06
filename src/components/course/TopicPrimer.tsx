@@ -69,7 +69,8 @@ export function TopicPrimer({
     const byId = new Map(GLOSSARY.map((entry) => [entry.id, entry]));
     return lesson.glossaryIds
       .map((id) => byId.get(id))
-      .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+      .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+      .slice(0, 5);
   }, [lesson]);
 
   if (!lesson || !items.length) return null;
@@ -170,32 +171,42 @@ export function TopicPrimer({
       {lesson.workedExample && (
         <div className="space-y-2 rounded-[var(--r-input)] border border-[var(--line)] bg-[var(--bg-sub)] p-3">
           <p className="text-[11px] uppercase tracking-wide text-[var(--ink-3)]">
-            Worked example
+            {typeof lesson.workedExample === "string"
+              ? "Baby example"
+              : "Worked example"}
           </p>
-          <p className="text-[14px] font-medium leading-relaxed text-[var(--ink-1)]">
-            <MathText text={lesson.workedExample.prompt} />
-          </p>
-          {showSolution ? (
-            <div className="space-y-2">
-              <p className="text-[13px] leading-relaxed text-[var(--ink-2)]">
-                <MathText text={lesson.workedExample.solution} />
-              </p>
-              <button
-                type="button"
-                onClick={() => setShowSolution(false)}
-                className="inline-flex items-center gap-1.5 text-[11px] text-[var(--ink-3)] underline underline-offset-2"
-              >
-                <EyeOff size={12} /> Hide solution
-              </button>
-            </div>
+          {typeof lesson.workedExample === "string" ? (
+            <p className="text-[13px] leading-relaxed text-[var(--ink-2)]">
+              <MathText text={lesson.workedExample} />
+            </p>
           ) : (
-            <button
-              type="button"
-              onClick={() => setShowSolution(true)}
-              className="inline-flex items-center gap-1.5 text-[12px] text-[var(--ink-2)] underline underline-offset-2"
-            >
-              <Eye size={12} /> Show solution
-            </button>
+            <>
+              <p className="text-[14px] font-medium leading-relaxed text-[var(--ink-1)]">
+                <MathText text={lesson.workedExample.prompt} />
+              </p>
+              {showSolution ? (
+                <div className="space-y-2">
+                  <p className="text-[13px] leading-relaxed text-[var(--ink-2)]">
+                    <MathText text={lesson.workedExample.solution} />
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowSolution(false)}
+                    className="inline-flex items-center gap-1.5 text-[11px] text-[var(--ink-3)] underline underline-offset-2"
+                  >
+                    <EyeOff size={12} /> Hide solution
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowSolution(true)}
+                  className="inline-flex items-center gap-1.5 text-[12px] text-[var(--ink-2)] underline underline-offset-2"
+                >
+                  <Eye size={12} /> Show solution
+                </button>
+              )}
+            </>
           )}
         </div>
       )}

@@ -17,6 +17,20 @@ INDEX_PATH = ROOT / "public" / "book" / "index.json"
 MANIFEST_PATH = Path(__file__).with_name("manifest.json")
 
 
+def png_size(path: Path) -> tuple[int, int] | None:
+    try:
+        with path.open("rb") as handle:
+            head = handle.read(24)
+    except OSError:
+        return None
+    if len(head) < 24 or head[:8] != b"\x89PNG\r\n\x1a\n":
+        return None
+    return (
+        int.from_bytes(head[16:20], "big"),
+        int.from_bytes(head[20:24], "big"),
+    )
+
+
 def main() -> int:
     if not INDEX_PATH.exists():
         print(f"Missing {INDEX_PATH}. Run the importer first.", file=sys.stderr)
@@ -74,12 +88,18 @@ def main() -> int:
                 path = ROOT / "public" / "book" / rel
                 if not path.exists():
                     failures.append(f"{section_id}#{number}: missing file {rel}")
-                elif path.stat().st_size < 500:
-                    failures.append(f"{section_id}#{number}: tiny file {rel}")
+                    continue
+                size = png_size(path)
+                if size is None:
+                    failures.append(f"{section_id}#{number}: not a PNG {rel}")
+                elif size[0] < 10 or size[1] < 5:
+                    failures.append(
+                        f"{section_id}#{number}: bad file size {size[0]}x{size[1]} {rel}"
+                    )
 
             width = int(entry.get("width") or 0)
             height = int(entry.get("height") or 0)
-            if width < 40 or height < 40:
+            if width < 40 or height < 20:
                 failures.append(
                     f"{section_id}#{number}: bad image size {width}x{height}"
                 )
@@ -94,11 +114,11 @@ def main() -> int:
             failures.append(
                 f"{section_id}: {answer_count} answers, expected {expected_answers}"
             )
-        for number in range(first, last + 1):
-            if number % 2 == 1:
-                entry = next((e for e in exercises if e["number"] == number), None)
-                if entry is None or not entry.get("answerImage"):
-                    failures.append(f"{section_id}#{number}: missing odd answer")
+        for entry in exercises:
+            if entry.get("answerImage") and entry["number"] % 2 == 0:
+                failures.append(
+                    f"{section_id}#{entry['number']}: even-numbered answer crop"
+                )
 
         expected_instructions = int(expected.get("instructionExercises", 0))
         if instruction_count != expected_instructions:

@@ -89,10 +89,10 @@ export const CHAPTER_GUIDES: Record<number, ChapterGuide> = {
     approach:
       "Classify the integral first: over a curve or a surface, of a scalar or a vector field. That decides the formula. Then check orientation and hypotheses before computing. Do one problem each way — directly and by theorem — until the two agree.",
   },
-  17: {
-    number: 17,
+  9: {
+    number: 9,
     summary:
-      "Differential equations: equations relating a function to its derivatives. This chapter covers modelling, direction fields, Euler's method and separable equations. It is usually optional in Math 263.",
+      "Differential equations: equations relating a function to its derivatives. This optional chapter covers modelling, direction fields, Euler's method and separable equations.",
     applications:
       "Population and decay models, mixing problems, Newton's law of cooling, and any rate equation where the rate depends on the current amount.",
     pitfalls: [

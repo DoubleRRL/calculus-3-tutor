@@ -169,3 +169,37 @@ describe("blueprint readiness", () => {
     expect(blueprintReadiness(trimmed, bp).total).toBe(7);
   });
 });
+
+describe("legacy topic ids", () => {
+  it("remaps the old 17.x differential-equations ids to 9.x", () => {
+    const state = parseCourseState({
+      config: {
+        includedTopicIds: ["17.1", "17.2", "17.3"],
+      },
+      progress: {
+        "17.1": {
+          status: "solid",
+          attempts: 3,
+          cleanStreak: 2,
+          lastAt: 123,
+          note: "legacy",
+        },
+      },
+      exercises: {
+        "17.1#5": {
+          topicId: "17.1",
+          number: 5,
+          attempts: 2,
+          cleanStreak: 1,
+          lastAt: 123,
+        },
+      },
+    });
+
+    expect(state).not.toBeNull();
+    expect(state?.config.includedTopicIds).toEqual(["9.1", "9.2", "9.3"]);
+    expect(state?.progress["9.1"]?.status).toBe("solid");
+    expect(state?.progress["9.1"]?.note).toBe("legacy");
+    expect(state?.exercises["9.1#5"]?.topicId).toBe("9.1");
+  });
+});

@@ -1,10 +1,238 @@
 {
   "sections": {
+    "9.1": {
+      "first": 1,
+      "last": 29,
+      "answers": 13,
+      "instructionExercises": 14
+    },
+    "9.2": {
+      "first": 1,
+      "last": 28,
+      "answers": 14,
+      "instructionExercises": 12
+    },
+    "9.3": {
+      "first": 1,
+      "last": 57,
+      "answers": 29,
+      "instructionExercises": 17
+    },
+    "12.1": {
+      "first": 1,
+      "last": 52,
+      "answers": 25,
+      "instructionExercises": 28
+    },
+    "12.2": {
+      "first": 1,
+      "last": 52,
+      "answers": 23,
+      "instructionExercises": 21
+    },
+    "12.3": {
+      "first": 1,
+      "last": 66,
+      "answers": 26,
+      "instructionExercises": 36
+    },
+    "12.4": {
+      "first": 1,
+      "last": 54,
+      "answers": 20,
+      "instructionExercises": 25
+    },
+    "12.5": {
+      "first": 1,
+      "last": 83,
+      "answers": 40,
+      "instructionExercises": 56
+    },
+    "12.6": {
+      "first": 1,
+      "last": 55,
+      "answers": 27,
+      "instructionExercises": 34
+    },
+    "13.1": {
+      "first": 1,
+      "last": 62,
+      "answers": 29,
+      "instructionExercises": 46
+    },
+    "13.2": {
+      "first": 1,
+      "last": 60,
+      "answers": 24,
+      "instructionExercises": 33
+    },
+    "13.3": {
+      "first": 1,
+      "last": 78,
+      "answers": 34,
+      "instructionExercises": 48
+    },
+    "13.4": {
+      "first": 1,
+      "last": 46,
+      "answers": 23,
+      "instructionExercises": 10
+    },
+    "14.1": {
+      "first": 1,
+      "last": 81,
+      "answers": 41,
+      "instructionExercises": 31
+    },
+    "14.2": {
+      "first": 1,
+      "last": 59,
+      "answers": 25,
+      "instructionExercises": 41
+    },
+    "14.3": {
+      "first": 1,
+      "last": 101,
+      "answers": 43,
+      "instructionExercises": 56
+    },
+    "14.4": {
+      "first": 1,
+      "last": 54,
+      "answers": 25,
+      "instructionExercises": 24
+    },
+    "14.5": {
+      "first": 1,
+      "last": 60,
+      "answers": 26,
+      "instructionExercises": 38
+    },
+    "14.6": {
+      "first": 1,
+      "last": 77,
+      "answers": 32,
+      "instructionExercises": 14
+    },
+    "14.7": {
+      "first": 1,
+      "last": 62,
+      "answers": 29,
+      "instructionExercises": 8
+    },
+    "14.8": {
+      "first": 1,
+      "last": 65,
+      "answers": 31,
+      "instructionExercises": 44
+    },
+    "15.1": {
+      "first": 1,
+      "last": 58,
+      "answers": 29,
+      "instructionExercises": 34
+    },
+    "15.2": {
+      "first": 1,
+      "last": 82,
+      "answers": 39,
+      "instructionExercises": 69
+    },
     "15.3": {
       "first": 1,
       "last": 51,
       "answers": 26,
       "instructionExercises": 43
+    },
+    "15.4": {
+      "first": 1,
+      "last": 35,
+      "answers": 18,
+      "instructionExercises": 16
+    },
+    "15.5": {
+      "first": 1,
+      "last": 26,
+      "answers": 12,
+      "instructionExercises": 16
+    },
+    "15.6": {
+      "first": 1,
+      "last": 59,
+      "answers": 30,
+      "instructionExercises": 49
+    },
+    "15.7": {
+      "first": 1,
+      "last": 33,
+      "answers": 17,
+      "instructionExercises": 30
+    },
+    "15.8": {
+      "first": 1,
+      "last": 51,
+      "answers": 25,
+      "instructionExercises": 43
+    },
+    "15.9": {
+      "first": 1,
+      "last": 58,
+      "answers": 29,
+      "instructionExercises": 39
+    },
+    "16.1": {
+      "first": 1,
+      "last": 40,
+      "answers": 20,
+      "instructionExercises": 22
+    },
+    "16.2": {
+      "first": 1,
+      "last": 54,
+      "answers": 26,
+      "instructionExercises": 28
+    },
+    "16.3": {
+      "first": 1,
+      "last": 42,
+      "answers": 19,
+      "instructionExercises": 26
+    },
+    "16.4": {
+      "first": 1,
+      "last": 35,
+      "answers": 15,
+      "instructionExercises": 20
+    },
+    "16.5": {
+      "first": 1,
+      "last": 41,
+      "answers": 10,
+      "instructionExercises": 28
+    },
+    "16.6": {
+      "first": 1,
+      "last": 64,
+      "answers": 31,
+      "instructionExercises": 44
+    },
+    "16.7": {
+      "first": 1,
+      "last": 49,
+      "answers": 24,
+      "instructionExercises": 28
+    },
+    "16.8": {
+      "first": 1,
+      "last": 24,
+      "answers": 10,
+      "instructionExercises": 16
+    },
+    "16.9": {
+      "first": 1,
+      "last": 34,
+      "answers": 17,
+      "instructionExercises": 25
     }
   }
 }

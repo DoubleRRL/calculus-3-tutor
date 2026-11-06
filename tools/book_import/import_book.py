@@ -425,11 +425,43 @@ def any_anchors(page: pymupdf.Page) -> list[Anchor]:
     5 on the same page, and dropping the repeats loses one section entirely.
     """
     out: list[Anchor] = []
+    seen: set[tuple[int, int, int]] = set()
+
+    def add(number: int, x0: float, y0: float, x1: float, y1: float) -> None:
+        key = (number, round(y0, 1), round(x0, 1))
+        if key in seen:
+            return
+        seen.add(key)
+        out.append(Anchor(number, x0, y0, x1, y1))
+
     for x0, y0, x1, y1, word, _b, _l, _wno in page.get_text("words"):
         m = NUMBER_WORD.match(word.strip())
         if not m:
             continue
-        out.append(Anchor(int(m.group(1)), x0, y0, x1, y1))
+        add(int(m.group(1)), x0, y0, x1, y1)
+
+    # Some answer-key numbers are glued to a math glyph, so the word split
+    # misses them.  Walk bold spans first, then fall back to line starts.
+    for block in page.get_text("dict")["blocks"]:
+        if block.get("type") != 0:
+            continue
+        for line in block.get("lines", []):
+            for span in line.get("spans", []):
+                font = span.get("font", "")
+                if "Bold" not in font and "Semibold" not in font:
+                    continue
+                m = re.match(r"^\s*(\d{1,3})\.", span.get("text", ""))
+                if not m:
+                    continue
+                x0, y0, x1, y1 = span["bbox"]
+                add(int(m.group(1)), x0, y0, x1, y1)
+
+            text = "".join(span.get("text", "") for span in line.get("spans", []))
+            m = re.match(r"^\s*(\d{1,3})\.(?:\s|$)", text)
+            if not m:
+                continue
+            x0, y0, x1, y1 = line["bbox"]
+            add(int(m.group(1)), x0, y0, x1, y1)
     return out
 
 
@@ -499,7 +531,7 @@ def answer_items(doc: pymupdf.Document, section: str) -> list[AnswerItem]:
         return []
 
     items: list[AnswerItem] = []
-    for pno in range(start_page, min(start_page + 4, doc.page_count)):
+    for pno in range(start_page, min(start_page + 12, doc.page_count)):
         page_items = page_answer_items(doc[pno])
         items.extend(page_items)
         if pno > start_page and any(
@@ -722,7 +754,12 @@ def main() -> int:
     doc = pymupdf.open(args.pdf)
     sections = toc_sections(doc)
     if args.all:
-        wanted = [s for s in sections if 12 <= int(s.split(".")[0]) <= 17]
+        wanted = [
+            s
+            for s in sections
+            if int(s.split(".")[0]) in {12, 13, 14, 15, 16}
+            or s in {"9.1", "9.2", "9.3"}
+        ]
     else:
         wanted = args.sections
     if not wanted:
@@ -745,6 +782,11 @@ def main() -> int:
             pass
     index["source"] = args.pdf.name
     index["generatedAt"] = datetime.now(timezone.utc).isoformat()
+    if args.all:
+        wanted_set = set(wanted)
+        for stale in list(index["sections"]):
+            if stale not in wanted_set:
+                index["sections"].pop(stale)
     headings = exercise_heading_map(doc)
 
     for section in sorted(wanted, key=lambda s: tuple(int(x) for x in s.split("."))):
@@ -757,8 +799,12 @@ def main() -> int:
             not args.no_answers,
             headings,
         )
-        index["sections"][section] = data
         n = len(data["exercises"])
+        if n == 0:
+            index["sections"].pop(section, None)
+            print(f"{section}: skipped (no exercises)", file=sys.stderr)
+            continue
+        index["sections"][section] = data
         got_ans = sum(1 for e in data["exercises"] if e["answerImage"])
         print(f"{section}: {n} exercises, {got_ans} with answer crops", file=sys.stderr)
 

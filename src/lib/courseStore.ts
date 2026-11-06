@@ -120,14 +120,31 @@ function parseStatus(v: unknown): TopicStatus {
   return STATUSES.includes(v as TopicStatus) ? (v as TopicStatus) : "unseen";
 }
 
+/** The old optional module was mislabeled 17.x; the book's sections are 9.x. */
+const LEGACY_TOPIC_IDS: Record<string, string> = {
+  "17.1": "9.1",
+  "17.2": "9.2",
+  "17.3": "9.3",
+};
+
+function remapLegacyTopicId(id: string): string {
+  return LEGACY_TOPIC_IDS[id] ?? id;
+}
+
+function remapLegacyExerciseKey(key: string): string {
+  const [topicId, ...rest] = key.split("#");
+  return [remapLegacyTopicId(topicId), ...rest].join("#");
+}
+
 export function parseCourseConfig(raw: unknown): CourseConfig {
   const base = defaultCourseConfig();
   if (!isObject(raw)) return base;
 
   const included = Array.isArray(raw.includedTopicIds)
-    ? (raw.includedTopicIds as unknown[]).filter(
-        (id): id is string => typeof id === "string" && id in STEWART_BY_ID,
-      )
+    ? (raw.includedTopicIds as unknown[])
+        .filter((id): id is string => typeof id === "string")
+        .map(remapLegacyTopicId)
+        .filter((id) => id in STEWART_BY_ID)
     : base.includedTopicIds;
 
   const customSections = Array.isArray(raw.customSections)
@@ -166,9 +183,9 @@ export function parseCourseConfig(raw: unknown): CourseConfig {
           name: str(b.name, "Exam"),
           componentId: str(b.componentId),
           topicIds: Array.isArray(b.topicIds)
-            ? (b.topicIds as unknown[]).filter(
-                (id): id is string => typeof id === "string",
-              )
+            ? (b.topicIds as unknown[])
+                .filter((id): id is string => typeof id === "string")
+                .map(remapLegacyTopicId)
             : [],
           questionCount: Math.max(1, Math.round(num(b.questionCount, 10))),
           minutes: Math.max(5, Math.round(num(b.minutes, 60))),
@@ -179,7 +196,9 @@ export function parseCourseConfig(raw: unknown): CourseConfig {
   const titleOverrides: Record<string, string> = {};
   if (isObject(raw.titleOverrides)) {
     for (const [id, title] of Object.entries(raw.titleOverrides)) {
-      if (typeof title === "string" && title.trim()) titleOverrides[id] = title;
+      if (typeof title === "string" && title.trim()) {
+        titleOverrides[remapLegacyTopicId(id)] = title;
+      }
     }
   }
 
@@ -203,8 +222,9 @@ export function parseCourseState(raw: unknown): CourseState | null {
   if (isObject(raw.progress)) {
     for (const [id, value] of Object.entries(raw.progress)) {
       if (!isObject(value)) continue;
-      progress[id] = {
-        topicId: id,
+      const topicId = remapLegacyTopicId(id);
+      progress[topicId] = {
+        topicId,
         status: parseStatus(value.status),
         attempts: Math.max(0, Math.round(num(value.attempts))),
         cleanStreak: Math.max(0, Math.round(num(value.cleanStreak))),
@@ -218,10 +238,10 @@ export function parseCourseState(raw: unknown): CourseState | null {
   if (isObject(raw.exercises)) {
     for (const [key, value] of Object.entries(raw.exercises)) {
       if (!isObject(value)) continue;
-      const topicId = str(value.topicId);
+      const topicId = remapLegacyTopicId(str(value.topicId));
       const number = Math.round(num(value.number));
       if (!topicId || number <= 0) continue;
-      exercises[key] = {
+      exercises[remapLegacyExerciseKey(key)] = {
         topicId,
         number,
         attempts: Math.max(0, Math.round(num(value.attempts))),
