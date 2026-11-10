@@ -102,7 +102,7 @@ export function ExercisePage() {
             onWrong={(student) =>
               setSeed({
                 id: ++seedId.current,
-                text: `I answered "${student}" and it was marked wrong. Ask me one question that finds where my reasoning broke, then give the smallest next step. Do not give the full solution.`,
+                text: `I answered "${student}" and it was marked wrong. Ask me one narrower question that finds where my reasoning broke. Do not give the next step or the answer yet.`,
               })
             }
             differentHref={

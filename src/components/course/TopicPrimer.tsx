@@ -5,6 +5,7 @@ import type { ResolvedTopic } from "@/types/course";
 import { GLOSSARY } from "@/content/glossary";
 import { primerForSection, primerItemsForSection } from "@/content/primers";
 import { useBookSection } from "@/lib/book";
+import { isPrimerMastered } from "@/lib/primerMastery";
 import { useCourse } from "@/state/CourseContext";
 import { Card } from "@/ui";
 import { MathText } from "@/components/MathText";
@@ -97,25 +98,17 @@ export function TopicPrimer({
     });
 
     if (status === "unseen") setStatus(topicId, "learning");
-    if (
-      attempt.correct &&
-      attempt.kind === "mastery" &&
-      !attempt.revealed &&
-      status !== "known"
-    ) {
-      setStatus(topicId, "solid");
-    }
+    if (!attempt.correct && status === "solid") setStatus(topicId, "learning");
   }
 
   function complete(history: PrimerAttemptResult[]) {
-    const mastery = history.find((attempt) => attempt.kind === "mastery");
-    const clean = Boolean(mastery?.correct && !mastery.revealed);
+    const earned = isPrimerMastered(history);
     setStored((prev) => {
       const next = { ...prev, completed: true };
       saveStored(topicId, next);
       return next;
     });
-    if (clean && status !== "known") setStatus(topicId, "solid");
+    if (earned && status !== "known") setStatus(topicId, "solid");
     else if (status === "unseen") setStatus(topicId, "learning");
   }
 
